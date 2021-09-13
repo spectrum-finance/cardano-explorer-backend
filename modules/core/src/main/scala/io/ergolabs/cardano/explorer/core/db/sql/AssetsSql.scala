@@ -6,7 +6,7 @@ import io.ergolabs.cardano.explorer.core.db.models.Asset
 import io.ergolabs.cardano.explorer.core.db.instances._
 import io.ergolabs.cardano.explorer.core.types.TxHash
 
-final class AssetsQ(implicit lh: LogHandler) {
+final class AssetsSql(implicit lh: LogHandler) {
 
   def getByTxId(txId: Long): Query0[Asset] =
     sql"""

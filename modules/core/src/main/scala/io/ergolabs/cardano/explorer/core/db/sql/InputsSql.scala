@@ -6,7 +6,7 @@ import io.ergolabs.cardano.explorer.core.db.models.Input
 import io.ergolabs.cardano.explorer.core.db.instances._
 import io.ergolabs.cardano.explorer.core.types.TxHash
 
-final class InputsQ(implicit lh: LogHandler) {
+final class InputsSql(implicit lh: LogHandler) {
 
   def getByTxId(txId: Long): Query0[Input] =
     sql"""

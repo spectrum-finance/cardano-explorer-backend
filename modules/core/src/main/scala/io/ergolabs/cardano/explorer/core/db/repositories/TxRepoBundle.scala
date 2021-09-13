@@ -7,10 +7,10 @@ import tofu.logging.Logs
 import tofu.syntax.monadic._
 
 final case class TxRepoBundle[F[_]](
-  assets: AssetsR[F],
-  inputs: InputsR[F],
-  outputs: OutputsR[F],
-  transactions: TransactionsR[F]
+  assets: AssetsRepo[F],
+  inputs: InputsRepo[F],
+  outputs: OutputsRepo[F],
+  transactions: TransactionsRepo[F]
 )
 
 object TxRepoBundle {
@@ -20,9 +20,9 @@ object TxRepoBundle {
     logs: Logs[I, D]
   ): I[TxRepoBundle[D]] =
     for {
-      assetsR       <- AssetsR.make[I, D]
-      inputsR       <- InputsR.make[I, D]
-      outputsR      <- OutputsR.make[I, D]
-      transactionsR <- TransactionsR.make[I, D]
+      assetsR       <- AssetsRepo.make[I, D]
+      inputsR       <- InputsRepo.make[I, D]
+      outputsR      <- OutputsRepo.make[I, D]
+      transactionsR <- TransactionsRepo.make[I, D]
     } yield TxRepoBundle(assetsR, inputsR, outputsR, transactionsR)
 }

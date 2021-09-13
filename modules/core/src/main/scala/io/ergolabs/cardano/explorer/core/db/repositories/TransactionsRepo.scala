@@ -5,7 +5,7 @@ import cats.{FlatMap, Functor}
 import derevo.derive
 import doobie.ConnectionIO
 import io.ergolabs.cardano.explorer.core.db.models.Transaction
-import io.ergolabs.cardano.explorer.core.db.sql.TransactionsQ
+import io.ergolabs.cardano.explorer.core.db.sql.TransactionsSql
 import io.ergolabs.cardano.explorer.core.types.TxHash
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.log.EmbeddableLogHandler
@@ -16,30 +16,30 @@ import tofu.syntax.logging._
 import tofu.syntax.monadic._
 
 @derive(representableK)
-trait TransactionsR[F[_]] {
+trait TransactionsRepo[F[_]] {
 
   def getByTxHash(txHash: TxHash): F[Option[Transaction]]
 }
 
-object TransactionsR {
+object TransactionsRepo {
 
   def make[I[_]: Functor, D[_]: FlatMap: LiftConnectionIO](implicit
     elh: EmbeddableLogHandler[D],
     logs: Logs[I, D]
-  ): I[TransactionsR[D]] =
-    logs.forService[TransactionsR[D]].map { implicit l =>
+  ): I[TransactionsRepo[D]] =
+    logs.forService[TransactionsRepo[D]].map { implicit l =>
       elh.embed { implicit lh =>
-        new Tracing[D] attach new LiveCIO(new TransactionsQ).mapK(LiftConnectionIO[D].liftF)
+        new Tracing[D] attach new LiveCIO(new TransactionsSql).mapK(LiftConnectionIO[D].liftF)
       }
     }
 
-  final class LiveCIO(sql: TransactionsQ) extends TransactionsR[ConnectionIO] {
+  final class LiveCIO(sql: TransactionsSql) extends TransactionsRepo[ConnectionIO] {
 
     def getByTxHash(txHash: TxHash): ConnectionIO[Option[Transaction]] =
       sql.getByTxHash(txHash).option
   }
 
-  final class Tracing[F[_]: Logging: FlatMap] extends TransactionsR[Mid[F, *]] {
+  final class Tracing[F[_]: Logging: FlatMap] extends TransactionsRepo[Mid[F, *]] {
 
     def getByTxHash(txHash: TxHash): Mid[F, Option[Transaction]] =
       for {

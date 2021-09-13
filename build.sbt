@@ -12,7 +12,8 @@ lazy val commonSettings = Seq(
 lazy val commonScalacOption = List(
   "-Ymacro-annotations",
   "-Yrangepos",
-  "-Wconf:cat=unused:info"
+  "-Wconf:cat=unused:info",
+  "-feature"
 )
 
 lazy val explorerBackend = project
@@ -34,7 +35,10 @@ lazy val core =
         Libraries.tofuLogging,
         Libraries.doobieCore,
         Libraries.newtype,
-        Libraries.mouse
+        Libraries.mouse,
+        Libraries.tapirCore,
+        Libraries.tapirCirce,
+        Libraries.derevoCirce
       )
     )
 
@@ -47,10 +51,14 @@ lazy val api =
         Libraries.tofuConcurrent,
         Libraries.tofuOptics,
         Libraries.tofuStreams,
+        Libraries.tofuZio,
+        Libraries.tofuFs2,
         Libraries.doobiePg,
         Libraries.doobieHikari,
         Libraries.tapirCirce,
-        Libraries.tapirHttp4s
+        Libraries.tapirHttp4s,
+        Libraries.derevoPureconfig,
+        Libraries.pureconfig
       )
     )
     .dependsOn(core)

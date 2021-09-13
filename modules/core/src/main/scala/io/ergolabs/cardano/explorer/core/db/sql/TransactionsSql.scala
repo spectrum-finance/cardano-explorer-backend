@@ -5,7 +5,7 @@ import doobie.syntax.all._
 import io.ergolabs.cardano.explorer.core.db.models.Transaction
 import io.ergolabs.cardano.explorer.core.types.TxHash
 
-class TransactionsQ(implicit lh: LogHandler) {
+class TransactionsSql(implicit lh: LogHandler) {
 
   def getByTxHash(txHash: TxHash): Query0[Transaction] =
     sql"""

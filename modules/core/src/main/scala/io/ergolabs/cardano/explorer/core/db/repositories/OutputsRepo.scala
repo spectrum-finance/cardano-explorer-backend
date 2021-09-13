@@ -4,8 +4,8 @@ import cats.tagless.syntax.functorK._
 import cats.{FlatMap, Functor}
 import derevo.derive
 import doobie.ConnectionIO
-import io.ergolabs.cardano.explorer.core.db.models.Input
-import io.ergolabs.cardano.explorer.core.db.sql.InputsQ
+import io.ergolabs.cardano.explorer.core.db.models.Output
+import io.ergolabs.cardano.explorer.core.db.sql.OutputsSql
 import io.ergolabs.cardano.explorer.core.types.TxHash
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.log.EmbeddableLogHandler
@@ -14,29 +14,29 @@ import tofu.logging.Logs
 import tofu.syntax.monadic._
 
 @derive(representableK)
-trait InputsR[F[_]] {
+trait OutputsRepo[F[_]] {
 
-  def getByTxId(txId: Long): F[List[Input]]
+  def getByTxId(txId: Long): F[List[Output]]
 
-  def getByTxHash(txHash: TxHash): F[List[Input]]
+  def getByTxHash(txHash: TxHash): F[List[Output]]
 }
 
-object InputsR {
+object OutputsRepo {
 
   def make[I[_]: Functor, D[_]: FlatMap: LiftConnectionIO](implicit
     elh: EmbeddableLogHandler[D],
     logs: Logs[I, D]
-  ): I[InputsR[D]] =
-    logs.forService[InputsR[D]].map { implicit l =>
-      elh.embed(implicit lh => new LiveCIO(new InputsQ).mapK(LiftConnectionIO[D].liftF))
+  ): I[OutputsRepo[D]] =
+    logs.forService[OutputsRepo[D]].map { implicit l =>
+      elh.embed(implicit lh => new LiveCIO(new OutputsSql).mapK(LiftConnectionIO[D].liftF))
     }
 
-  final class LiveCIO(sql: InputsQ) extends InputsR[ConnectionIO] {
+  final class LiveCIO(sql: OutputsSql) extends OutputsRepo[ConnectionIO] {
 
-    def getByTxId(txId: Long): ConnectionIO[List[Input]] =
+    def getByTxId(txId: Long): ConnectionIO[List[Output]] =
       sql.getByTxId(txId).to[List]
 
-    def getByTxHash(txHash: TxHash): ConnectionIO[List[Input]] =
+    def getByTxHash(txHash: TxHash): ConnectionIO[List[Output]] =
       sql.getByTxHash(txHash).to[List]
   }
 }
