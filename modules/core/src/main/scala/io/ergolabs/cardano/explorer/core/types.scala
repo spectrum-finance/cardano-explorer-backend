@@ -9,6 +9,7 @@ import eu.timepit.refined.collection._
 import eu.timepit.refined.predicates.all.{And, Equal}
 import eu.timepit.refined.refineV
 import eu.timepit.refined.string.HexStringSpec
+import io.ergolabs.cardano.explorer.core.types.TxHash
 import io.ergolabs.cardano.explorer.core.types.specs.Hash32Spec
 import io.estatico.newtype.macros.newtype
 import sttp.tapir.json.circe._
@@ -82,18 +83,34 @@ object types {
       )
 
     implicit def schema: Schema[TxHash] =
-      Schema.schemaForString.description("Modifier ID").asInstanceOf[Schema[TxHash]]
+      Schema.schemaForString.description("Transaction Hash").asInstanceOf[Schema[TxHash]]
 
     implicit def validator: Validator[TxHash] =
       Validator.pass
 
-    def fromString[
-      F[_]: Throws: Applicative
-    ](s: String): F[TxHash] =
+    def fromString[F[_]: Throws: Applicative](s: String): F[TxHash] =
       refineV[Hash32Spec](s)
         .leftMap(e => new Exception(e))
         .toRaise[F]
         .map(_ => TxHash(s))
+  }
+
+  @derive(loggable, encoder, decoder)
+  @newtype case class OutRef(value: String)
+
+  object OutRef {
+    implicit def plainCodec: Codec.PlainCodec[OutRef] = deriving
+
+    implicit def jsonCodec: Codec.JsonCodec[OutRef] = deriving
+
+    implicit def schema: Schema[OutRef] =
+      Schema.schemaForString.description("Modifier ID").asInstanceOf[Schema[OutRef]]
+
+    implicit def validator: Validator[OutRef] =
+      Validator.pass
+
+    def make(txHash: TxHash, index: Int): OutRef =
+      OutRef(s"$txHash:$index")
   }
 
   @derive(loggable, encoder, decoder)

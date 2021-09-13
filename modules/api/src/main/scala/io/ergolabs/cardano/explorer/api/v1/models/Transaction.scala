@@ -3,7 +3,7 @@ package io.ergolabs.cardano.explorer.api.v1.models
 import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
 import io.ergolabs.cardano.explorer.core.db.models.{Asset, Input, Output, Transaction => DbTransaction}
-import io.ergolabs.cardano.explorer.core.types.{BlockHash, TxHash}
+import io.ergolabs.cardano.explorer.core.types.{BlockHash, OutRef, TxHash}
 import sttp.tapir.Schema
 
 @derive(encoder, decoder)
@@ -21,10 +21,21 @@ object Transaction {
   implicit def schema: Schema[Transaction] = Schema.derived
 
   def inflate(tx: DbTransaction, inputs: List[Input], outputs: List[Output], assets: List[Asset]): Transaction = {
-    val txInputs = inputs.map(i => TxInput(i.outTxHash, i.outIndex, i.value, i.value.toString()))
+    val txInputs = inputs.map { i =>
+      TxInput(OutRef.make(i.outTxHash, i.outIndex), i.outTxHash, i.outIndex, i.value, i.value.toString())
+    }
     val txOutputs = outputs.map { o =>
       val outAssets = assets.filter(_.outIndex == o.index).map(a => OutAsset(a.name, a.quantity))
-      TxOutput(o.blockHash, o.index, o.addr, o.value, o.value.toString(), o.dataHash, outAssets)
+      TxOutput(
+        OutRef.make(o.txHash, o.index),
+        o.blockHash,
+        o.index,
+        o.addr,
+        o.value,
+        o.value.toString(),
+        o.dataHash,
+        outAssets
+      )
     }
     Transaction(tx.blockHash, tx.blockIndex, tx.hash, txInputs, txOutputs, tx.size)
   }
