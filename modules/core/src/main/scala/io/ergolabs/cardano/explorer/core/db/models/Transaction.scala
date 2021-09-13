@@ -6,6 +6,7 @@ import tofu.logging.derivation.loggable
 
 @derive(loggable)
 final case class Transaction(
+  id: Long,
   blockHash: BlockHash,
   blockIndex: Long,
   hash: TxHash,

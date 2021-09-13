@@ -1,29 +1,27 @@
 package io.ergolabs.cardano.explorer.core
 
-import cats.syntax.either._
 import cats.Applicative
+import cats.syntax.either._
 import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
 import doobie.util.{Get, Put}
-import eu.timepit.refined.api.{Refined, Validate}
+import eu.timepit.refined.collection._
+import eu.timepit.refined.predicates.all.{And, Equal}
 import eu.timepit.refined.refineV
 import eu.timepit.refined.string.HexStringSpec
-import eu.timepit.refined.types.string.HexString
+import io.ergolabs.cardano.explorer.core.types.specs.Hash32Spec
 import io.estatico.newtype.macros.newtype
+import sttp.tapir.json.circe._
 import sttp.tapir.{Codec, CodecFormat, DecodeResult, Schema, Validator}
 import tofu.Throws
 import tofu.logging.derivation.loggable
 import tofu.syntax.monadic._
 import tofu.syntax.raise._
-import sttp.tapir.json.circe._
-import eu.timepit.refined.collection._
-import eu.timepit.refined.predicates.all.{And, Equal, Greater, Less, Not}
-import io.ergolabs.cardano.explorer.core.types.specs.Hash32Spec
 
 object types {
 
   object specs {
-    type Hash32Spec = HexStringSpec And Size[Equal[32]]
+    type Hash32Spec = HexStringSpec And Size[Equal[64]]
   }
 
   @derive(loggable, encoder, decoder)

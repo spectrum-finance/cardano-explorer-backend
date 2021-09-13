@@ -4,6 +4,7 @@ import cats.tagless.syntax.functorK._
 import cats.{FlatMap, Functor}
 import derevo.derive
 import doobie.ConnectionIO
+import io.ergolabs.cardano.explorer.core.db.SortOrder
 import io.ergolabs.cardano.explorer.core.db.models.Transaction
 import io.ergolabs.cardano.explorer.core.db.sql.TransactionsSql
 import io.ergolabs.cardano.explorer.core.types.TxHash
@@ -19,6 +20,10 @@ import tofu.syntax.monadic._
 trait TransactionsRepo[F[_]] {
 
   def getByTxHash(txHash: TxHash): F[Option[Transaction]]
+
+  def getAll(offset: Int, limit: Int, ordering: SortOrder): F[List[Transaction]]
+
+  def countAll: F[Int]
 }
 
 object TransactionsRepo {
@@ -37,6 +42,12 @@ object TransactionsRepo {
 
     def getByTxHash(txHash: TxHash): ConnectionIO[Option[Transaction]] =
       sql.getByTxHash(txHash).option
+
+    def getAll(offset: Int, limit: Int, ordering: SortOrder): ConnectionIO[List[Transaction]] =
+      sql.getAll(offset, limit, ordering).to[List]
+
+    def countAll: ConnectionIO[Int] =
+      sql.countAll.unique
   }
 
   final class Tracing[F[_]: Logging: FlatMap] extends TransactionsRepo[Mid[F, *]] {
@@ -46,6 +57,20 @@ object TransactionsRepo {
         _ <- trace"getByTxHash(txHash=$txHash)"
         r <- _
         _ <- trace"getByTxHash(txHash=$txHash) -> $r"
+      } yield r
+
+    def getAll(offset: Int, limit: Int, ordering: SortOrder): Mid[F, List[Transaction]] =
+      for {
+        _ <- trace"getAll(offset=$offset, limit=$limit, ordering=${ordering.value})"
+        r <- _
+        _ <- trace"getAll(offset=$offset, limit=$limit, ordering=${ordering.value}) -> $r"
+      } yield r
+
+    def countAll: Mid[F, Int] =
+      for {
+        _ <- trace"countAll()"
+        r <- _
+        _ <- trace"countAll() -> $r"
       } yield r
   }
 }

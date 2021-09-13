@@ -21,11 +21,30 @@ object Transaction {
   implicit def schema: Schema[Transaction] = Schema.derived
 
   def inflate(tx: DbTransaction, inputs: List[Input], outputs: List[Output], assets: List[Asset]): Transaction = {
-    val txInputs = inputs.map(i => TxInput(i.outTxHash, i.outIndex, i.value))
+    val txInputs = inputs.map(i => TxInput(i.outTxHash, i.outIndex, i.value, i.value.toString()))
     val txOutputs = outputs.map { o =>
       val outAssets = assets.filter(_.outIndex == o.index).map(a => OutAsset(a.name, a.quantity))
-      TxOutput(o.blockHash, o.index, o.addr, o.value, o.dataHash, outAssets)
+      TxOutput(o.blockHash, o.index, o.addr, o.value, o.value.toString(), o.dataHash, outAssets)
     }
     Transaction(tx.blockHash, tx.blockIndex, tx.hash, txInputs, txOutputs, tx.size)
+  }
+
+  def inflateBatch(
+    txs: List[DbTransaction],
+    inputs: List[Input],
+    outputs: List[Output],
+    assets: List[Asset]
+  ): List[Transaction] = {
+    val inputsByTx  = inputs.groupBy(_.txId)
+    val outputsByTx = outputs.groupBy(_.txId)
+    val assetsByTx  = assets.groupBy(_.txId)
+    txs.map { tx =>
+      Transaction.inflate(
+        tx,
+        inputsByTx.getOrElse(tx.id, List.empty),
+        outputsByTx.getOrElse(tx.id, List.empty),
+        assetsByTx.getOrElse(tx.id, List.empty)
+      )
+    }
   }
 }

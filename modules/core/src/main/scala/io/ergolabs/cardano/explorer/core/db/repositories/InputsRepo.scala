@@ -1,5 +1,6 @@
 package io.ergolabs.cardano.explorer.core.db.repositories
 
+import cats.data.NonEmptyList
 import cats.tagless.syntax.functorK._
 import cats.{FlatMap, Functor}
 import derevo.derive
@@ -19,6 +20,8 @@ trait InputsRepo[F[_]] {
   def getByTxId(txId: Long): F[List[Input]]
 
   def getByTxHash(txHash: TxHash): F[List[Input]]
+
+  def getByTxIds(txIds: NonEmptyList[Long]): F[List[Input]]
 }
 
 object InputsRepo {
@@ -38,5 +41,8 @@ object InputsRepo {
 
     def getByTxHash(txHash: TxHash): ConnectionIO[List[Input]] =
       sql.getByTxHash(txHash).to[List]
+
+    def getByTxIds(txIds: NonEmptyList[Long]): ConnectionIO[List[Input]] =
+      sql.getByTxIds(txIds).to[List]
   }
 }

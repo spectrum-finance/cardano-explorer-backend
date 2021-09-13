@@ -1,6 +1,8 @@
 package io.ergolabs.cardano.explorer.api.v1
 
+import cats.syntax.option._
 import io.circe.generic.auto._
+import io.ergolabs.cardano.explorer.api.v1.models.Paging
 import sttp.model.StatusCode
 import sttp.tapir._
 import sttp.tapir.generic.auto._
@@ -16,4 +18,15 @@ package object endpoints {
         oneOfDefaultMapping(jsonBody[HttpError.Unknown].description("unknown"))
       )
     )
+
+  def paging: EndpointInput[Paging] = paging(Int.MaxValue)
+
+  def paging(maxLimit: Int): EndpointInput[Paging] =
+    (query[Option[Int]]("offset").validateOption(Validator.min(0)) and
+      query[Option[Int]]("limit")
+        .validateOption(Validator.min(1))
+        .validateOption(Validator.max(maxLimit)))
+      .map { input =>
+        Paging(input._1.getOrElse(0), input._2.getOrElse(20))
+      } { case Paging(offset, limit) => offset.some -> limit.some }
 }

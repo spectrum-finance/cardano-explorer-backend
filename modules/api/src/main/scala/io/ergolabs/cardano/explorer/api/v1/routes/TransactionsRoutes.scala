@@ -1,6 +1,7 @@
 package io.ergolabs.cardano.explorer.api.v1.routes
 
 import cats.effect.{Concurrent, ContextShift, Timer}
+import cats.syntax.semigroupk._
 import io.ergolabs.cardano.explorer.api.v1.endpoints.TransactionsEndpoints
 import io.ergolabs.cardano.explorer.api.v1.services.Transactions
 import io.ergolabs.cardano.explorer.api.v1.syntax._
@@ -17,10 +18,13 @@ final class TransactionsRoutes[F[_]: Concurrent: ContextShift: Timer](implicit
 
   private val interpreter = Http4sServerInterpreter(opts)
 
-  def routes: HttpRoutes[F] = getByTxHashR
+  def routes: HttpRoutes[F] = getAllR <+> getByTxHashR
 
   def getByTxHashR: HttpRoutes[F] =
     interpreter.toRoutes(getByTxHash)(q => service.getByTxHash(q).orNotFound(s"Transaction{txHash=$q}"))
+
+  def getAllR: HttpRoutes[F] =
+    interpreter.toRoutes(getAll)(service.getAll(_).eject)
 }
 
 object TransactionsRoutes {

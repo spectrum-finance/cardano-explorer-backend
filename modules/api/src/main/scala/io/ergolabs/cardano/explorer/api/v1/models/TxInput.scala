@@ -7,7 +7,7 @@ import sttp.tapir.Schema
 import io.ergolabs.cardano.explorer.api.v1.instances._
 
 @derive(encoder, decoder)
-final case class TxInput(outTxHash: TxHash, outIndex: Int, value: BigInt)
+final case class TxInput(outTxHash: TxHash, outIndex: Int, value: BigInt, jsValue: String)
 
 object TxInput {
   implicit def schema: Schema[TxInput] = Schema.derived

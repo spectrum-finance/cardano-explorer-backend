@@ -1,7 +1,7 @@
 package io.ergolabs.cardano.explorer.api.v1.endpoints
 
 import io.ergolabs.cardano.explorer.api.v1.HttpError
-import io.ergolabs.cardano.explorer.api.v1.models.Transaction
+import io.ergolabs.cardano.explorer.api.v1.models.{Items, Paging, Transaction}
 import io.ergolabs.cardano.explorer.core.types.TxHash
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
@@ -14,4 +14,10 @@ class TransactionsEndpoints {
     baseEndpoint.get
       .in(pathPrefix / path[TxHash])
       .out(jsonBody[Transaction])
+
+  def getAll: Endpoint[Paging, HttpError, Items[Transaction], Any] =
+    baseEndpoint.get
+      .in(pathPrefix)
+      .in(paging)
+      .out(jsonBody[Items[Transaction]])
 }
