@@ -20,7 +20,7 @@ object App extends EnvApp[AppContext] {
   def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
     init(args.headOption).use(_ => ZIO.never).orDie
 
-  def init(configPathOpt: Option[String]): Resource[InitF, Resource[InitF, Server]] =
+  def init(configPathOpt: Option[String]): Resource[InitF, Server] =
     for {
       blocker <- Blocker[InitF]
       configs <- Resource.eval(ConfigBundle.load[InitF](configPathOpt, blocker))
@@ -33,6 +33,6 @@ object App extends EnvApp[AppContext] {
       implicit0(logsDb: Logs[InitF, xa.DB]) = Logs.sync[InitF, xa.DB]
       implicit0(txReps: TxRepoBundle[xa.DB]) <- Resource.eval(TxRepoBundle.make[InitF, xa.DB])
       implicit0(txs: Transactions[RunF]) = Transactions.make[RunF, xa.DB]
-      server                             = HttpServer.make[InitF, RunF](configs.http, runtime.platform.executor.asEC)
+      server <- HttpServer.make[InitF, RunF](configs.http, runtime.platform.executor.asEC)
     } yield server
 }
