@@ -2,7 +2,7 @@ package io.ergolabs.cardano.explorer.api
 
 import cats.effect.{Blocker, Resource}
 import io.ergolabs.cardano.explorer.api.configs.ConfigBundle
-import io.ergolabs.cardano.explorer.api.v1.services.Transactions
+import io.ergolabs.cardano.explorer.api.v1.services.{Outputs, Transactions}
 import io.ergolabs.cardano.explorer.core.db.repositories.TxRepoBundle
 import org.http4s.server.Server
 import sttp.tapir.server.http4s.Http4sServerOptions
@@ -10,6 +10,7 @@ import tofu.doobie.log.EmbeddableLogHandler
 import tofu.doobie.transactor.Txr
 import tofu.lift.{IsoK, Unlift}
 import tofu.logging.Logs
+import tofu.logging.derivation.loggable.generate
 import zio.interop.catz._
 import zio.{ExitCode, URIO, ZIO}
 
@@ -33,6 +34,7 @@ object App extends EnvApp[AppContext] {
       implicit0(logsDb: Logs[InitF, xa.DB]) = Logs.sync[InitF, xa.DB]
       implicit0(txReps: TxRepoBundle[xa.DB]) <- Resource.eval(TxRepoBundle.make[InitF, xa.DB])
       implicit0(txs: Transactions[RunF]) = Transactions.make[RunF, xa.DB]
+      implicit0(outs: Outputs[RunF])     = Outputs.make[RunF, xa.DB]
       server <- HttpServer.make[InitF, RunF](configs.http, runtime.platform.executor.asEC)
     } yield server
 }

@@ -7,7 +7,7 @@ import derevo.derive
 import doobie.ConnectionIO
 import io.ergolabs.cardano.explorer.core.db.models.Output
 import io.ergolabs.cardano.explorer.core.db.sql.OutputsSql
-import io.ergolabs.cardano.explorer.core.types.TxHash
+import io.ergolabs.cardano.explorer.core.types.{OutRef, TxHash}
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.log.EmbeddableLogHandler
 import tofu.higherKind.derived.representableK
@@ -16,6 +16,8 @@ import tofu.syntax.monadic._
 
 @derive(representableK)
 trait OutputsRepo[F[_]] {
+
+  def getByRef(ref: OutRef): F[Option[Output]]
 
   def getByTxId(txId: Long): F[List[Output]]
 
@@ -35,6 +37,9 @@ object OutputsRepo {
     }
 
   final class LiveCIO(sql: OutputsSql) extends OutputsRepo[ConnectionIO] {
+
+    def getByRef(ref: OutRef): ConnectionIO[Option[Output]] =
+      sql.getByOutRef(ref).option
 
     def getByTxId(txId: Long): ConnectionIO[List[Output]] =
       sql.getByTxId(txId).to[List]

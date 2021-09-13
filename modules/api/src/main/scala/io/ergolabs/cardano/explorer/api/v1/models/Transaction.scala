@@ -22,21 +22,9 @@ object Transaction {
 
   def inflate(tx: DbTransaction, inputs: List[Input], outputs: List[Output], assets: List[Asset]): Transaction = {
     val txInputs = inputs.map { i =>
-      TxInput(OutRef.make(i.outTxHash, i.outIndex), i.outTxHash, i.outIndex, i.value, i.value.toString())
+      TxInput(OutRef(i.outTxHash, i.outIndex), i.outTxHash, i.outIndex, i.value, i.value.toString())
     }
-    val txOutputs = outputs.map { o =>
-      val outAssets = assets.filter(_.outIndex == o.index).map(a => OutAsset(a.name, a.quantity))
-      TxOutput(
-        OutRef.make(o.txHash, o.index),
-        o.blockHash,
-        o.index,
-        o.addr,
-        o.value,
-        o.value.toString(),
-        o.dataHash,
-        outAssets
-      )
-    }
+    val txOutputs = outputs.map(o => TxOutput.inflate(o, assets.filter(_.outIndex == o.index)))
     Transaction(tx.blockHash, tx.blockIndex, tx.hash, txInputs, txOutputs, tx.size)
   }
 

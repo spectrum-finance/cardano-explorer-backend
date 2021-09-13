@@ -22,6 +22,8 @@ trait AssetsRepo[F[_]] {
   def getByTxHash(txHash: TxHash): F[List[Asset]]
 
   def getByTxIds(txIds: NonEmptyList[Long]): F[List[Asset]]
+
+  def getByOutputId(outputId: Long): F[List[Asset]]
 }
 
 object AssetsRepo {
@@ -46,5 +48,8 @@ object AssetsRepo {
 
     def getByTxIds(txIds: NonEmptyList[Long]): ConnectionIO[List[Asset]] =
       sql.getByTxIds(txIds).to[List]
+
+    def getByOutputId(outputId: Long): ConnectionIO[List[Asset]] =
+      sql.getByOutputId(outputId).to[List]
   }
 }

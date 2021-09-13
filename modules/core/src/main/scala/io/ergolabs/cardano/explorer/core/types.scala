@@ -93,6 +93,8 @@ object types {
         .leftMap(e => new Exception(e))
         .toRaise[F]
         .map(_ => TxHash(s))
+
+    def fromStringUnsafe(s: String): TxHash = TxHash(s)
   }
 
   @derive(loggable, encoder, decoder)
@@ -109,8 +111,13 @@ object types {
     implicit def validator: Validator[OutRef] =
       Validator.pass
 
-    def make(txHash: TxHash, index: Int): OutRef =
+    def apply(txHash: TxHash, index: Int): OutRef =
       OutRef(s"$txHash:$index")
+
+    def unapply(ref: OutRef): Option[(TxHash, Int)] = {
+      val Array(hash, i) = ref.value.split(":")
+      Some(TxHash.fromStringUnsafe(hash) -> i.toInt)
+    }
   }
 
   @derive(loggable, encoder, decoder)

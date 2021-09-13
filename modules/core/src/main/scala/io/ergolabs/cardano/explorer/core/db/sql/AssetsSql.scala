@@ -58,4 +58,20 @@ final class AssetsSql(implicit lh: LogHandler) {
            |""".stripMargin
     (q ++ Fragments.in(fr"where o.tx_id", txIds)).query[Asset]
   }
+
+  def getByOutputId(outputId: Long): Query0[Asset] =
+    sql"""
+         |select
+         |  o.id,
+         |  t.id,
+         |  a.name,
+         |  a.quantity,
+         |  a.policy,
+         |  encode(t.hash, 'hex'),
+         |  o.index
+         |from ma_tx_out a
+         |left join tx_out o on o.id = a.tx_out_id
+         |left join tx t on t.id = o.tx_id
+         |where o.id = $outputId
+         |""".stripMargin.query
 }
