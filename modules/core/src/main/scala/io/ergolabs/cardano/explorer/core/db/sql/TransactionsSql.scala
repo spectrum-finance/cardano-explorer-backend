@@ -3,6 +3,7 @@ package io.ergolabs.cardano.explorer.core.db.sql
 import doobie._
 import doobie.syntax.all._
 import doobie.util.fragment.Fragment.const
+import io.ergolabs.cardano.explorer.core.db.instances._
 import io.ergolabs.cardano.explorer.core.db.SortOrder
 import io.ergolabs.cardano.explorer.core.db.models.Transaction
 import io.ergolabs.cardano.explorer.core.types.TxHash
@@ -16,6 +17,8 @@ class TransactionsSql(implicit lh: LogHandler) {
          |  encode(b.hash, 'hex'),
          |  t.block_index,
          |  encode(t.hash, 'hex'),
+         |  t.invalid_before,
+         |  t.invalid_hereafter,
          |  t.size
          |from tx t
          |left join block b on b.id = t.block_id
@@ -30,6 +33,8 @@ class TransactionsSql(implicit lh: LogHandler) {
            |  encode(b.hash, 'hex'),
            |  t.block_index,
            |  encode(t.hash, 'hex'),
+           |  t.invalid_before,
+           |  t.invalid_hereafter,
            |  t.size
            |from tx t
            |left join block b on b.id = t.block_id

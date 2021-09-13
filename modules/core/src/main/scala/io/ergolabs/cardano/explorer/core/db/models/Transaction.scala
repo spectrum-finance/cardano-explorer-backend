@@ -10,5 +10,7 @@ final case class Transaction(
   blockHash: BlockHash,
   blockIndex: Long,
   hash: TxHash,
+  invalidBefore: Option[BigInt],
+  invalidHereafter: Option[BigInt],
   size: Int
 )

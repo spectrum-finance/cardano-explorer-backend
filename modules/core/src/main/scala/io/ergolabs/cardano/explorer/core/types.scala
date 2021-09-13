@@ -31,6 +31,9 @@ object types {
   object Bytea {
     implicit val put: Put[Bytea] = deriving
     implicit val get: Get[Bytea] = deriving
+
+    implicit def schema: Schema[Bytea] =
+      Schema.schemaForString.description("Byte Array").asInstanceOf[Schema[Bytea]]
   }
 
   @derive(loggable, encoder, decoder)

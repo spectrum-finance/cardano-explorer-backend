@@ -34,7 +34,8 @@ object Transactions {
         ins    <- OptionT.liftF(inputs.getByTxId(tx.id))
         outs   <- OptionT.liftF(outputs.getByTxId(tx.id))
         assets <- OptionT.liftF(assets.getByTxId(tx.id))
-      } yield Transaction.inflate(tx, ins, outs, assets)).value ||> txr.trans
+        meta   <- OptionT.liftF(metadata.getByTxId(tx.id))
+      } yield Transaction.inflate(tx, ins, outs, assets, meta)).value ||> txr.trans
 
     def getAll(paging: Paging): F[Items[Transaction]] =
       transactions.getAll(paging.offset, paging.limit, SortOrder.Desc).flatMap { txs =>
@@ -45,7 +46,8 @@ object Transactions {
               ins    <- inputs.getByTxIds(ids)
               outs   <- outputs.getByTxIds(ids)
               assets <- assets.getByTxIds(ids)
-              xs = Transaction.inflateBatch(txs, ins, outs, assets)
+              meta   <- metadata.getByTxIds(ids)
+              xs = Transaction.inflateBatch(txs, ins, outs, assets, meta)
             } yield Items(xs, total)
           case None => Items.empty[Transaction].pure
         }

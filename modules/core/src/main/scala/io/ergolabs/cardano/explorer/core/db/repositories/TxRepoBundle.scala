@@ -10,7 +10,8 @@ final case class TxRepoBundle[F[_]](
   assets: AssetsRepo[F],
   inputs: InputsRepo[F],
   outputs: OutputsRepo[F],
-  transactions: TransactionsRepo[F]
+  transactions: TransactionsRepo[F],
+  metadata: TxMetadataRepo[F]
 )
 
 object TxRepoBundle {
@@ -24,5 +25,6 @@ object TxRepoBundle {
       inputsR       <- InputsRepo.make[I, D]
       outputsR      <- OutputsRepo.make[I, D]
       transactionsR <- TransactionsRepo.make[I, D]
-    } yield TxRepoBundle(assetsR, inputsR, outputsR, transactionsR)
+      metadata      <- TxMetadataRepo.make[I, D]
+    } yield TxRepoBundle(assetsR, inputsR, outputsR, transactionsR, metadata)
 }
