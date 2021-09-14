@@ -12,7 +12,8 @@ final case class TxInput(
   outTxHash: TxHash,
   outIndex: Int,
   value: BigInt,
-  jsValue: String
+  jsValue: String,
+  redeemer: Option[Redeemer]
 )
 
 object TxInput {

@@ -14,7 +14,7 @@ final class AssetsSql(implicit lh: LogHandler) {
          |select
          |  o.id,
          |  t.id,
-         |  a.name,
+         |  encode(a.name, 'hex'),
          |  a.quantity,
          |  a.policy,
          |  encode(t.hash, 'hex'),
@@ -30,7 +30,7 @@ final class AssetsSql(implicit lh: LogHandler) {
          |select
          |  o.id,
          |  t.id,
-         |  a.name,
+         |  encode(a.name, 'hex'),
          |  a.quantity,
          |  a.policy,
          |  encode(t.hash, 'hex'),
@@ -47,7 +47,7 @@ final class AssetsSql(implicit lh: LogHandler) {
            |select
            |  o.id,
            |  t.id,
-           |  a.name,
+           |  encode(a.name, 'hex'),
            |  a.quantity,
            |  a.policy,
            |  encode(t.hash, 'hex'),
@@ -64,7 +64,7 @@ final class AssetsSql(implicit lh: LogHandler) {
          |select
          |  o.id,
          |  t.id,
-         |  a.name,
+         |  encode(a.name, 'hex'),
          |  a.quantity,
          |  a.policy,
          |  encode(t.hash, 'hex'),

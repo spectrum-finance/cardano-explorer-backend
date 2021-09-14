@@ -13,6 +13,7 @@ final class InputsSql(implicit lh: LogHandler) {
     sql"""
          |select
          |  i.tx_in_id,
+         |  i.redeemer_id,
          |  encode(b.hash, 'hex'),
          |  encode(t.hash, 'hex'),
          |  encode(ot.hash, 'hex'),
@@ -23,13 +24,15 @@ final class InputsSql(implicit lh: LogHandler) {
          |left join block b on b.id = t.block_id
          |left join tx ot on ot.id = i.tx_out_id
          |left join tx_out o on o.tx_id = i.tx_out_id and o.index = i.tx_out_index
+         |left join redeemer r on r.id = i.redeemer_id
          |where i.tx_in_id = $txId
-         |""".stripMargin.query[Input]
+         |""".stripMargin.query
 
   def getByTxHash(txHash: TxHash): Query0[Input] =
     sql"""
          |select
          |  i.tx_in_id,
+         |  i.redeemer_id,
          |  encode(b.hash, 'hex'),
          |  encode(t.hash, 'hex'),
          |  encode(ot.hash, 'hex'),
@@ -48,6 +51,7 @@ final class InputsSql(implicit lh: LogHandler) {
       sql"""
            |select
            |  i.tx_in_id,
+           |  i.redeemer_id,
            |  encode(b.hash, 'hex'),
            |  encode(t.hash, 'hex'),
            |  encode(ot.hash, 'hex'),

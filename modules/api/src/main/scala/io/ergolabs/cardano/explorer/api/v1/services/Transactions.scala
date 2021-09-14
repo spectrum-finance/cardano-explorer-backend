@@ -30,24 +30,26 @@ object Transactions {
 
     def getByTxHash(txHash: TxHash): F[Option[Transaction]] =
       (for {
-        tx     <- OptionT(transactions.getByTxHash(txHash))
-        ins    <- OptionT.liftF(inputs.getByTxId(tx.id))
-        outs   <- OptionT.liftF(outputs.getByTxId(tx.id))
-        assets <- OptionT.liftF(assets.getByTxId(tx.id))
-        meta   <- OptionT.liftF(metadata.getByTxId(tx.id))
-      } yield Transaction.inflate(tx, ins, outs, assets, meta)).value ||> txr.trans
+        tx        <- OptionT(transactions.getByTxHash(txHash))
+        ins       <- OptionT.liftF(inputs.getByTxId(tx.id))
+        redeemers <- OptionT.liftF(redeemer.getByTxId(tx.id))
+        outs      <- OptionT.liftF(outputs.getByTxId(tx.id))
+        assets    <- OptionT.liftF(assets.getByTxId(tx.id))
+        meta      <- OptionT.liftF(metadata.getByTxId(tx.id))
+      } yield Transaction.inflate(tx, ins, outs, assets, redeemers, meta)).value ||> txr.trans
 
     def getAll(paging: Paging): F[Items[Transaction]] =
       transactions.getAll(paging.offset, paging.limit, SortOrder.Desc).flatMap { txs =>
         NonEmptyList.fromList(txs.map(_.id)) match {
           case Some(ids) =>
             for {
-              total  <- transactions.countAll
-              ins    <- inputs.getByTxIds(ids)
-              outs   <- outputs.getByTxIds(ids)
-              assets <- assets.getByTxIds(ids)
-              meta   <- metadata.getByTxIds(ids)
-              xs = Transaction.inflateBatch(txs, ins, outs, assets, meta)
+              total     <- transactions.countAll
+              ins       <- inputs.getByTxIds(ids)
+              redeemers <- redeemer.getByTxIds(ids)
+              outs      <- outputs.getByTxIds(ids)
+              assets    <- assets.getByTxIds(ids)
+              meta      <- metadata.getByTxIds(ids)
+              xs = Transaction.inflateBatch(txs, ins, outs, assets, redeemers, meta)
             } yield Items(xs, total)
           case None => Items.empty[Transaction].pure
         }

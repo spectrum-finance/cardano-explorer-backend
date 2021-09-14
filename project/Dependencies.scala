@@ -11,6 +11,7 @@ object Dependencies {
     val tapir      = "0.18.3"
     val newtype    = "0.4.3"
     val mouse      = "0.26.2"
+    val enumeratum = "1.7.0"
 
     val betterMonadicFor = "0.3.1"
     val kindProjector    = "0.13.2"
@@ -47,6 +48,8 @@ object Dependencies {
     val tapirHttp4s = "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % V.tapir
 
     val newtype = "io.estatico" %% "newtype" % V.newtype
+
+    val enumeratum = "com.beachape" %% "enumeratum" % V.enumeratum
   }
 
   object CompilerPlugins {

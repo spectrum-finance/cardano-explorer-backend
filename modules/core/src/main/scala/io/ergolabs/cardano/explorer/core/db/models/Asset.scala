@@ -1,11 +1,11 @@
 package io.ergolabs.cardano.explorer.core.db.models
 
-import io.ergolabs.cardano.explorer.core.types.{Hash28, TxHash}
+import io.ergolabs.cardano.explorer.core.types.{Asset32, Hash28, TxHash}
 
 final case class Asset(
   outputId: Long,
   txId: Long,
-  name: String,
+  name: Asset32,
   quantity: BigInt,
   policy: Hash28,
   txHash: TxHash,

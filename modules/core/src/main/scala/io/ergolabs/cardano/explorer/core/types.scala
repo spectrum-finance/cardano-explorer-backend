@@ -9,7 +9,6 @@ import eu.timepit.refined.collection._
 import eu.timepit.refined.predicates.all.{And, Equal}
 import eu.timepit.refined.refineV
 import eu.timepit.refined.string.HexStringSpec
-import io.ergolabs.cardano.explorer.core.types.TxHash
 import io.ergolabs.cardano.explorer.core.types.specs.Hash32Spec
 import io.estatico.newtype.macros.newtype
 import sttp.tapir.json.circe._
@@ -37,6 +36,17 @@ object types {
   }
 
   @derive(loggable, encoder, decoder)
+  @newtype case class Asset32(value: String)
+
+  object Asset32 {
+    implicit val put: Put[Asset32] = deriving
+    implicit val get: Get[Asset32] = deriving
+
+    implicit def schema: Schema[Asset32] =
+      Schema.schemaForString.description("Asset 32").asInstanceOf[Schema[Asset32]]
+  }
+
+  @derive(loggable, encoder, decoder)
   @newtype case class Hash32(value: String)
 
   object Hash32 {
@@ -53,6 +63,9 @@ object types {
   object Hash28 {
     implicit val put: Put[Hash28] = deriving
     implicit val get: Get[Hash28] = deriving
+
+    implicit def schema: Schema[Hash28] =
+      Schema.schemaForString.description("Hash 28").asInstanceOf[Schema[Hash28]]
   }
 
   @derive(loggable, encoder, decoder)

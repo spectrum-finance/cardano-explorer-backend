@@ -38,7 +38,8 @@ lazy val core =
         Libraries.mouse,
         Libraries.tapirCore,
         Libraries.tapirCirce,
-        Libraries.derevoCirce
+        Libraries.derevoCirce,
+        Libraries.enumeratum
       )
     )
 
