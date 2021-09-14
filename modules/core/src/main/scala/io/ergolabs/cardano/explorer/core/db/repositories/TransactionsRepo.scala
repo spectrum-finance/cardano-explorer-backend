@@ -23,6 +23,8 @@ trait TransactionsRepo[F[_]] {
 
   def getAll(offset: Int, limit: Int, ordering: SortOrder): F[List[Transaction]]
 
+  def getAllInBlock(blockId: Int): F[List[Transaction]]
+
   def countAll: F[Int]
 }
 
@@ -48,6 +50,9 @@ object TransactionsRepo {
 
     def countAll: ConnectionIO[Int] =
       sql.countAll.unique
+
+    def getAllInBlock(blockId: Int): ConnectionIO[List[Transaction]] =
+      sql.getAllByBlockId(blockId).to[List]
   }
 
   final class Tracing[F[_]: Logging: FlatMap] extends TransactionsRepo[Mid[F, *]] {
@@ -71,6 +76,13 @@ object TransactionsRepo {
         _ <- trace"countAll()"
         r <- _
         _ <- trace"countAll() -> $r"
+      } yield r
+
+    def getAllInBlock(blockId: Int): Mid[F, List[Transaction]] =
+      for {
+        _ <- trace"getAllInBlock(blockId=$blockId)"
+        r <- _
+        _ <- trace"getAllInBlock(blockId=$blockId) -> $r"
       } yield r
   }
 }

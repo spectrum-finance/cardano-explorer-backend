@@ -1,4 +1,3 @@
-
 package io.ergolabs.cardano.explorer.api.configs
 
 import cats.effect.{Blocker, ContextShift, Sync}

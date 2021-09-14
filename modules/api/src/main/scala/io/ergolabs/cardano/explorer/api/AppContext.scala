@@ -6,7 +6,7 @@ import io.ergolabs.cardano.explorer.api.types.TraceId
 import io.estatico.newtype.ops._
 import tofu.WithContext
 import tofu.logging.derivation.{hidden, loggable}
-import tofu.optics.macros.{ClassyOptics, promote}
+import tofu.optics.macros.{promote, ClassyOptics}
 
 @ClassyOptics
 @derive(loggable)

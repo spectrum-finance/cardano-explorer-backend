@@ -80,6 +80,17 @@ object types {
   }
 
   @derive(loggable, encoder, decoder)
+  @newtype case class LeaderHash(value: String)
+
+  object LeaderHash {
+    implicit val put: Put[LeaderHash] = deriving
+    implicit val get: Get[LeaderHash] = deriving
+
+    implicit def schema: Schema[LeaderHash] =
+      Schema.schemaForString.description("Leader Hash").asInstanceOf[Schema[LeaderHash]]
+  }
+
+  @derive(loggable, encoder, decoder)
   @newtype case class TxHash(value: String)
 
   object TxHash {

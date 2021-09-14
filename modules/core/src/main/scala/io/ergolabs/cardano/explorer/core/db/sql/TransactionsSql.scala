@@ -44,4 +44,19 @@ class TransactionsSql(implicit lh: LogHandler) {
 
   def countAll: Query0[Int] =
     sql"select count(*) from tx".query[Int]
+
+  def getAllByBlockId(blockId: Int): Query0[Transaction] =
+    sql"""
+         |select
+         |  t.id,
+         |  encode(b.hash, 'hex'),
+         |  t.block_index,
+         |  encode(t.hash, 'hex'),
+         |  t.invalid_before,
+         |  t.invalid_hereafter,
+         |  t.size
+         |from tx t
+         |left join block b on b.id = t.block_id
+         |where t.block_id = $blockId
+         |""".stripMargin.query
 }

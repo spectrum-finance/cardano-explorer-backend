@@ -3,7 +3,7 @@ package io.ergolabs.cardano.explorer.api.configs
 import derevo.derive
 import derevo.pureconfig.pureconfigReader
 import tofu.logging.derivation.loggable
-import tofu.optics.macros.{ClassyOptics, promote}
+import tofu.optics.macros.{promote, ClassyOptics}
 
 @derive(loggable, pureconfigReader)
 @ClassyOptics
