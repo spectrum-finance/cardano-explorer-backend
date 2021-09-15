@@ -2,6 +2,7 @@ package io.ergolabs.cardano.explorer.api.v1.models
 
 import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
+import io.circe.Json
 import io.ergolabs.cardano.explorer.api.v1.instances._
 import io.ergolabs.cardano.explorer.core.db.models.{Asset, Output}
 import io.ergolabs.cardano.explorer.core.types._
@@ -17,11 +18,13 @@ final case class TxOutput(
   value: BigInt,
   jsValue: String,
   dataHash: Option[Hash32],
+  data: Option[Json],
   spentByTxHash: Option[TxHash],
   assets: List[OutAsset]
 )
 
 object TxOutput {
+  implicit def schemaJson: Schema[Json] = Schema.string[Json]
   implicit def schema: Schema[TxOutput] = Schema.derived
 
   def inflate(out: Output, assets: List[Asset]): TxOutput = {
@@ -35,6 +38,7 @@ object TxOutput {
       out.value,
       out.value.toString(),
       out.dataHash,
+      out.data,
       out.spentByTxHash,
       outAssets
     )

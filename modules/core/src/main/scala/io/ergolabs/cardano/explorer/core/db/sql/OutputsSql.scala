@@ -20,7 +20,8 @@ final class OutputsSql(implicit lh: LogHandler) {
            |  o.index,
            |  o.address,
            |  o.value,
-           |  o.data_hash,
+           |  encode(o.data_hash, 'hex'),
+           |  d.value,
            |  i.id,
            |  encode(ti.hash, 'hex')
            |from tx_out o
@@ -28,6 +29,7 @@ final class OutputsSql(implicit lh: LogHandler) {
            |left join block b on b.id = t.block_id
            |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
            |left join tx ti on ti.id = i.tx_in_id
+           |left join datum d on d.hash = o.data_hash
            |where t.hash = decode($txHash, 'hex') and o.index = $i
            |""".stripMargin.query
   }
@@ -42,7 +44,8 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  o.index,
          |  o.address,
          |  o.value,
-         |  o.data_hash,
+         |  encode(o.data_hash, 'hex'),
+         |  d.value,
          |  i.id,
          |  encode(ti.hash, 'hex')
          |from tx_out o
@@ -50,6 +53,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |left join block b on b.id = t.block_id
          |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
          |left join tx ti on ti.id = i.tx_in_id
+         |left join datum d on d.hash = o.data_hash
          |where o.tx_id = $txId
          |""".stripMargin.query
 
@@ -63,7 +67,8 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  o.index,
          |  o.address,
          |  o.value,
-         |  o.data_hash,
+         |  encode(o.data_hash, 'hex'),
+         |  d.value,
          |  i.id,
          |  encode(ti.hash, 'hex')
          |from tx_out o
@@ -71,6 +76,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |left join block b on b.id = t.block_id
          |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
          |left join tx ti on ti.id = i.tx_in_id
+         |left join datum d on d.hash = o.data_hash
          |where t.hash = $txHash
          |""".stripMargin.query
 
@@ -85,7 +91,8 @@ final class OutputsSql(implicit lh: LogHandler) {
            |  o.index,
            |  o.address,
            |  o.value,
-           |  o.data_hash,
+           |  encode(o.data_hash, 'hex'),
+           |  d.value,
            |  i.id,
            |  encode(ti.hash, 'hex')
            |from tx_out o
@@ -93,6 +100,7 @@ final class OutputsSql(implicit lh: LogHandler) {
            |left join block b on b.id = t.block_id
            |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
            |left join tx ti on ti.id = i.tx_in_id
+           |left join datum d on d.hash = o.data_hash
            |""".stripMargin
     (q ++ Fragments.in(fr"where o.tx_id", txIds)).query
   }

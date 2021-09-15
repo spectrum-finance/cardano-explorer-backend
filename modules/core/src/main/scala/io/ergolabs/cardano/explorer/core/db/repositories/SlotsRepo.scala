@@ -1,11 +1,11 @@
 package io.ergolabs.cardano.explorer.core.db.repositories
 
+import cats.tagless.syntax.functorK._
 import cats.{FlatMap, Functor}
 import derevo.derive
 import doobie.ConnectionIO
-import cats.tagless.syntax.functorK._
 import io.ergolabs.cardano.explorer.core.db.models.SlotLeaderInfo
-import io.ergolabs.cardano.explorer.core.db.sql.{RedeemerSql, SlotsSql}
+import io.ergolabs.cardano.explorer.core.db.sql.SlotsSql
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.log.EmbeddableLogHandler
 import tofu.higherKind.derived.representableK
@@ -30,7 +30,7 @@ object SlotsRepo {
 
   final private class LiveCIO(sql: SlotsSql) extends SlotsRepo[ConnectionIO] {
 
-    override def getSlotLeaderById(id: BigInt): ConnectionIO[Option[SlotLeaderInfo]] =
+    def getSlotLeaderById(id: BigInt): ConnectionIO[Option[SlotLeaderInfo]] =
       sql.getSlotLeaderInfoById(id).option
   }
 }

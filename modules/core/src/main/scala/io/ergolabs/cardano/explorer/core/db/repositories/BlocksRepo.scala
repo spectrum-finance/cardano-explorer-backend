@@ -31,6 +31,6 @@ object BlocksRepo {
     }
 
   final class LiveCIO(sql: BlocksSql) extends BlocksRepo[ConnectionIO] {
-    override def getBestBlock: ConnectionIO[BlockHeader] = sql.getBestBlockHeader.unique
+    def getBestBlock: ConnectionIO[BlockHeader] = sql.getBestBlockHeader.unique
   }
 }
