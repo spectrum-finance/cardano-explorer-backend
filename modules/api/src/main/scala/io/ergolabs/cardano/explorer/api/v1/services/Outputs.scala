@@ -3,7 +3,7 @@ package io.ergolabs.cardano.explorer.api.v1.services
 import cats.Monad
 import cats.data.OptionT
 import io.ergolabs.cardano.explorer.api.v1.models.TxOutput
-import io.ergolabs.cardano.explorer.core.db.repositories.TxRepoBundle
+import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle
 import io.ergolabs.cardano.explorer.core.types.OutRef
 import mouse.anyf._
 import tofu.doobie.LiftConnectionIO
@@ -18,10 +18,10 @@ object Outputs {
 
   def make[F[_], D[_]: Monad: LiftConnectionIO](implicit
     txr: Txr[F, D],
-    repos: TxRepoBundle[D]
+    repos: RepoBundle[D]
   ): Outputs[F] = new Live[F, D](txr, repos)
 
-  final class Live[F[_], D[_]: Monad](txr: Txr[F, D], repos: TxRepoBundle[D]) extends Outputs[F] {
+  final class Live[F[_], D[_]: Monad](txr: Txr[F, D], repos: RepoBundle[D]) extends Outputs[F] {
     import repos._
 
     def getByOutRef(ref: OutRef): F[Option[TxOutput]] =

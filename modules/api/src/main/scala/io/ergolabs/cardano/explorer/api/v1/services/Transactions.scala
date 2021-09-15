@@ -4,7 +4,7 @@ import cats.Monad
 import cats.data.{NonEmptyList, OptionT}
 import io.ergolabs.cardano.explorer.api.v1.models.{Items, Paging, Transaction}
 import io.ergolabs.cardano.explorer.core.db.SortOrder
-import io.ergolabs.cardano.explorer.core.db.repositories.TxRepoBundle
+import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle
 import io.ergolabs.cardano.explorer.core.types.TxHash
 import mouse.anyf._
 import tofu.doobie.LiftConnectionIO
@@ -16,16 +16,18 @@ trait Transactions[F[_]] {
   def getByTxHash(txHash: TxHash): F[Option[Transaction]]
 
   def getAll(paging: Paging): F[Items[Transaction]]
+
+  def getAllInBlock(blockId: Int): F[Items[Transaction]]
 }
 
 object Transactions {
 
   def make[F[_], D[_]: Monad: LiftConnectionIO](implicit
     txr: Txr[F, D],
-    repos: TxRepoBundle[D]
+    repos: RepoBundle[D]
   ): Transactions[F] = new Live[F, D](txr, repos)
 
-  final class Live[F[_], D[_]: Monad](txr: Txr[F, D], repos: TxRepoBundle[D]) extends Transactions[F] {
+  final class Live[F[_], D[_]: Monad](txr: Txr[F, D], repos: RepoBundle[D]) extends Transactions[F] {
     import repos._
 
     def getByTxHash(txHash: TxHash): F[Option[Transaction]] =
@@ -54,5 +56,7 @@ object Transactions {
           case None => Items.empty[Transaction].pure
         }
       } ||> txr.trans
+
+    def getAllInBlock(blockId: Int): F[Items[Transaction]] = ???
   }
 }

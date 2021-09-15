@@ -20,4 +20,9 @@ class TransactionsEndpoints {
       .in(pathPrefix)
       .in(paging)
       .out(jsonBody[Items[Transaction]])
+
+  def getTransactionsInBlock: Endpoint[Int, HttpError, Items[Transaction], Any] =
+    baseEndpoint.get
+      .in(pathPrefix / path[Int])
+      .out(jsonBody[Items[Transaction]])
 }
