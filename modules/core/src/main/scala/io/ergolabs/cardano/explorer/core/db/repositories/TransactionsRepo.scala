@@ -7,7 +7,7 @@ import doobie.ConnectionIO
 import io.ergolabs.cardano.explorer.core.db.SortOrder
 import io.ergolabs.cardano.explorer.core.db.models.Transaction
 import io.ergolabs.cardano.explorer.core.db.sql.TransactionsSql
-import io.ergolabs.cardano.explorer.core.types.TxHash
+import io.ergolabs.cardano.explorer.core.types.{Addr, TxHash}
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.log.EmbeddableLogHandler
 import tofu.higherKind.Mid
@@ -23,9 +23,15 @@ trait TransactionsRepo[F[_]] {
 
   def getAll(offset: Int, limit: Int, ordering: SortOrder): F[List[Transaction]]
 
-  def getAllInBlock(blockId: Int): F[List[Transaction]]
-
   def countAll: F[Int]
+
+  def getByBlock(blockHeight: Int): F[List[Transaction]]
+
+  def countByBlock(blockHeight: Int): F[Int]
+
+  def getByAddress(addr: Addr, offset: Int, limit: Int): F[List[Transaction]]
+
+  def countByAddress(addr: Addr): F[Int]
 }
 
 object TransactionsRepo {
@@ -51,8 +57,17 @@ object TransactionsRepo {
     def countAll: ConnectionIO[Int] =
       sql.countAll.unique
 
-    def getAllInBlock(blockId: Int): ConnectionIO[List[Transaction]] =
-      sql.getAllByBlockId(blockId).to[List]
+    def getByBlock(blockHeight: Int): ConnectionIO[List[Transaction]] =
+      sql.getByBlock(blockHeight).to[List]
+
+    def countByBlock(blockHeight: Int): ConnectionIO[Int] =
+      sql.countByBlock(blockHeight).unique
+
+    def getByAddress(addr: Addr, offset: Int, limit: Int): ConnectionIO[List[Transaction]] =
+      sql.getByAddress(addr, offset, limit).to[List]
+
+    def countByAddress(addr: Addr): ConnectionIO[Int] =
+      sql.countByAddress(addr).unique
   }
 
   final class Tracing[F[_]: Logging: FlatMap] extends TransactionsRepo[Mid[F, *]] {
@@ -78,11 +93,32 @@ object TransactionsRepo {
         _ <- trace"countAll() -> $r"
       } yield r
 
-    def getAllInBlock(blockId: Int): Mid[F, List[Transaction]] =
+    def getByBlock(blockHeight: Int): Mid[F, List[Transaction]] =
       for {
-        _ <- trace"getAllInBlock(blockId=$blockId)"
+        _ <- trace"getByBlockHeight(blockHeight=$blockHeight)"
         r <- _
-        _ <- trace"getAllInBlock(blockId=$blockId) -> $r"
+        _ <- trace"getByBlockHeight(blockHeight=$blockHeight) -> $r"
+      } yield r
+
+    def countByBlock(blockHeight: Int): Mid[F, Int] =
+      for {
+        _ <- trace"countByBlock(blockHeight=$blockHeight)"
+        r <- _
+        _ <- trace"countByBlock(blockHeight=$blockHeight) -> $r"
+      } yield r
+
+    def getByAddress(addr: Addr, offset: Int, limit: Int): Mid[F, List[Transaction]] =
+      for {
+        _ <- trace"getByAddress(addr=$addr, offset=$offset, limit=$limit)"
+        r <- _
+        _ <- trace"getByAddress(addr=$addr, offset=$offset, limit=$limit) -> $r"
+      } yield r
+
+    def countByAddress(addr: Addr): Mid[F, Int] =
+      for {
+        _ <- trace"countByAddress(addr=$addr)"
+        r <- _
+        _ <- trace"countByAddress(addr=$addr) -> $r"
       } yield r
   }
 }

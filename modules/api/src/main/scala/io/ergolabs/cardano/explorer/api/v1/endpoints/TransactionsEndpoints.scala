@@ -2,7 +2,7 @@ package io.ergolabs.cardano.explorer.api.v1.endpoints
 
 import io.ergolabs.cardano.explorer.api.v1.HttpError
 import io.ergolabs.cardano.explorer.api.v1.models.{Items, Paging, Transaction}
-import io.ergolabs.cardano.explorer.core.types.TxHash
+import io.ergolabs.cardano.explorer.core.types.{Addr, TxHash}
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
 
@@ -21,8 +21,14 @@ class TransactionsEndpoints {
       .in(paging)
       .out(jsonBody[Items[Transaction]])
 
-  def getTransactionsInBlock: Endpoint[Int, HttpError, Items[Transaction], Any] =
+  def getByBlock: Endpoint[Int, HttpError, Items[Transaction], Any] =
     baseEndpoint.get
-      .in(pathPrefix / path[Int])
+      .in(pathPrefix / "byBlockHeight" / path[Int])
+      .out(jsonBody[Items[Transaction]])
+
+  def getByAddress: Endpoint[(Addr, Paging), HttpError, Items[Transaction], Any] =
+    baseEndpoint.get
+      .in(pathPrefix / "byAddress" / path[Addr])
+      .in(paging)
       .out(jsonBody[Items[Transaction]])
 }
