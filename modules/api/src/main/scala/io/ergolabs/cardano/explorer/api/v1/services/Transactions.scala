@@ -4,8 +4,9 @@ import cats.Monad
 import cats.data.{NonEmptyList, OptionT}
 import io.ergolabs.cardano.explorer.api.v1.models.{Items, Paging, Transaction}
 import io.ergolabs.cardano.explorer.core.db.SortOrder
+import io.ergolabs.cardano.explorer.core.db.models.{Transaction => DbTransaction}
 import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle
-import io.ergolabs.cardano.explorer.core.types.TxHash
+import io.ergolabs.cardano.explorer.core.types.{Addr, TxHash}
 import mouse.anyf._
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.transactor.Txr
@@ -17,7 +18,9 @@ trait Transactions[F[_]] {
 
   def getAll(paging: Paging): F[Items[Transaction]]
 
-  def getAllInBlock(blockId: Int): F[Items[Transaction]]
+  def getByBlock(blockHeight: Int): F[Items[Transaction]]
+
+  def getByAddress(addr: Addr, paging: Paging): F[Items[Transaction]]
 }
 
 object Transactions {
@@ -41,22 +44,27 @@ object Transactions {
       } yield Transaction.inflate(tx, ins, outs, assets, redeemers, meta)).value ||> txr.trans
 
     def getAll(paging: Paging): F[Items[Transaction]] =
-      transactions.getAll(paging.offset, paging.limit, SortOrder.Desc).flatMap { txs =>
-        NonEmptyList.fromList(txs.map(_.id)) match {
-          case Some(ids) =>
-            for {
-              total     <- transactions.countAll
-              ins       <- inputs.getByTxIds(ids)
-              redeemers <- redeemer.getByTxIds(ids)
-              outs      <- outputs.getByTxIds(ids)
-              assets    <- assets.getByTxIds(ids)
-              meta      <- metadata.getByTxIds(ids)
-              xs = Transaction.inflateBatch(txs, ins, outs, assets, redeemers, meta)
-            } yield Items(xs, total)
-          case None => Items.empty[Transaction].pure
-        }
-      } ||> txr.trans
+      (transactions.getAll(paging.offset, paging.limit, SortOrder.Desc) >>= getBatch) ||> txr.trans
 
-    def getAllInBlock(blockId: Int): F[Items[Transaction]] = ???
+    def getByBlock(blockHeight: Int): F[Items[Transaction]] =
+      (transactions.getByBlock(blockHeight) >>= getBatch) ||> txr.trans
+
+    def getByAddress(addr: Addr, paging: Paging): F[Items[Transaction]] =
+      (transactions.getByAddress(addr, paging.offset, paging.limit) >>= getBatch) ||> txr.trans
+
+    private def getBatch(txs: List[DbTransaction]) =
+      NonEmptyList.fromList(txs.map(_.id)) match {
+        case Some(ids) =>
+          for {
+            total     <- transactions.countAll
+            ins       <- inputs.getByTxIds(ids)
+            redeemers <- redeemer.getByTxIds(ids)
+            outs      <- outputs.getByTxIds(ids)
+            assets    <- assets.getByTxIds(ids)
+            meta      <- metadata.getByTxIds(ids)
+            xs = Transaction.inflateBatch(txs, ins, outs, assets, redeemers, meta)
+          } yield Items(xs, total)
+        case None => Items.empty[Transaction].pure
+      }
   }
 }

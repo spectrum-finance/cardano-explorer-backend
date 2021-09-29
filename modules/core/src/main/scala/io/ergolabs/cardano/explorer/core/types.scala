@@ -9,6 +9,7 @@ import eu.timepit.refined.collection._
 import eu.timepit.refined.predicates.all.{And, Equal}
 import eu.timepit.refined.refineV
 import eu.timepit.refined.string.HexStringSpec
+import io.ergolabs.cardano.explorer.core.types.OutRef
 import io.ergolabs.cardano.explorer.core.types.specs.Hash32Spec
 import io.estatico.newtype.macros.newtype
 import sttp.tapir.json.circe._
@@ -154,8 +155,15 @@ object types {
     implicit val put: Put[Addr] = deriving
     implicit val get: Get[Addr] = deriving
 
+    implicit def plainCodec: Codec.PlainCodec[Addr] = deriving
+
+    implicit def jsonCodec: Codec.JsonCodec[Addr] = deriving
+
     implicit def schema: Schema[Addr] =
       Schema.schemaForString.description("Address").asInstanceOf[Schema[Addr]]
+
+    implicit def validator: Validator[Addr] =
+      Validator.pass
   }
 
   private def deriveCodec[A, CF <: CodecFormat, T](

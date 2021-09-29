@@ -6,7 +6,7 @@ import doobie.util.fragment.Fragment.const
 import io.ergolabs.cardano.explorer.core.db.instances._
 import io.ergolabs.cardano.explorer.core.db.SortOrder
 import io.ergolabs.cardano.explorer.core.db.models.Transaction
-import io.ergolabs.cardano.explorer.core.types.TxHash
+import io.ergolabs.cardano.explorer.core.types.{Addr, TxHash}
 
 class TransactionsSql(implicit lh: LogHandler) {
 
@@ -45,7 +45,7 @@ class TransactionsSql(implicit lh: LogHandler) {
   def countAll: Query0[Int] =
     sql"select count(*) from tx".query[Int]
 
-  def getAllByBlockId(blockId: Int): Query0[Transaction] =
+  def getByBlock(blockHeight: Int): Query0[Transaction] =
     sql"""
          |select
          |  t.id,
@@ -57,6 +57,36 @@ class TransactionsSql(implicit lh: LogHandler) {
          |  t.size
          |from tx t
          |left join block b on b.id = t.block_id
-         |where t.block_id = $blockId
+         |where t.block_id = $blockHeight
+         |""".stripMargin.query
+
+  def getByAddress(addr: Addr, offset: Int, limit: Int): Query0[Transaction] =
+    sql"""
+         |select
+         |  t.id,
+         |  encode(b.hash, 'hex'),
+         |  t.block_index,
+         |  encode(t.hash, 'hex'),
+         |  t.invalid_before,
+         |  t.invalid_hereafter,
+         |  t.size
+         |from tx t
+         |left join block b on b.id = t.block_id
+         |left join tx_out o on o.tx_id = t.id
+         |left join tx_in i on i.tx_in_id = t.id
+         |left join tx_out io on io.tx_id = i.tx_out_id and io.index = i.tx_out_index
+         |where o.address = $addr or io.address = $addr
+         |offset $offset limit $limit
+         |""".stripMargin.query
+
+  def countByAddress(addr: Addr): Query0[Int] =
+    sql"""
+         |select count(distinct t.id)
+         |from tx t
+         |left join block b on b.id = t.block_id
+         |left join tx_out o on o.tx_id = t.id
+         |left join tx_in i on i.tx_in_id = t.id
+         |left join tx_out io on io.tx_id = i.tx_out_id and io.index = i.tx_out_index
+         |where o.address = $addr or io.address = $addr
          |""".stripMargin.query
 }
