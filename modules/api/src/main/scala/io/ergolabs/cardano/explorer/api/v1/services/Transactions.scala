@@ -44,19 +44,30 @@ object Transactions {
       } yield Transaction.inflate(tx, ins, outs, assets, redeemers, meta)).value ||> txr.trans
 
     def getAll(paging: Paging): F[Items[Transaction]] =
-      (transactions.getAll(paging.offset, paging.limit, SortOrder.Desc) >>= getBatch) ||> txr.trans
+      (for {
+        txs   <- transactions.getAll(paging.offset, paging.limit, SortOrder.Desc)
+        total <- transactions.countAll
+        batch <- getBatch(txs, total)
+      } yield batch) ||> txr.trans
 
     def getByBlock(blockHeight: Int): F[Items[Transaction]] =
-      (transactions.getByBlock(blockHeight) >>= getBatch) ||> txr.trans
+      (for {
+        txs   <- transactions.getByBlock(blockHeight)
+        total <- transactions.countByBlock(blockHeight)
+        batch <- getBatch(txs, total)
+      } yield batch) ||> txr.trans
 
     def getByAddress(addr: Addr, paging: Paging): F[Items[Transaction]] =
-      (transactions.getByAddress(addr, paging.offset, paging.limit) >>= getBatch) ||> txr.trans
+      (for {
+        txs   <- transactions.getByAddress(addr, paging.offset, paging.limit)
+        total <- transactions.countByAddress(addr)
+        batch <- getBatch(txs, total)
+      } yield batch) ||> txr.trans
 
-    private def getBatch(txs: List[DbTransaction]) =
+    private def getBatch(txs: List[DbTransaction], total: Int) =
       NonEmptyList.fromList(txs.map(_.id)) match {
         case Some(ids) =>
           for {
-            total     <- transactions.countAll
             ins       <- inputs.getByTxIds(ids)
             redeemers <- redeemer.getByTxIds(ids)
             outs      <- outputs.getByTxIds(ids)

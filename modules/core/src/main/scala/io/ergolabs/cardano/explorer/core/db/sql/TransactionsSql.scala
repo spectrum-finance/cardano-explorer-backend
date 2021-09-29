@@ -60,6 +60,9 @@ class TransactionsSql(implicit lh: LogHandler) {
          |where t.block_id = $blockHeight
          |""".stripMargin.query
 
+  def countByBlock(blockHeight: Int): Query0[Int] =
+    sql"select count(*) from tx t where t.block_id = $blockHeight".query
+
   def getByAddress(addr: Addr, offset: Int, limit: Int): Query0[Transaction] =
     sql"""
          |select

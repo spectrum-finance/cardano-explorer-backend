@@ -27,6 +27,8 @@ trait TransactionsRepo[F[_]] {
 
   def getByBlock(blockHeight: Int): F[List[Transaction]]
 
+  def countByBlock(blockHeight: Int): F[Int]
+
   def getByAddress(addr: Addr, offset: Int, limit: Int): F[List[Transaction]]
 
   def countByAddress(addr: Addr): F[Int]
@@ -57,6 +59,9 @@ object TransactionsRepo {
 
     def getByBlock(blockHeight: Int): ConnectionIO[List[Transaction]] =
       sql.getByBlock(blockHeight).to[List]
+
+    def countByBlock(blockHeight: Int): ConnectionIO[Int] =
+      sql.countByBlock(blockHeight).unique
 
     def getByAddress(addr: Addr, offset: Int, limit: Int): ConnectionIO[List[Transaction]] =
       sql.getByAddress(addr, offset, limit).to[List]
@@ -93,6 +98,13 @@ object TransactionsRepo {
         _ <- trace"getByBlockHeight(blockHeight=$blockHeight)"
         r <- _
         _ <- trace"getByBlockHeight(blockHeight=$blockHeight) -> $r"
+      } yield r
+
+    def countByBlock(blockHeight: Int): Mid[F, Int] =
+      for {
+        _ <- trace"countByBlock(blockHeight=$blockHeight)"
+        r <- _
+        _ <- trace"countByBlock(blockHeight=$blockHeight) -> $r"
       } yield r
 
     def getByAddress(addr: Addr, offset: Int, limit: Int): Mid[F, List[Transaction]] =
