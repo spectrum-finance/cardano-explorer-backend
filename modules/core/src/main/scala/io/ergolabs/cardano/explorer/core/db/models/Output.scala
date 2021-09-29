@@ -14,5 +14,5 @@ final case class Output(
   dataHash: Option[Hash32],
   data: Option[Json],
   inputId: Option[Long],
-  spentByTxHash: Option[TxHash]
+  spentByTxHash: Option[TxHash],
 )

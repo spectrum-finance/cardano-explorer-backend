@@ -40,6 +40,11 @@ object types {
   @newtype case class Asset32(value: String)
 
   object Asset32 {
+
+    implicit def plainCodec: Codec.PlainCodec[Asset32] = deriving
+
+    implicit def jsonCodec: Codec.JsonCodec[Asset32] = deriving
+
     implicit val put: Put[Asset32] = deriving
     implicit val get: Get[Asset32] = deriving
 
@@ -65,6 +70,8 @@ object types {
     implicit val put: Put[Hash28] = deriving
     implicit val get: Get[Hash28] = deriving
 
+    def empty: Hash28 = Hash28("")
+
     implicit def schema: Schema[Hash28] =
       Schema.schemaForString.description("Hash 28").asInstanceOf[Schema[Hash28]]
   }
@@ -78,6 +85,30 @@ object types {
 
     implicit def schema: Schema[BlockHash] =
       Schema.schemaForString.description("Block Hash").asInstanceOf[Schema[BlockHash]]
+  }
+
+  @derive(loggable, encoder, decoder)
+  @newtype case class ContractHash(value: String)
+
+  object ContractHash {
+    implicit val put: Put[ContractHash] = deriving
+    implicit val get: Get[ContractHash] = deriving
+
+    implicit def schema: Schema[ContractHash] =
+      Schema.schemaForString.description("Contract Hash").asInstanceOf[Schema[ContractHash]]
+  }
+
+  @derive(loggable, encoder, decoder)
+  @newtype case class PolicyHash(value: String)
+
+  object PolicyHash {
+    implicit val put: Put[PolicyHash] = deriving
+    implicit val get: Get[PolicyHash] = deriving
+
+    def empty: PolicyHash = PolicyHash("")
+
+    implicit def schema: Schema[PolicyHash] =
+      Schema.schemaForString.description("Policy Hash").asInstanceOf[Schema[PolicyHash]]
   }
 
   @derive(loggable, encoder, decoder)
