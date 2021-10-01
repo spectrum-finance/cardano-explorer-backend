@@ -24,6 +24,7 @@ final case class TxOutput(
 )
 
 object TxOutput {
+
   implicit def schemaJson: Schema[Json] = Schema.string[Json]
   implicit def schema: Schema[TxOutput] = Schema.derived
 

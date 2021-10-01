@@ -4,6 +4,7 @@ import cats.data.NonEmptyList
 import doobie._
 import doobie.syntax.all._
 import io.ergolabs.cardano.explorer.core.db.instances._
+import doobie.postgres.implicits._
 import io.ergolabs.cardano.explorer.core.db.models.Output
 import io.ergolabs.cardano.explorer.core.types.{Addr, Asset32, OutRef, TxHash}
 
@@ -23,7 +24,8 @@ final class OutputsSql(implicit lh: LogHandler) {
            |  encode(o.data_hash, 'hex'),
            |  case when (d.value is null) then rd.value else d.value end,
            |  i.id,
-           |  encode(ti.hash, 'hex')
+           |  encode(ti.hash, 'hex'),
+           |  []
            |from tx_out o
            |left join tx t on t.id = o.tx_id
            |left join block b on b.id = t.block_id
@@ -48,7 +50,8 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  encode(o.data_hash, 'hex'),
          |  case when (d.value is null) then rd.value else d.value end,
          |  i.id,
-         |  encode(ti.hash, 'hex')
+         |  encode(ti.hash, 'hex'),
+         |  []
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id
@@ -72,7 +75,8 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  encode(o.data_hash, 'hex'),
          |  case when (d.value is null) then rd.value else d.value end,
          |  i.id,
-         |  encode(ti.hash, 'hex')
+         |  encode(ti.hash, 'hex').
+         |  []
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id
@@ -97,7 +101,8 @@ final class OutputsSql(implicit lh: LogHandler) {
            |  encode(o.data_hash, 'hex'),
            |  case when (d.value is null) then rd.value else d.value end,
            |  i.id,
-           |  encode(ti.hash, 'hex')
+           |  encode(ti.hash, 'hex'),
+           |  []
            |from tx_out o
            |left join tx t on t.id = o.tx_id
            |left join block b on b.id = t.block_id
@@ -122,7 +127,8 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  encode(o.data_hash, 'hex'),
          |  case when (d.value is null) then rd.value else d.value end,
          |  i.id,
-         |  encode(ti.hash, 'hex')
+         |  encode(ti.hash, 'hex'),
+         |  ARRAY_AGG(mtx.name)
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id
@@ -148,7 +154,8 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  encode(o.data_hash, 'hex'),
          |  case when (d.value is null) then rd.value else d.value end,
          |  i.id,
-         |  encode(ti.hash, 'hex')
+         |  encode(ti.hash, 'hex'),
+         |  []
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id

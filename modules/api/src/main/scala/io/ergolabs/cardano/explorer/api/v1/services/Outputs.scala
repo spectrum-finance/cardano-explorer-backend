@@ -68,7 +68,10 @@ object Outputs {
     def searchUnspentUnion(addr: Addr, assetsToSearch: List[Asset32], paging: Paging): F[List[TxOutput]] =
       (for {
         outs           <- outputs.getUnspentOutputsByAddr(paging.offset, paging.limit, addr)
-        outsWithAssets <- outs.traverse(out => assets.getByOutputId(out.id).map(assetsList => out -> assetsList))
+        outsWithAssets <- outs.traverse(out => {
+          println(out)
+          assets.getByOutputId(out.id).map(assetsList => out -> assetsList)
+        })
         result = outsWithAssets.collect {
             case (out, outAssets) if outAssets.map(_.name).intersect(assetsToSearch).nonEmpty =>
               TxOutput.inflate(out, outAssets)

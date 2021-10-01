@@ -174,6 +174,7 @@ object types {
       OutRef(s"$txHash:$index")
 
     def unapply(ref: OutRef): Option[(TxHash, Int)] = {
+      println(ref)
       val Array(hash, i) = ref.value.split(":")
       Some(TxHash.fromStringUnsafe(hash) -> i.toInt)
     }

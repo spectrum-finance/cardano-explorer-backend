@@ -2,6 +2,7 @@ package io.ergolabs.cardano.explorer.core.db.models
 
 import io.circe.Json
 import io.ergolabs.cardano.explorer.core.types.{Addr, BlockHash, Hash32, TxHash}
+import doobie.implicits._
 
 final case class Output(
   id: Long,
@@ -15,4 +16,5 @@ final case class Output(
   data: Option[Json],
   inputId: Option[Long],
   spentByTxHash: Option[TxHash],
+  name: List[String]
 )
