@@ -43,4 +43,7 @@ object TxOutput {
       outAssets
     )
   }
+
+  def inflateBatch(outs: List[Output], assets: List[Asset]): List[TxOutput] =
+    outs.map(o => inflate(o, assets.filter(_.outputId == o.id)))
 }

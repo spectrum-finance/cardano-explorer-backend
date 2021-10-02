@@ -13,27 +13,24 @@ final class AssetsSql(implicit lh: LogHandler) {
     sql"""
          |select
          |  o.id,
-         |  t.id,
+         |  o.tx_id,
          |  encode(a.name, 'hex'),
          |  a.quantity,
          |  a.policy,
-         |  encode(t.hash, 'hex'),
          |  o.index
          |from ma_tx_out a
          |left join tx_out o on o.id = a.tx_out_id
-         |left join tx t on t.id = o.tx_id
-         |where t.id = $txId
+         |where o.tx_id = $txId
          |""".stripMargin.query
 
   def getByTxHash(txHash: TxHash): Query0[Asset] =
     sql"""
          |select
          |  o.id,
-         |  t.id,
+         |  o.tx_id,
          |  encode(a.name, 'hex'),
          |  a.quantity,
          |  a.policy,
-         |  encode(t.hash, 'hex'),
          |  o.index
          |from ma_tx_out a
          |left join tx_out o on o.id = a.tx_out_id
@@ -46,15 +43,13 @@ final class AssetsSql(implicit lh: LogHandler) {
       sql"""
            |select
            |  o.id,
-           |  t.id,
+           |  o.tx_id,
            |  encode(a.name, 'hex'),
            |  a.quantity,
            |  a.policy,
-           |  encode(t.hash, 'hex'),
            |  o.index
            |from ma_tx_out a
            |left join tx_out o on o.id = a.tx_out_id
-           |left join tx t on t.id = o.tx_id
            |""".stripMargin
     (q ++ Fragments.in(fr"where o.tx_id", txIds)).query[Asset]
   }
@@ -63,15 +58,29 @@ final class AssetsSql(implicit lh: LogHandler) {
     sql"""
          |select
          |  o.id,
-         |  t.id,
+         |  o.tx_id,
          |  encode(a.name, 'hex'),
          |  a.quantity,
          |  a.policy,
-         |  encode(t.hash, 'hex'),
          |  o.index
          |from ma_tx_out a
          |left join tx_out o on o.id = a.tx_out_id
-         |left join tx t on t.id = o.tx_id
          |where o.id = $outputId
          |""".stripMargin.query
+
+  def getByOutputIds(outputIds: NonEmptyList[Long]): Query0[Asset] = {
+    val q =
+      sql"""
+           |select
+           |  o.id,
+           |  o.tx_id,
+           |  encode(a.name, 'hex'),
+           |  a.quantity,
+           |  a.policy,
+           |  o.index
+           |from ma_tx_out a
+           |left join tx_out o on o.id = a.tx_out_id
+           |""".stripMargin
+    (q ++ Fragments.in(fr"where o.tx_out_id", outputIds)).query[Asset]
+  }
 }

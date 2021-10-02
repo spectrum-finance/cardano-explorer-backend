@@ -7,7 +7,7 @@ import derevo.derive
 import doobie.ConnectionIO
 import io.ergolabs.cardano.explorer.core.db.models.Output
 import io.ergolabs.cardano.explorer.core.db.sql.OutputsSql
-import io.ergolabs.cardano.explorer.core.types.{OutRef, TxHash}
+import io.ergolabs.cardano.explorer.core.types.{Addr, AssetRef, OutRef, TxHash}
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.log.EmbeddableLogHandler
 import tofu.higherKind.derived.representableK
@@ -24,6 +24,24 @@ trait OutputsRepo[F[_]] {
   def getByTxHash(txHash: TxHash): F[List[Output]]
 
   def getByTxIds(txIds: NonEmptyList[Long]): F[List[Output]]
+
+  def getUnspentByAddr(addr: Addr, offset: Int, limit: Int): F[List[Output]]
+
+  def countUnspentByAddr(addr: Addr): F[Int]
+
+  def getUnspentByAsset(asset: AssetRef, offset: Int, limit: Int): F[List[Output]]
+
+  def countUnspentByAsset(asset: AssetRef): F[Int]
+
+  def searchUnspent(
+    addr: Addr,
+    containsAllOf: Option[List[AssetRef]],
+    containsAnyOf: Option[List[AssetRef]],
+    offset: Int,
+    limit: Int
+  ): F[List[Output]]
+
+  def countUnspent(addr: Addr, containsAllOf: Option[List[AssetRef]], containsAnyOf: Option[List[AssetRef]]): F[Int]
 }
 
 object OutputsRepo {
@@ -49,5 +67,33 @@ object OutputsRepo {
 
     def getByTxIds(txIds: NonEmptyList[Long]): ConnectionIO[List[Output]] =
       sql.getByTxIds(txIds).to[List]
+
+    def getUnspentByAddr(addr: Addr, offset: Int, limit: Int): ConnectionIO[List[Output]] =
+      sql.getUnspentByAddr(addr, offset, limit).to[List]
+
+    def countUnspentByAddr(addr: Addr): ConnectionIO[Int] =
+      sql.countUnspentByAddr(addr).unique
+
+    def getUnspentByAsset(asset: AssetRef, offset: Int, limit: Int): ConnectionIO[List[Output]] =
+      sql.getUnspentByAsset(asset, offset, limit).to[List]
+
+    def countUnspentByAsset(asset: AssetRef): ConnectionIO[Int] =
+      sql.countUnspentByAsset(asset).unique
+
+    def searchUnspent(
+      addr: Addr,
+      containsAllOf: Option[List[AssetRef]],
+      containsAnyOf: Option[List[AssetRef]],
+      offset: Int,
+      limit: Int
+    ): ConnectionIO[List[Output]] =
+      sql.searchUnspent(addr, containsAllOf, containsAnyOf, offset, limit).to[List]
+
+    def countUnspent(
+      addr: Addr,
+      containsAllOf: Option[List[AssetRef]],
+      containsAnyOf: Option[List[AssetRef]]
+    ): ConnectionIO[Int] =
+      sql.countUnspent(addr, containsAllOf, containsAnyOf).unique
   }
 }

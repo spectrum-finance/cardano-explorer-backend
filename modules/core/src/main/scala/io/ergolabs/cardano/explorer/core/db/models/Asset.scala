@@ -8,6 +8,5 @@ final case class Asset(
   name: Asset32,
   quantity: BigInt,
   policy: Hash28,
-  txHash: TxHash,
   outIndex: Int
 )
