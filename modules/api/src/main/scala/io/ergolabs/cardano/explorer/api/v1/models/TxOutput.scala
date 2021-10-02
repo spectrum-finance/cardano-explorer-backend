@@ -4,7 +4,7 @@ import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
 import io.circe.Json
 import io.ergolabs.cardano.explorer.api.v1.instances._
-import io.ergolabs.cardano.explorer.core.db.models.{Asset, Output}
+import io.ergolabs.cardano.explorer.core.db.models.{AssetOutput, Output}
 import io.ergolabs.cardano.explorer.core.types._
 import sttp.tapir.Schema
 
@@ -27,7 +27,7 @@ object TxOutput {
   implicit def schemaJson: Schema[Json] = Schema.string[Json]
   implicit def schema: Schema[TxOutput] = Schema.derived
 
-  def inflate(out: Output, assets: List[Asset]): TxOutput = {
+  def inflate(out: Output, assets: List[AssetOutput]): TxOutput = {
     val outAssets = assets.map(a => OutAsset(a.name, a.quantity))
     TxOutput(
       OutRef(out.txHash, out.index),
@@ -44,6 +44,6 @@ object TxOutput {
     )
   }
 
-  def inflateBatch(outs: List[Output], assets: List[Asset]): List[TxOutput] =
+  def inflateBatch(outs: List[Output], assets: List[AssetOutput]): List[TxOutput] =
     outs.map(o => inflate(o, assets.filter(_.outputId == o.id)))
 }

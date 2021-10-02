@@ -6,7 +6,7 @@ import doobie.syntax.all._
 import io.ergolabs.cardano.explorer.core.db.instances._
 import doobie.implicits.javasql._
 import doobie.postgres.implicits._
-import io.ergolabs.cardano.explorer.core.db.models.{Asset, BlockHeader}
+import io.ergolabs.cardano.explorer.core.db.models.{AssetOutput, BlockHeader}
 
 final class BlocksSql(implicit lh: LogHandler) {
 

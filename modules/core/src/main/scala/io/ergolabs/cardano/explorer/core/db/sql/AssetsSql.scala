@@ -4,17 +4,17 @@ import cats.data.NonEmptyList
 import doobie._
 import doobie.syntax.all._
 import io.ergolabs.cardano.explorer.core.db.instances._
-import io.ergolabs.cardano.explorer.core.db.models.Asset
-import io.ergolabs.cardano.explorer.core.types.TxHash
+import io.ergolabs.cardano.explorer.core.db.models.{AssetMintEvent, AssetOutput}
+import io.ergolabs.cardano.explorer.core.types.{Asset32, TxHash}
 
 final class AssetsSql(implicit lh: LogHandler) {
 
-  def getByTxId(txId: Long): Query0[Asset] =
+  def getByTxId(txId: Long): Query0[AssetOutput] =
     sql"""
          |select
          |  o.id,
          |  o.tx_id,
-         |  encode(a.name, 'hex'),
+         |  encode(a.name, 'escape'),
          |  a.quantity,
          |  a.policy,
          |  o.index
@@ -23,43 +23,43 @@ final class AssetsSql(implicit lh: LogHandler) {
          |where o.tx_id = $txId
          |""".stripMargin.query
 
-  def getByTxHash(txHash: TxHash): Query0[Asset] =
+  def getByTxHash(txHash: TxHash): Query0[AssetOutput] =
     sql"""
          |select
          |  o.id,
          |  o.tx_id,
-         |  encode(a.name, 'hex'),
+         |  encode(a.name, 'escape'),
          |  a.quantity,
          |  a.policy,
          |  o.index
          |from ma_tx_out a
          |left join tx_out o on o.id = a.tx_out_id
          |left join tx t on t.id = o.tx_id
-         |where t.hash = decode($txHash, 'hex')
+         |where t.hash = decode($txHash, 'escape')
          |""".stripMargin.query
 
-  def getByTxIds(txIds: NonEmptyList[Long]): Query0[Asset] = {
+  def getByTxIds(txIds: NonEmptyList[Long]): Query0[AssetOutput] = {
     val q =
       sql"""
            |select
            |  o.id,
            |  o.tx_id,
-           |  encode(a.name, 'hex'),
+           |  encode(a.name, 'escape'),
            |  a.quantity,
            |  a.policy,
            |  o.index
            |from ma_tx_out a
            |left join tx_out o on o.id = a.tx_out_id
            |""".stripMargin
-    (q ++ Fragments.in(fr"where o.tx_id", txIds)).query[Asset]
+    (q ++ Fragments.in(fr"where o.tx_id", txIds)).query[AssetOutput]
   }
 
-  def getByOutputId(outputId: Long): Query0[Asset] =
+  def getByOutputId(outputId: Long): Query0[AssetOutput] =
     sql"""
          |select
          |  o.id,
          |  o.tx_id,
-         |  encode(a.name, 'hex'),
+         |  encode(a.name, 'escape'),
          |  a.quantity,
          |  a.policy,
          |  o.index
@@ -68,19 +68,31 @@ final class AssetsSql(implicit lh: LogHandler) {
          |where o.id = $outputId
          |""".stripMargin.query
 
-  def getByOutputIds(outputIds: NonEmptyList[Long]): Query0[Asset] = {
+  def getByOutputIds(outputIds: NonEmptyList[Long]): Query0[AssetOutput] = {
     val q =
       sql"""
            |select
            |  o.id,
            |  o.tx_id,
-           |  encode(a.name, 'hex'),
+           |  encode(a.name, 'escape'),
            |  a.quantity,
            |  a.policy,
            |  o.index
            |from ma_tx_out a
            |left join tx_out o on o.id = a.tx_out_id
            |""".stripMargin
-    (q ++ Fragments.in(fr"where o.tx_out_id", outputIds)).query[Asset]
+    (q ++ Fragments.in(fr"where o.tx_out_id", outputIds)).query[AssetOutput]
   }
+
+  def getMintEventsByAssetId(id: Asset32): Query0[AssetMintEvent] =
+    sql"""
+         |select
+         |  id,
+         |  policy,
+         |  encode(name, 'escape'),
+         |  quantity,
+         |  tx_id
+         |from ma_tx_out a
+         |where a.name = decode($id, 'escape')
+         |""".stripMargin.query
 }
