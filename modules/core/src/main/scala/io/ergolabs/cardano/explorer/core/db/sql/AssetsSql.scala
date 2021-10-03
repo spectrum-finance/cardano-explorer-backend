@@ -88,11 +88,11 @@ final class AssetsSql(implicit lh: LogHandler) {
     sql"""
          |select
          |  id,
-         |  policy,
+         |  encode(policy, 'hex'),
          |  encode(name, 'escape'),
          |  quantity,
          |  tx_id
-         |from ma_tx_out a
+         |from ma_tx_mint a
          |where a.name = decode($id, 'escape')
          |""".stripMargin.query
 }
