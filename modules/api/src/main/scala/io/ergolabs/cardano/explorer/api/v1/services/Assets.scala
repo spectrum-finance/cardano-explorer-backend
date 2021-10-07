@@ -24,9 +24,9 @@ object Assets {
 
   final class Live[F[_], D[_]: Monad](txr: Txr[F, D], repos: RepoBundle[D]) extends Assets[F] {
 
-    def getInfo(ref: AssetRef): F[Option[AssetInfo]] = {
+    def getInfo(ref: AssetRef): F[Option[AssetInfo]] =
       repos.assets.getMintEvents(ref).map {
-        case emptyList if emptyList.isEmpty => none[AssetInfo]
+        case Nil => none[AssetInfo]
         case mintEvents =>
           mintEvents
             .foldLeft(none[AssetInfo]) {
@@ -35,7 +35,6 @@ object Assets {
               case (_, event) =>
                 Some(AssetInfo(event.policy, event.name, event.quantity))
             }
-      }
-    } ||> txr.trans
+      } ||> txr.trans
   }
 }
