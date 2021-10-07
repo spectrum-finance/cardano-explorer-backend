@@ -9,7 +9,6 @@ import eu.timepit.refined.collection._
 import eu.timepit.refined.predicates.all.{And, Equal}
 import eu.timepit.refined.refineV
 import eu.timepit.refined.string.HexStringSpec
-import io.ergolabs.cardano.explorer.core.types.OutRef
 import io.ergolabs.cardano.explorer.core.types.specs.Hash32Spec
 import io.estatico.newtype.macros.newtype
 import sttp.tapir.json.circe._
@@ -159,20 +158,13 @@ object types {
   @newtype case class PolicyId(value: String)
 
   object PolicyId {
+    implicit val put: Put[PolicyId]           = deriving
+    implicit val get: Get[PolicyId]           = deriving
+
+    implicit def schema: Schema[PolicyId] =
+      Schema.schemaForString.description("Minting policy ID").asInstanceOf[Schema[PolicyId]]
+
     def fromStringUnsafe(s: String): PolicyId = PolicyId(s)
-  }
-
-  @derive(loggable, encoder, decoder)
-  @newtype case class PolicyHash(value: String)
-
-  object PolicyHash {
-    implicit val put: Put[PolicyHash] = deriving
-    implicit val get: Get[PolicyHash] = deriving
-
-    def empty: PolicyHash = PolicyHash("")
-
-    implicit def schema: Schema[PolicyHash] =
-      Schema.schemaForString.description("Policy Hash").asInstanceOf[Schema[PolicyHash]]
   }
 
   @derive(loggable, encoder, decoder)

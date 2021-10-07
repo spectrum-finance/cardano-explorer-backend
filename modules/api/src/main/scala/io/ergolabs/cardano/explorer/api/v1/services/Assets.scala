@@ -1,18 +1,18 @@
 package io.ergolabs.cardano.explorer.api.v1.services
 
 import cats.Monad
+import cats.syntax.option._
 import io.ergolabs.cardano.explorer.api.v1.models.AssetInfo
-import mouse.anyf._
 import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle
-import io.ergolabs.cardano.explorer.core.types.{Asset32, PolicyHash}
+import io.ergolabs.cardano.explorer.core.types.AssetRef
+import mouse.anyf._
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.transactor.Txr
 import tofu.syntax.monadic._
-import cats.syntax.option._
 
 trait Assets[F[_]] {
 
-  def getInfo(assetId: Asset32): F[Option[AssetInfo]]
+  def getInfo(ref: AssetRef): F[Option[AssetInfo]]
 }
 
 object Assets {
@@ -24,20 +24,17 @@ object Assets {
 
   final class Live[F[_], D[_]: Monad](txr: Txr[F, D], repos: RepoBundle[D]) extends Assets[F] {
 
-    override def getInfo(assetId: Asset32): F[Option[AssetInfo]] = {
-      repos.assets.getMintEvents(assetId).map {
+    def getInfo(ref: AssetRef): F[Option[AssetInfo]] = {
+      repos.assets.getMintEvents(ref).map {
         case emptyList if emptyList.isEmpty => none[AssetInfo]
         case mintEvents =>
           mintEvents
-            .foldLeft(AssetInfo.emptyById(assetId)) { case (acc, nextEvent) =>
-              acc.copy(
-                PolicyHash(nextEvent.policy.value),
-                assetId,
-                acc.quantity + nextEvent.quantity,
-                acc.mintTxsIds :+ nextEvent.txId
-              )
+            .foldLeft(none[AssetInfo]) {
+              case (Some(acc), nextEvent) =>
+                Some(acc.copy(quantity = acc.quantity + nextEvent.quantity))
+              case (_, event) =>
+                Some(AssetInfo(event.policy, event.name, event.quantity))
             }
-            .some
       }
     } ||> txr.trans
   }

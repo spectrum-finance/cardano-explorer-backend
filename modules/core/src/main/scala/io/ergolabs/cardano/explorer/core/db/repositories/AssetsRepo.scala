@@ -7,7 +7,7 @@ import derevo.derive
 import doobie.ConnectionIO
 import io.ergolabs.cardano.explorer.core.db.models.{AssetMintEvent, AssetOutput}
 import io.ergolabs.cardano.explorer.core.db.sql.AssetsSql
-import io.ergolabs.cardano.explorer.core.types.{Asset32, TxHash}
+import io.ergolabs.cardano.explorer.core.types.{Asset32, AssetRef, TxHash}
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.log.EmbeddableLogHandler
 import tofu.higherKind.derived.representableK
@@ -27,7 +27,7 @@ trait AssetsRepo[F[_]] {
 
   def getByOutputIds(outputIds: NonEmptyList[Long]): F[List[AssetOutput]]
 
-  def getMintEvents(assetId: Asset32): F[List[AssetMintEvent]]
+  def getMintEvents(ref: AssetRef): F[List[AssetMintEvent]]
 }
 
 object AssetsRepo {
@@ -59,7 +59,7 @@ object AssetsRepo {
     def getByOutputIds(outputIds: NonEmptyList[Long]): ConnectionIO[List[AssetOutput]] =
       sql.getByOutputIds(outputIds).to[List]
 
-    def getMintEvents(assetId: Asset32): ConnectionIO[List[AssetMintEvent]] =
-      sql.getMintEventsByAssetId(assetId).to[List]
+    def getMintEvents(ref: AssetRef): ConnectionIO[List[AssetMintEvent]] =
+      sql.getMintEventsByAsset(ref).to[List]
   }
 }

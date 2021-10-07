@@ -5,7 +5,7 @@ import doobie._
 import doobie.syntax.all._
 import io.ergolabs.cardano.explorer.core.db.instances._
 import io.ergolabs.cardano.explorer.core.db.models.{AssetMintEvent, AssetOutput}
-import io.ergolabs.cardano.explorer.core.types.{Asset32, TxHash}
+import io.ergolabs.cardano.explorer.core.types.{Asset32, AssetRef, TxHash}
 
 final class AssetsSql(implicit lh: LogHandler) {
 
@@ -84,15 +84,16 @@ final class AssetsSql(implicit lh: LogHandler) {
     (q ++ Fragments.in(fr"where o.tx_out_id", outputIds)).query[AssetOutput]
   }
 
-  def getMintEventsByAssetId(id: Asset32): Query0[AssetMintEvent] =
+  def getMintEventsByAsset(ref: AssetRef): Query0[AssetMintEvent] =
     sql"""
          |select
-         |  id,
-         |  encode(policy, 'hex'),
-         |  encode(name, 'escape'),
-         |  quantity,
-         |  tx_id
+         |  a.id,
+         |  encode(a.policy, 'hex'),
+         |  encode(a.name, 'escape'),
+         |  a.quantity,
+         |  a.tx_id
          |from ma_tx_mint a
-         |where a.name = decode($id, 'escape')
+         |where a.policy = ${ref.policyId} and
+         |      a.name = decode(${ref.name}, 'escape')
          |""".stripMargin.query
 }

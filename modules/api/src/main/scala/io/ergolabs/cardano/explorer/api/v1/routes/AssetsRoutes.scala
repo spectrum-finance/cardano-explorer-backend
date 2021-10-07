@@ -17,10 +17,10 @@ final class AssetsRoutes[F[_]: Concurrent: ContextShift: Timer](implicit
 
   private val interpreter = Http4sServerInterpreter(opts)
 
-  def routes = getAssetInfoInfoR
+  def routes = getAssetInfoR
 
-  def getAssetInfoInfoR = interpreter.toRoutes(getAssetInfoInfo) { assetId =>
-    service.getInfo(assetId).orNotFound(s"AssetInfo{id=$assetId}")
+  def getAssetInfoR = interpreter.toRoutes(getAssetInfo) { assetRef =>
+    service.getInfo(assetRef).orNotFound(s"AssetInfo{ref=$assetRef}")
   }
 }
 
