@@ -4,7 +4,7 @@ import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
 import io.ergolabs.cardano.explorer.api.v1.instances._
 import io.ergolabs.cardano.explorer.core.db.models.{
-  Asset,
+  AssetOutput,
   Input,
   Output,
   TxMetadata,
@@ -35,7 +35,7 @@ object Transaction {
     tx: DbTransaction,
     inputs: List[Input],
     outputs: List[Output],
-    assets: List[Asset],
+    assets: List[AssetOutput],
     redeemers: List[DbRedeemer],
     meta: Option[TxMetadata]
   ): Transaction = {
@@ -66,7 +66,7 @@ object Transaction {
     txs: List[DbTransaction],
     inputs: List[Input],
     outputs: List[Output],
-    assets: List[Asset],
+    assets: List[AssetOutput],
     redeemers: List[DbRedeemer],
     meta: List[TxMetadata]
   ): List[Transaction] = {

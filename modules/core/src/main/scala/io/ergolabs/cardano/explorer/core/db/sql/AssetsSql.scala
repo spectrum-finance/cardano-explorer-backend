@@ -4,74 +4,96 @@ import cats.data.NonEmptyList
 import doobie._
 import doobie.syntax.all._
 import io.ergolabs.cardano.explorer.core.db.instances._
-import io.ergolabs.cardano.explorer.core.db.models.Asset
-import io.ergolabs.cardano.explorer.core.types.TxHash
+import io.ergolabs.cardano.explorer.core.db.models.{AssetMintEvent, AssetOutput}
+import io.ergolabs.cardano.explorer.core.types.{Asset32, AssetRef, TxHash}
 
 final class AssetsSql(implicit lh: LogHandler) {
 
-  def getByTxId(txId: Long): Query0[Asset] =
+  def getByTxId(txId: Long): Query0[AssetOutput] =
     sql"""
          |select
          |  o.id,
-         |  t.id,
-         |  encode(a.name, 'hex'),
+         |  o.tx_id,
+         |  encode(a.name, 'escape'),
          |  a.quantity,
          |  a.policy,
-         |  encode(t.hash, 'hex'),
+         |  o.index
+         |from ma_tx_out a
+         |left join tx_out o on o.id = a.tx_out_id
+         |where o.tx_id = $txId
+         |""".stripMargin.query
+
+  def getByTxHash(txHash: TxHash): Query0[AssetOutput] =
+    sql"""
+         |select
+         |  o.id,
+         |  o.tx_id,
+         |  encode(a.name, 'escape'),
+         |  a.quantity,
+         |  a.policy,
          |  o.index
          |from ma_tx_out a
          |left join tx_out o on o.id = a.tx_out_id
          |left join tx t on t.id = o.tx_id
-         |where t.id = $txId
+         |where t.hash = decode($txHash, 'escape')
          |""".stripMargin.query
 
-  def getByTxHash(txHash: TxHash): Query0[Asset] =
-    sql"""
-         |select
-         |  o.id,
-         |  t.id,
-         |  encode(a.name, 'hex'),
-         |  a.quantity,
-         |  a.policy,
-         |  encode(t.hash, 'hex'),
-         |  o.index
-         |from ma_tx_out a
-         |left join tx_out o on o.id = a.tx_out_id
-         |left join tx t on t.id = o.tx_id
-         |where t.hash = decode($txHash, 'hex')
-         |""".stripMargin.query
-
-  def getByTxIds(txIds: NonEmptyList[Long]): Query0[Asset] = {
+  def getByTxIds(txIds: NonEmptyList[Long]): Query0[AssetOutput] = {
     val q =
       sql"""
            |select
            |  o.id,
-           |  t.id,
-           |  encode(a.name, 'hex'),
+           |  o.tx_id,
+           |  encode(a.name, 'escape'),
            |  a.quantity,
            |  a.policy,
-           |  encode(t.hash, 'hex'),
            |  o.index
            |from ma_tx_out a
            |left join tx_out o on o.id = a.tx_out_id
-           |left join tx t on t.id = o.tx_id
            |""".stripMargin
-    (q ++ Fragments.in(fr"where o.tx_id", txIds)).query[Asset]
+    (q ++ Fragments.in(fr"where o.tx_id", txIds)).query[AssetOutput]
   }
 
-  def getByOutputId(outputId: Long): Query0[Asset] =
+  def getByOutputId(outputId: Long): Query0[AssetOutput] =
     sql"""
          |select
          |  o.id,
-         |  t.id,
-         |  encode(a.name, 'hex'),
+         |  o.tx_id,
+         |  encode(a.name, 'escape'),
          |  a.quantity,
          |  a.policy,
-         |  encode(t.hash, 'hex'),
          |  o.index
          |from ma_tx_out a
          |left join tx_out o on o.id = a.tx_out_id
-         |left join tx t on t.id = o.tx_id
          |where o.id = $outputId
+         |""".stripMargin.query
+
+  def getByOutputIds(outputIds: NonEmptyList[Long]): Query0[AssetOutput] = {
+    val q =
+      sql"""
+           |select
+           |  o.id,
+           |  o.tx_id,
+           |  encode(a.name, 'escape'),
+           |  a.quantity,
+           |  a.policy,
+           |  o.index
+           |from ma_tx_out a
+           |left join tx_out o on o.id = a.tx_out_id
+           |""".stripMargin
+    (q ++ Fragments.in(fr"where o.tx_out_id", outputIds)).query[AssetOutput]
+  }
+
+  def getMintEventsByAsset(ref: AssetRef): Query0[AssetMintEvent] =
+    sql"""
+         |select
+         |  a.id,
+         |  encode(a.policy, 'hex'),
+         |  encode(a.name, 'escape'),
+         |  a.quantity,
+         |  a.tx_id
+         |from ma_tx_mint a
+         |where a.policy = ${ref.policyId} and
+         |      a.name = decode(${ref.name}, 'escape')
          |""".stripMargin.query
 }

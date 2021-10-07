@@ -9,7 +9,6 @@ import eu.timepit.refined.collection._
 import eu.timepit.refined.predicates.all.{And, Equal}
 import eu.timepit.refined.refineV
 import eu.timepit.refined.string.HexStringSpec
-import io.ergolabs.cardano.explorer.core.types.OutRef
 import io.ergolabs.cardano.explorer.core.types.specs.Hash32Spec
 import io.estatico.newtype.macros.newtype
 import sttp.tapir.json.circe._
@@ -18,6 +17,8 @@ import tofu.Throws
 import tofu.logging.derivation.loggable
 import tofu.syntax.monadic._
 import tofu.syntax.raise._
+
+import scala.util.Try
 
 object types {
 
@@ -40,11 +41,15 @@ object types {
   @newtype case class Asset32(value: String)
 
   object Asset32 {
+    implicit def plainCodec: Codec.PlainCodec[Asset32] = deriving
+
     implicit val put: Put[Asset32] = deriving
     implicit val get: Get[Asset32] = deriving
 
     implicit def schema: Schema[Asset32] =
       Schema.schemaForString.description("Asset 32").asInstanceOf[Schema[Asset32]]
+
+    def fromStringUnsafe(s: String): Asset32 = Asset32(s)
   }
 
   @derive(loggable, encoder, decoder)
@@ -126,7 +131,7 @@ object types {
   }
 
   @derive(loggable, encoder, decoder)
-  @newtype case class OutRef(value: String)
+  @newtype case class OutRef private[types] (value: String)
 
   object OutRef {
     implicit def plainCodec: Codec.PlainCodec[OutRef] = deriving
@@ -142,10 +147,54 @@ object types {
     def apply(txHash: TxHash, index: Int): OutRef =
       OutRef(s"$txHash:$index")
 
-    def unapply(ref: OutRef): Option[(TxHash, Int)] = {
-      val Array(hash, i) = ref.value.split(":")
-      Some(TxHash.fromStringUnsafe(hash) -> i.toInt)
-    }
+    def unapply(ref: OutRef): Option[(TxHash, Int)] =
+      Try {
+        val Array(hash, i) = ref.value.split("#")
+        TxHash.fromStringUnsafe(hash) -> i.toInt
+      }.toOption
+  }
+
+  @derive(loggable, encoder, decoder)
+  @newtype case class PolicyId(value: String)
+
+  object PolicyId {
+    implicit val put: Put[PolicyId]           = deriving
+    implicit val get: Get[PolicyId]           = deriving
+
+    implicit def schema: Schema[PolicyId] =
+      Schema.schemaForString.description("Minting policy ID").asInstanceOf[Schema[PolicyId]]
+
+    def fromStringUnsafe(s: String): PolicyId = PolicyId(s)
+  }
+
+  @derive(loggable, encoder, decoder)
+  @newtype case class AssetRef private[types] (value: String) {
+    def policyId: PolicyId = PolicyId.fromStringUnsafe(value.split(AssetRef.RefSeparator)(0))
+    def name: Asset32      = Asset32.fromStringUnsafe(value.split(AssetRef.RefSeparator)(1))
+  }
+
+  object AssetRef {
+
+    implicit def plainCodec: Codec.PlainCodec[AssetRef] = deriving
+
+    implicit def jsonCodec: Codec.JsonCodec[AssetRef] = deriving
+
+    implicit def schema: Schema[AssetRef] =
+      Schema.schemaForString.description("Modifier ID").asInstanceOf[Schema[AssetRef]]
+
+    implicit def validator: Validator[AssetRef] =
+      Validator.pass
+
+    val RefSeparator = "."
+
+    def apply(policy: PolicyId, assetName: Asset32): AssetRef =
+      AssetRef(s"$policy.$assetName")
+
+    def unapply(ref: AssetRef): Option[(PolicyId, Asset32)] =
+      Try {
+        val Array(hash, name) = ref.value.split(RefSeparator)
+        PolicyId.fromStringUnsafe(hash) -> Asset32.fromStringUnsafe(name)
+      }.toOption
   }
 
   @derive(loggable, encoder, decoder)

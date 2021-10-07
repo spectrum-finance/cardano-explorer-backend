@@ -1,17 +1,25 @@
 package io.ergolabs.cardano.explorer.api.v1.services
 
 import cats.Monad
-import cats.data.OptionT
-import io.ergolabs.cardano.explorer.api.v1.models.TxOutput
+import cats.data.{NonEmptyList, OptionT}
+import io.ergolabs.cardano.explorer.api.v1.models._
+import io.ergolabs.cardano.explorer.core.db.models.{Output => DbOutput}
 import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle
-import io.ergolabs.cardano.explorer.core.types.OutRef
+import io.ergolabs.cardano.explorer.core.types.{Addr, AssetRef, OutRef}
 import mouse.anyf._
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.transactor.Txr
+import tofu.syntax.monadic._
 
 trait Outputs[F[_]] {
 
   def getByOutRef(ref: OutRef): F[Option[TxOutput]]
+
+  def getUnspentByAddr(addr: Addr, paging: Paging): F[Items[TxOutput]]
+
+  def getUnspentByAsset(asset: AssetRef, paging: Paging): F[Items[TxOutput]]
+
+  def getSearchUnspent(query: UtxoSearch, paging: Paging): F[Items[TxOutput]]
 }
 
 object Outputs {
@@ -29,5 +37,36 @@ object Outputs {
         out    <- OptionT(outputs.getByRef(ref))
         assets <- OptionT.liftF(assets.getByOutputId(out.id))
       } yield TxOutput.inflate(out, assets)).value ||> txr.trans
+
+    def getUnspentByAddr(addr: Addr, paging: Paging): F[Items[TxOutput]] =
+      (for {
+        txs   <- outputs.getUnspentByAddr(addr, paging.offset, paging.limit)
+        total <- outputs.countUnspentByAddr(addr)
+        batch <- getBatch(txs, total)
+      } yield batch) ||> txr.trans
+
+    def getUnspentByAsset(asset: AssetRef, paging: Paging): F[Items[TxOutput]] =
+      (for {
+        txs   <- outputs.getUnspentByAsset(asset, paging.offset, paging.limit)
+        total <- outputs.countUnspentByAsset(asset)
+        batch <- getBatch(txs, total)
+      } yield batch) ||> txr.trans
+
+    def getSearchUnspent(query: UtxoSearch, paging: Paging): F[Items[TxOutput]] =
+      (for {
+        txs   <- outputs.searchUnspent(query.addr, query.containsAllOf, query.containsAnyOf, paging.offset, paging.limit)
+        total <- outputs.countUnspent(query.addr, query.containsAllOf, query.containsAnyOf)
+        batch <- getBatch(txs, total)
+      } yield batch) ||> txr.trans
+
+    private def getBatch(os: List[DbOutput], total: Int): D[Items[TxOutput]] =
+      NonEmptyList.fromList(os.map(_.id)) match {
+        case Some(ids) =>
+          for {
+            assets <- assets.getByOutputIds(ids)
+            xs = TxOutput.inflateBatch(os, assets)
+          } yield Items(xs, total)
+        case None => Items.empty[TxOutput].pure
+      }
   }
 }
