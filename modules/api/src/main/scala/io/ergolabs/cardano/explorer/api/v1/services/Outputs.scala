@@ -15,11 +15,15 @@ trait Outputs[F[_]] {
 
   def getByOutRef(ref: OutRef): F[Option[TxOutput]]
 
+  def getUnspent(paging: Paging): F[Items[TxOutput]]
+
+  def getUnspent(indexing: Indexing): F[Items[TxOutput]]
+
   def getUnspentByAddr(addr: Addr, paging: Paging): F[Items[TxOutput]]
 
   def getUnspentByAsset(asset: AssetRef, paging: Paging): F[Items[TxOutput]]
 
-  def getSearchUnspent(query: UtxoSearch, paging: Paging): F[Items[TxOutput]]
+  def searchUnspent(query: UtxoSearch, paging: Paging): F[Items[TxOutput]]
 }
 
 object Outputs {
@@ -38,6 +42,20 @@ object Outputs {
         assets <- OptionT.liftF(assets.getByOutputId(out.id))
       } yield TxOutput.inflate(out, assets)).value ||> txr.trans
 
+    def getUnspent(paging: Paging): F[Items[TxOutput]] =
+      (for {
+        txs   <- outputs.getUnspent(paging.offset, paging.limit)
+        total <- outputs.countUnspent
+        batch <- getBatch(txs, total)
+      } yield batch) ||> txr.trans
+
+    def getUnspent(indexing: Indexing): F[Items[TxOutput]] =
+      (for {
+        txs   <- outputs.getUnspent(indexing.minIndex, indexing.limit)
+        total <- outputs.countUnspent
+        batch <- getBatch(txs, total)
+      } yield batch) ||> txr.trans
+
     def getUnspentByAddr(addr: Addr, paging: Paging): F[Items[TxOutput]] =
       (for {
         txs   <- outputs.getUnspentByAddr(addr, paging.offset, paging.limit)
@@ -52,7 +70,7 @@ object Outputs {
         batch <- getBatch(txs, total)
       } yield batch) ||> txr.trans
 
-    def getSearchUnspent(query: UtxoSearch, paging: Paging): F[Items[TxOutput]] =
+    def searchUnspent(query: UtxoSearch, paging: Paging): F[Items[TxOutput]] =
       (for {
         txs   <- outputs.searchUnspent(query.addr, query.containsAllOf, query.containsAnyOf, paging.offset, paging.limit)
         total <- outputs.countUnspent(query.addr, query.containsAllOf, query.containsAnyOf)
