@@ -13,6 +13,7 @@ lazy val commonScalacOption = List(
   "-Ymacro-annotations",
   "-Yrangepos",
   "-Wconf:cat=unused:info",
+  "-language:implicitConversions",
   "-feature"
 )
 

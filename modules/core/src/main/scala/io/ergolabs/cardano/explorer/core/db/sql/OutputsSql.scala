@@ -110,6 +110,61 @@ final class OutputsSql(implicit lh: LogHandler) {
     (q ++ Fragments.in(fr"where o.tx_id", txIds)).query
   }
 
+  def getUnspent(offset: Int, limit: Int): Query0[Output] =
+    sql"""
+         |select
+         |  o.id,
+         |  o.tx_id,
+         |  encode(b.hash, 'hex'),
+         |  encode(t.hash, 'hex'),
+         |  o.index,
+         |  o.address,
+         |  o.value,
+         |  encode(o.data_hash, 'hex'),
+         |  case when (d.value is null) then rd.value else d.value end,
+         |  null,
+         |  null
+         |from tx_out o
+         |left join tx t on t.id = o.tx_id
+         |left join block b on b.id = t.block_id
+         |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
+         |left join datum d on d.hash = o.data_hash
+         |left join reported_datum rd on rd.hash = o.data_hash
+         |where i.id is null
+         |offset $offset limit $limit
+         |""".stripMargin.query
+
+  def getUnspentIndexed(minIndex: Int, limit: Int): Query0[Output] =
+    sql"""
+         |select
+         |  o.id,
+         |  o.tx_id,
+         |  encode(b.hash, 'hex'),
+         |  encode(t.hash, 'hex'),
+         |  o.index,
+         |  o.address,
+         |  o.value,
+         |  encode(o.data_hash, 'hex'),
+         |  case when (d.value is null) then rd.value else d.value end,
+         |  null,
+         |  null
+         |from tx_out o
+         |left join tx t on t.id = o.tx_id
+         |left join block b on b.id = t.block_id
+         |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
+         |left join datum d on d.hash = o.data_hash
+         |left join reported_datum rd on rd.hash = o.data_hash
+         |where o.id >= $minIndex and i.id is null
+         |limit $limit
+         |""".stripMargin.query
+
+  def countUnspent: Query0[Int] =
+    sql"""
+         |select count(o.id) from tx_out o
+         |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
+         |where i.id is null
+         |""".stripMargin.query
+
   def getUnspentByAddr(addr: Addr, offset: Int, limit: Int): Query0[Output] =
     sql"""
          |select
