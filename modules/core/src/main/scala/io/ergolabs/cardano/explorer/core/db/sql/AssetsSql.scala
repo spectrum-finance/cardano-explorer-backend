@@ -81,7 +81,7 @@ final class AssetsSql(implicit lh: LogHandler) {
            |from ma_tx_out a
            |left join tx_out o on o.id = a.tx_out_id
            |""".stripMargin
-    (q ++ Fragments.in(fr"where o.tx_out_id", outputIds)).query[AssetOutput]
+    (q ++ Fragments.in(fr"where a.tx_out_id", outputIds)).query[AssetOutput]
   }
 
   def getMintEventsByAsset(ref: AssetRef): Query0[AssetMintEvent] =
