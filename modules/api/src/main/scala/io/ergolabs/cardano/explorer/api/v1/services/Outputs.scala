@@ -44,7 +44,7 @@ object Outputs {
 
     def getUnspent(paging: Paging): F[Items[TxOutput]] =
       (for {
-        txs   <- outputs.getUnspent(paging.offset, paging.limit)
+        txs   <- outputs.getUnspentIndexed(paging.offset, paging.limit)
         total <- outputs.countUnspent
         batch <- getBatch(txs, total)
       } yield batch) ||> txr.trans

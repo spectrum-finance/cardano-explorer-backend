@@ -28,7 +28,7 @@ object TxOutput {
   implicit def schema: Schema[TxOutput] = Schema.derived
 
   def inflate(out: Output, assets: List[AssetOutput]): TxOutput = {
-    val outAssets = assets.map(a => OutAsset(a.name, a.quantity))
+    val outAssets = assets.map(a => OutAsset(a.policy, a.name, a.quantity))
     TxOutput(
       OutRef(out.txHash, out.index),
       out.blockHash,
