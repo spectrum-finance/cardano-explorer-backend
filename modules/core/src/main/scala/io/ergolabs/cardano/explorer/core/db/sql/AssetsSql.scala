@@ -16,7 +16,7 @@ final class AssetsSql(implicit lh: LogHandler) {
          |  o.tx_id,
          |  encode(a.name, 'escape'),
          |  a.quantity,
-         |  a.policy,
+         |  encode(a.policy, 'hex'),
          |  o.index
          |from ma_tx_out a
          |left join tx_out o on o.id = a.tx_out_id
@@ -30,7 +30,7 @@ final class AssetsSql(implicit lh: LogHandler) {
          |  o.tx_id,
          |  encode(a.name, 'escape'),
          |  a.quantity,
-         |  a.policy,
+         |  encode(a.policy, 'hex'),
          |  o.index
          |from ma_tx_out a
          |left join tx_out o on o.id = a.tx_out_id
@@ -46,7 +46,7 @@ final class AssetsSql(implicit lh: LogHandler) {
            |  o.tx_id,
            |  encode(a.name, 'escape'),
            |  a.quantity,
-           |  a.policy,
+           |  encode(a.policy, 'hex'),
            |  o.index
            |from ma_tx_out a
            |left join tx_out o on o.id = a.tx_out_id
@@ -61,7 +61,7 @@ final class AssetsSql(implicit lh: LogHandler) {
          |  o.tx_id,
          |  encode(a.name, 'escape'),
          |  a.quantity,
-         |  a.policy,
+         |  encode(a.policy, 'hex'),
          |  o.index
          |from ma_tx_out a
          |left join tx_out o on o.id = a.tx_out_id
@@ -76,7 +76,7 @@ final class AssetsSql(implicit lh: LogHandler) {
            |  o.tx_id,
            |  encode(a.name, 'escape'),
            |  a.quantity,
-           |  a.policy,
+           |  encode(a.policy, 'hex'),
            |  o.index
            |from ma_tx_out a
            |left join tx_out o on o.id = a.tx_out_id

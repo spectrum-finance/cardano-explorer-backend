@@ -28,8 +28,7 @@ object TxOutput {
   implicit def schema: Schema[TxOutput] = Schema.derived
 
   def inflate(out: Output, assets: List[AssetOutput]): TxOutput = {
-    //todo: Policy example: \\xa5bdebd0371758aeeb3b116432724fc6bf6c9caf186485baee7ee4d9. So, should we drop first 3 chars?
-    val outAssets = assets.map(a => OutAsset(a.name, a.quantity, a.policy))
+    val outAssets = assets.map(a => OutAsset(a.policy, a.name, a.quantity))
     TxOutput(
       OutRef(out.txHash, out.index),
       out.blockHash,
