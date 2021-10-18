@@ -14,5 +14,11 @@ final case class UtxoSearch(
 
 object UtxoSearch {
 
-  implicit val schema: Schema[UtxoSearch] = Schema.derived
+  implicit val schema: Schema[UtxoSearch] =
+    Schema
+      .derived[UtxoSearch]
+      .modify(_.addr)(_.description("Target address"))
+      .modify(_.containsAllOf)(_.description("Should contains all assets in list"))
+      .modify(_.containsAnyOf)(_.description("Should contains any of assets in list"))
+
 }

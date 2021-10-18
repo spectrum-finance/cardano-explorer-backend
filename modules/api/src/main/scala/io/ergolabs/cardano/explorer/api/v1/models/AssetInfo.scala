@@ -15,5 +15,10 @@ final case class AssetInfo(
 
 object AssetInfo {
 
-  implicit val schema: Schema[AssetInfo] = Schema.derived
+  implicit val schema: Schema[AssetInfo] =
+    Schema
+      .derived[AssetInfo]
+      .modify(_.policyId)(_.description("The asset minting policy id"))
+      .modify(_.name)(_.description("The asset name"))
+      .modify(_.quantity)(_.description("The asset quantity"))
 }

@@ -12,7 +12,7 @@ final class AssetsRoutes[F[_]: Concurrent: ContextShift: Timer](implicit
   opts: Http4sServerOptions[F, F]
 ) {
 
-  private val endpoints = new AssetsEndpoints
+  private val endpoints = AssetsEndpoints
   import endpoints._
 
   private val interpreter = Http4sServerInterpreter(opts)

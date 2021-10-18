@@ -12,7 +12,7 @@ final class BlocksRoutes[F[_]: Concurrent: ContextShift: Timer](implicit
   opts: Http4sServerOptions[F, F]
 ) {
 
-  private val endpoints = new BlocksEndpoints
+  private val endpoints = BlocksEndpoints
   import endpoints._
 
   private val interpreter = Http4sServerInterpreter(opts)

@@ -11,6 +11,11 @@ object Items {
 
   def empty[A]: Items[A] = Items(List.empty[A], 0)
 
-  implicit def schema[A: Schema]: Schema[Items[A]]       = Schema.derived[Items[A]]
+  implicit def schema[A: Schema]: Schema[Items[A]]       =
+    Schema
+      .derived[Items[A]]
+      .modify(_.items)(_.description("Items in selection"))
+      .modify(_.total)(_.description("Total qty of items"))
+
   implicit def validator[A: Schema]: Validator[Items[A]] = schema.validator
 }

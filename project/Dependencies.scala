@@ -43,9 +43,12 @@ object Dependencies {
 
     val pureconfig = "com.github.pureconfig" %% "pureconfig-cats-effect" % V.pureconfig
 
-    val tapirCore   = "com.softwaremill.sttp.tapir" %% "tapir-core"          % V.tapir
-    val tapirCirce  = "com.softwaremill.sttp.tapir" %% "tapir-json-circe"    % V.tapir
-    val tapirHttp4s = "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % V.tapir
+    val tapirCore    = "com.softwaremill.sttp.tapir" %% "tapir-core"               % V.tapir
+    val tapirCirce   = "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % V.tapir
+    val tapirHttp4s  = "com.softwaremill.sttp.tapir" %% "tapir-http4s-server"      % V.tapir
+    val tapirDocs    = "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"       % V.tapir
+    val tapirOpenApi = "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % V.tapir
+    val tapirRedoc   = "com.softwaremill.sttp.tapir" %% "tapir-redoc-http4s"       % V.tapir
 
     val newtype = "io.estatico" %% "newtype" % V.newtype
 
