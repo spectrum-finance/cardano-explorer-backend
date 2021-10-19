@@ -15,34 +15,28 @@ final case class TxOutput(
   txHash: TxHash,
   index: Int,
   addr: Addr,
-  value: BigInt,
-  jsValue: String,
+  value: List[OutAsset],
   dataHash: Option[Hash32],
   data: Option[Json],
-  spentByTxHash: Option[TxHash],
-  assets: List[OutAsset]
+  spentByTxHash: Option[TxHash]
 )
 
 object TxOutput {
   implicit def schemaJson: Schema[Json] = Schema.string[Json]
   implicit def schema: Schema[TxOutput] = Schema.derived
 
-  def inflate(out: Output, assets: List[AssetOutput]): TxOutput = {
-    val outAssets = assets.map(a => OutAsset(a.policy, a.name, a.quantity))
+  def inflate(out: Output, assets: List[AssetOutput]): TxOutput =
     TxOutput(
       OutRef(out.txHash, out.index),
       out.blockHash,
       out.txHash,
       out.index,
       out.addr,
-      out.value,
-      out.value.toString(),
+      Value(out.lovelace, assets),
       out.dataHash,
       out.data,
-      out.spentByTxHash,
-      outAssets
+      out.spentByTxHash
     )
-  }
 
   def inflateBatch(outs: List[Output], assets: List[AssetOutput]): List[TxOutput] =
     outs.map(o => inflate(o, assets.filter(_.outputId == o.id)))
