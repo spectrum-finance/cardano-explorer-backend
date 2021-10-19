@@ -10,7 +10,7 @@ final case class Output(
   txHash: TxHash,
   index: Int,
   addr: Addr,
-  value: BigInt,
+  lovelace: BigInt,
   dataHash: Option[Hash32],
   data: Option[Json],
   inputId: Option[Long],

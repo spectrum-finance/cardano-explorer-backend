@@ -50,6 +50,8 @@ object types {
       Schema.schemaForString.description("Asset 32").asInstanceOf[Schema[Asset32]]
 
     def fromStringUnsafe(s: String): Asset32 = Asset32(s)
+
+    val Ada: Asset32 = fromStringUnsafe("")
   }
 
   @derive(loggable, encoder, decoder)
@@ -165,6 +167,8 @@ object types {
       Schema.schemaForString.description("Minting policy ID").asInstanceOf[Schema[PolicyId]]
 
     def fromStringUnsafe(s: String): PolicyId = PolicyId(s)
+
+    val Ada: PolicyId = fromStringUnsafe("")
   }
 
   @derive(loggable, encoder, decoder)
