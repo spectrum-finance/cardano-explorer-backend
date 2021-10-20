@@ -58,6 +58,9 @@ lazy val api =
         Libraries.doobieHikari,
         Libraries.tapirCirce,
         Libraries.tapirHttp4s,
+        Libraries.tapirRedoc,
+        Libraries.tapirDocs,
+        Libraries.tapirOpenApi,
         Libraries.derevoPureconfig,
         Libraries.pureconfig
       )

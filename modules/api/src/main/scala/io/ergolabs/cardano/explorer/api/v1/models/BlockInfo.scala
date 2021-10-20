@@ -22,7 +22,16 @@ final case class BlockInfo(
 
 object BlockInfo {
 
-  implicit def schema: Schema[BlockInfo] = Schema.derived
+  implicit def schema: Schema[BlockInfo] =
+    Schema
+      .derived[BlockInfo]
+      .modify(_.blockId)(_.description("The block identifier."))
+      .modify(_.blockHash)(_.description("The hash identifier of the block."))
+      .modify(_.epochNo)(_.description("The epoch number."))
+      .modify(_.slotNo)(_.description("The slot number."))
+      .modify(_.slotLeader)(_.description("The SlotLeader index number of the creator of this block."))
+      .modify(_.txCount)(_.description("The number of transactions in this block."))
+      .modify(_.time)(_.description("The block time (UTCTime)."))
 
   private val UNKNOWN_SLOT_LEADER = "Unknown slot leader"
 

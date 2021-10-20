@@ -13,7 +13,7 @@ final class TransactionsRoutes[F[_]: Concurrent: ContextShift: Timer](implicit
   opts: Http4sServerOptions[F, F]
 ) {
 
-  private val endpoints = new TransactionsEndpoints
+  private val endpoints = TransactionsEndpoints
   import endpoints._
 
   private val interpreter = Http4sServerInterpreter(opts)

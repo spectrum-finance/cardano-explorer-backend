@@ -5,7 +5,7 @@ import cats.syntax.semigroupk._
 import io.ergolabs.cardano.explorer.api.configs.HttpConfig
 import io.ergolabs.cardano.explorer.api.routes.unliftRoutes
 import io.ergolabs.cardano.explorer.api.types.TraceId
-import io.ergolabs.cardano.explorer.api.v1.routes.{AssetsRoutes, BlocksRoutes, OutputsRoutes, TransactionsRoutes}
+import io.ergolabs.cardano.explorer.api.v1.routes.{AssetsRoutes, BlocksRoutes, DocsRoutes, OutputsRoutes, TransactionsRoutes}
 import io.ergolabs.cardano.explorer.api.v1.services.{Assets, Blocks, Outputs, Transactions}
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.{Router, Server}
@@ -31,7 +31,8 @@ object HttpServer {
     val outsR   = OutputsRoutes.make[F]
     val blocksR = BlocksRoutes.make[F]
     val assetsR = AssetsRoutes.make[F]
-    val api     = Router("/" -> unliftRoutes[F, I](txsR <+> outsR <+> blocksR <+> assetsR)).orNotFound
+    val docsR   = DocsRoutes.make[F]
+    val api     = Router("/" -> unliftRoutes[F, I](txsR <+> outsR <+> blocksR <+> assetsR <+> docsR)).orNotFound
     BlazeServerBuilder[I](ec).bindHttp(conf.port, conf.host).withHttpApp(api).resource
   }
 }

@@ -15,5 +15,12 @@ final case class OutAsset(
 )
 
 object OutAsset {
-  implicit def schema: Schema[OutAsset] = Schema.derived
+
+  implicit def schema: Schema[OutAsset] =
+    Schema
+      .derived[OutAsset]
+      .modify(_.policy)(_.description("The Asset policy hash."))
+      .modify(_.name)(_.description("The Asset name."))
+      .modify(_.quantity)(_.description("The Asset quantity."))
+
 }

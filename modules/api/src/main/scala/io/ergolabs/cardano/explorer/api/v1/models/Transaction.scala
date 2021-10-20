@@ -29,7 +29,18 @@ final case class Transaction(
 
 object Transaction {
 
-  implicit def schema: Schema[Transaction] = Schema.derived
+  implicit def schema: Schema[Transaction] =
+    Schema
+      .derived[Transaction]
+      .modify(_.blockHash)(_.description("The hash identifier of the transaction block."))
+      .modify(_.blockIndex)(_.description("The index of this transaction with the block (zero based)."))
+      .modify(_.hash)(_.description("The hash identifier of the transaction."))
+      .modify(_.inputs)(_.description("The transaction inputs."))
+      .modify(_.outputs)(_.description("The transaction outputs."))
+      .modify(_.invalidBefore)(_.description("Transaction in invalid before this slot number."))
+      .modify(_.invalidHereafter)(_.description("Transaction in invalid at or after this slot number."))
+      .modify(_.metadata)(_.description("The transaction metadata."))
+      .modify(_.size)(_.description("The size of the transaction in bytes."))
 
   def inflate(
     tx: DbTransaction,

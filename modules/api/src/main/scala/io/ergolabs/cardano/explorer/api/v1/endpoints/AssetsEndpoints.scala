@@ -6,12 +6,17 @@ import io.ergolabs.cardano.explorer.core.types.{Asset32, AssetRef}
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
 
-class AssetsEndpoints {
+object AssetsEndpoints {
 
   val pathPrefix = "assets"
 
+  def endpoints: List[Endpoint[_, _, _, _]] = getAssetInfo :: Nil
+
   def getAssetInfo: Endpoint[AssetRef, HttpError, AssetInfo, Any] =
     baseEndpoint.get
-      .in(pathPrefix / "getInfo" / path[AssetRef])
+      .in(pathPrefix / "getInfo" / path[AssetRef].description("Asset reference"))
       .out(jsonBody[AssetInfo])
+      .tag(pathPrefix)
+      .name("Info by reference")
+      .description("Allow to get info about asset by asset ref")
 }
