@@ -18,7 +18,7 @@ object UtxoSearch {
     Schema
       .derived[UtxoSearch]
       .modify(_.addr)(_.description("Target address"))
-      .modify(_.containsAllOf)(_.description("Should contains all assets in list"))
-      .modify(_.containsAnyOf)(_.description("Should contains any of assets in list"))
+      .modify(_.containsAllOf)(_.description("Should contain all assets in list"))
+      .modify(_.containsAnyOf)(_.description("Should contain any of assets in list"))
 
 }
