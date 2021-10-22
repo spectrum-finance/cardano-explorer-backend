@@ -19,8 +19,6 @@ package object endpoints {
       )
     )
 
-  def paging: EndpointInput[Paging] = paging(Int.MaxValue)
-
   def paging(maxLimit: Int): EndpointInput[Paging] =
     (query[Option[Int]]("offset").validateOption(Validator.min(0)) and
       query[Option[Int]]("limit")
