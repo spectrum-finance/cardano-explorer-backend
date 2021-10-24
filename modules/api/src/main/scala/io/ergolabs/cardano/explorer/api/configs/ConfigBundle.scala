@@ -7,6 +7,6 @@ import tofu.optics.macros.{promote, ClassyOptics}
 
 @derive(loggable, pureconfigReader)
 @ClassyOptics
-final case class ConfigBundle(@promote http: HttpConfig, @promote pg: PgConfig)
+final case class ConfigBundle(@promote http: HttpConfig, @promote pg: PgConfig, @promote requests: RequestConfig)
 
 object ConfigBundle extends ConfigBundleCompanion[ConfigBundle]

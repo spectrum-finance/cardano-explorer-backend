@@ -1,13 +1,13 @@
 package io.ergolabs.cardano.explorer.api.v1.endpoints
 
+import io.ergolabs.cardano.explorer.api.configs.RequestConfig
 import io.ergolabs.cardano.explorer.api.v1.HttpError
-import io.ergolabs.cardano.explorer.api.v1.endpoints.BlocksEndpoints.pathPrefix
 import io.ergolabs.cardano.explorer.api.v1.models.{Items, Paging, Transaction}
 import io.ergolabs.cardano.explorer.core.types.{Addr, TxHash}
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
 
-object TransactionsEndpoints {
+final class TransactionsEndpoints(conf: RequestConfig) {
 
   val pathPrefix = "transactions"
 
@@ -25,7 +25,7 @@ object TransactionsEndpoints {
   def getAll: Endpoint[Paging, HttpError, Items[Transaction], Any] =
     baseEndpoint.get
       .in(pathPrefix)
-      .in(paging)
+      .in(paging(conf.maxLimitTransactions))
       .out(jsonBody[Items[Transaction]])
       .tag(pathPrefix)
       .name("All transactions")
@@ -42,7 +42,7 @@ object TransactionsEndpoints {
   def getByAddress: Endpoint[(Addr, Paging), HttpError, Items[Transaction], Any] =
     baseEndpoint.get
       .in(pathPrefix / "byAddress" / path[Addr].description("An address to search by"))
-      .in(paging)
+      .in(paging(conf.maxLimitTransactions))
       .out(jsonBody[Items[Transaction]])
       .tag(pathPrefix)
       .name("Transactions by address")

@@ -37,6 +37,6 @@ object App extends EnvApp[AppContext] {
       implicit0(outs: Outputs[RunF])     = Outputs.make[RunF, xa.DB]
       implicit0(blocks: Blocks[RunF])    = Blocks.make[RunF, xa.DB]
       implicit0(assets: Assets[RunF])    = Assets.make[RunF, xa.DB]
-      server <- HttpServer.make[InitF, RunF](configs.http, runtime.platform.executor.asEC)
+      server <- HttpServer.make[InitF, RunF](configs, runtime.platform.executor.asEC)
     } yield server
 }
