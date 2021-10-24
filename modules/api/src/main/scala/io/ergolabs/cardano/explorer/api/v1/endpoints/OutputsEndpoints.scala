@@ -8,7 +8,7 @@ import io.ergolabs.cardano.explorer.core.types.{Addr, AssetRef, OutRef}
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
 
-final class OutputsEndpoints(requestConfig: RequestConfig) {
+final class OutputsEndpoints(conf: RequestConfig) {
 
   val pathPrefix = "outputs"
 
@@ -26,7 +26,7 @@ final class OutputsEndpoints(requestConfig: RequestConfig) {
   def getUnspent: Endpoint[Paging, HttpError, Items[TxOutput], Any] =
     baseEndpoint.get
       .in(pathPrefix / "unspent")
-      .in(paging(requestConfig.maxLimitOutputs))
+      .in(paging(conf.maxLimitOutputs))
       .out(jsonBody[Items[TxOutput]])
       .tag(pathPrefix)
       .name("Unspent outputs with paging")
@@ -44,7 +44,7 @@ final class OutputsEndpoints(requestConfig: RequestConfig) {
   def getUnspentByAddr: Endpoint[(Addr, Paging), HttpError, Items[TxOutput], Any] =
     baseEndpoint.get
       .in(pathPrefix / "unspent" / "addr" / path[Addr].description("An address to search by"))
-      .in(paging(requestConfig.maxLimitOutputs))
+      .in(paging(conf.maxLimitOutputs))
       .out(jsonBody[Items[TxOutput]])
       .tag(pathPrefix)
       .name("Address unspent outputs")
@@ -53,7 +53,7 @@ final class OutputsEndpoints(requestConfig: RequestConfig) {
   def getUnspentByAsset: Endpoint[(AssetRef, Paging), HttpError, Items[TxOutput], Any] =
     baseEndpoint.get
       .in(pathPrefix / "unspent" / "asset" / path[AssetRef].description("Asset reference"))
-      .in(paging(requestConfig.maxLimitOutputs))
+      .in(paging(conf.maxLimitOutputs))
       .out(jsonBody[Items[TxOutput]])
       .tag(pathPrefix)
       .name("Unspent outputs with assets")
@@ -62,7 +62,7 @@ final class OutputsEndpoints(requestConfig: RequestConfig) {
   def searchUnspent: Endpoint[(Paging, UtxoSearch), HttpError, Items[TxOutput], Any] =
     baseEndpoint
       .in(pathPrefix  / "unspent"/ "search")
-      .in(paging(requestConfig.maxLimitOutputs))
+      .in(paging(conf.maxLimitOutputs))
       .in(jsonBody[UtxoSearch])
       .out(jsonBody[Items[TxOutput]])
       .tag(pathPrefix)
