@@ -50,7 +50,7 @@ final class OutputsEndpoints(conf: RequestConfig) {
 
   def getUnspentByAddr: Endpoint[(Addr, Paging), HttpError, Items[TxOutput], Any] =
     baseEndpoint.get
-      .in(pathPrefix / "unspent" / "addr" / path[Addr].description("An address to search by"))
+      .in(pathPrefix / "unspent" / "byAddr" / path[Addr].description("An address to search by"))
       .in(paging(conf.maxLimitOutputs))
       .out(jsonBody[Items[TxOutput]])
       .tag(pathPrefix)
@@ -59,7 +59,7 @@ final class OutputsEndpoints(conf: RequestConfig) {
 
   def getUnspentByPCred: Endpoint[(PaymentCred, Paging), HttpError, Items[TxOutput], Any] =
     baseEndpoint.get
-      .in(pathPrefix / "unspent" / "pcred" / path[PaymentCred].description("A payment credential to search by"))
+      .in(pathPrefix / "unspent" / "byPaymentCred" / path[PaymentCred].description("A payment credential to search by"))
       .in(paging(conf.maxLimitOutputs))
       .out(jsonBody[Items[TxOutput]])
       .tag(pathPrefix)
@@ -68,7 +68,7 @@ final class OutputsEndpoints(conf: RequestConfig) {
 
   def getUnspentByAsset: Endpoint[(AssetRef, Paging), HttpError, Items[TxOutput], Any] =
     baseEndpoint.get
-      .in(pathPrefix / "unspent" / "asset" / path[AssetRef].description("Asset reference"))
+      .in(pathPrefix / "unspent" / "byAsset" / path[AssetRef].description("Asset reference"))
       .in(paging(conf.maxLimitOutputs))
       .out(jsonBody[Items[TxOutput]])
       .tag(pathPrefix)
