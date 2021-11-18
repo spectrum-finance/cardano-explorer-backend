@@ -14,7 +14,8 @@ final case class RepoBundle[F[_]](
   metadata: TxMetadataRepo[F],
   redeemer: RedeemerRepo[F],
   blocks: BlocksRepo[F],
-  slots: SlotsRepo[F]
+  slots: SlotsRepo[F],
+  network: NetworkParamsRepo[F]
 )
 
 object RepoBundle {
@@ -32,5 +33,6 @@ object RepoBundle {
       redeemer      <- RedeemerRepo.make[I, D]
       blocks        <- BlocksRepo.make[I, D]
       slots         <- SlotsRepo.make[I, D]
-    } yield RepoBundle(assetsR, inputsR, outputsR, transactionsR, metadata, redeemer, blocks, slots)
+      network       <- NetworkParamsRepo.make[I, D]
+    } yield RepoBundle(assetsR, inputsR, outputsR, transactionsR, metadata, redeemer, blocks, slots, network)
 }
