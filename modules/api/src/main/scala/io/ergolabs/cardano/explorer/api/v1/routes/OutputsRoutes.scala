@@ -20,6 +20,7 @@ final class OutputsRoutes[F[_]: Concurrent: ContextShift: Timer](requestConfig: 
 
   def routes: HttpRoutes[F] =
     getUnspentByAddrR <+>
+    getUnspentByPCredR <+>
     getUnspentByAssetR <+>
     searchUnspentR <+>
     getByOutRefR <+>
@@ -42,6 +43,11 @@ final class OutputsRoutes[F[_]: Concurrent: ContextShift: Timer](requestConfig: 
   def getUnspentByAddrR: HttpRoutes[F] =
     interpreter.toRoutes(endpoints.getUnspentByAddr) { case (addr, paging) =>
       service.getUnspentByAddr(addr, paging).eject
+    }
+
+  def getUnspentByPCredR: HttpRoutes[F] =
+    interpreter.toRoutes(endpoints.getUnspentByPCred) { case (pcred, paging) =>
+      service.getUnspentByPCred(pcred, paging).eject
     }
 
   def getUnspentByAssetR: HttpRoutes[F] =

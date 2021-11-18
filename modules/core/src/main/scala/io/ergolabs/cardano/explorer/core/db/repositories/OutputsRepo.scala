@@ -7,7 +7,7 @@ import derevo.derive
 import doobie.ConnectionIO
 import io.ergolabs.cardano.explorer.core.db.models.Output
 import io.ergolabs.cardano.explorer.core.db.sql.OutputsSql
-import io.ergolabs.cardano.explorer.core.types.{Addr, AssetRef, OutRef, TxHash}
+import io.ergolabs.cardano.explorer.core.types.{Addr, AssetRef, OutRef, PaymentCred, TxHash}
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.log.EmbeddableLogHandler
 import tofu.higherKind.derived.representableK
@@ -34,6 +34,10 @@ trait OutputsRepo[F[_]] {
   def getUnspentByAddr(addr: Addr, offset: Int, limit: Int): F[List[Output]]
 
   def countUnspentByAddr(addr: Addr): F[Int]
+
+  def getUnspentByPCred(pcred: PaymentCred, offset: Int, limit: Int): F[List[Output]]
+
+  def countUnspentByPCred(pcred: PaymentCred): F[Int]
 
   def getUnspentByAsset(asset: AssetRef, offset: Int, limit: Int): F[List[Output]]
 
@@ -88,6 +92,12 @@ object OutputsRepo {
 
     def countUnspentByAddr(addr: Addr): ConnectionIO[Int] =
       sql.countUnspentByAddr(addr).unique
+
+    def getUnspentByPCred(pcred: PaymentCred, offset: Int, limit: Int): ConnectionIO[List[Output]] =
+      sql.getUnspentByPCred(pcred, offset, limit).to[List]
+
+    def countUnspentByPCred(pcred: PaymentCred): ConnectionIO[Int] =
+      sql.countUnspentByPCred(pcred).unique
 
     def getUnspentByAsset(asset: AssetRef, offset: Int, limit: Int): ConnectionIO[List[Output]] =
       sql.getUnspentByAsset(asset, offset, limit).to[List]

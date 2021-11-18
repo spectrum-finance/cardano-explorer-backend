@@ -5,7 +5,7 @@ import cats.data.{NonEmptyList, OptionT}
 import io.ergolabs.cardano.explorer.api.v1.models._
 import io.ergolabs.cardano.explorer.core.db.models.{Output => DbOutput}
 import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle
-import io.ergolabs.cardano.explorer.core.types.{Addr, AssetRef, OutRef}
+import io.ergolabs.cardano.explorer.core.types.{Addr, AssetRef, OutRef, PaymentCred}
 import mouse.anyf._
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.transactor.Txr
@@ -20,6 +20,8 @@ trait Outputs[F[_]] {
   def getUnspent(indexing: Indexing): F[Items[TxOutput]]
 
   def getUnspentByAddr(addr: Addr, paging: Paging): F[Items[TxOutput]]
+
+  def getUnspentByPCred(pcred: PaymentCred, paging: Paging): F[Items[TxOutput]]
 
   def getUnspentByAsset(asset: AssetRef, paging: Paging): F[Items[TxOutput]]
 
@@ -60,6 +62,13 @@ object Outputs {
       (for {
         txs   <- outputs.getUnspentByAddr(addr, paging.offset, paging.limit)
         total <- outputs.countUnspentByAddr(addr)
+        batch <- getBatch(txs, total)
+      } yield batch) ||> txr.trans
+
+    def getUnspentByPCred(pcred: PaymentCred, paging: Paging): F[Items[TxOutput]] =
+      (for {
+        txs   <- outputs.getUnspentByPCred(pcred, paging.offset, paging.limit)
+        total <- outputs.countUnspentByPCred(pcred)
         batch <- getBatch(txs, total)
       } yield batch) ||> txr.trans
 
