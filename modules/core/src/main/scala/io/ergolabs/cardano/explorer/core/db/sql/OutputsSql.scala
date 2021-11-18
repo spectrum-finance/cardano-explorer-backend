@@ -6,7 +6,7 @@ import doobie.syntax.all._
 import doobie.util.fragment.Fragment._
 import io.ergolabs.cardano.explorer.core.db.instances._
 import io.ergolabs.cardano.explorer.core.db.models.Output
-import io.ergolabs.cardano.explorer.core.types.{Addr, AssetRef, OutRef, TxHash}
+import io.ergolabs.cardano.explorer.core.types.{Addr, AssetRef, OutRef, PaymentCred, TxHash}
 
 final class OutputsSql(implicit lh: LogHandler) {
 
@@ -194,6 +194,37 @@ final class OutputsSql(implicit lh: LogHandler) {
          |select count(o.id) from tx_out o
          |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
          |where o.address = $addr and i.id is null
+         |""".stripMargin.query
+
+  def getUnspentByPCred(pcred: PaymentCred, offset: Int, limit: Int): Query0[Output] =
+    sql"""
+         |select
+         |  o.id,
+         |  o.tx_id,
+         |  encode(b.hash, 'hex'),
+         |  encode(t.hash, 'hex'),
+         |  o.index,
+         |  o.address,
+         |  o.value,
+         |  encode(o.data_hash, 'hex'),
+         |  case when (d.value is null) then rd.value else d.value end,
+         |  null,
+         |  null
+         |from tx_out o
+         |left join tx t on t.id = o.tx_id
+         |left join block b on b.id = t.block_id
+         |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
+         |left join datum d on d.hash = o.data_hash
+         |left join reported_datum rd on rd.hash = o.data_hash
+         |where o.payment_cred = decode($pcred, 'hex') and i.id is null
+         |offset $offset limit $limit
+         |""".stripMargin.query
+
+  def countUnspentByPCred(pcred: PaymentCred): Query0[Int] =
+    sql"""
+         |select count(o.id) from tx_out o
+         |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
+         |where o.payment_cred = decode($pcred, 'hex') and i.id is null
          |""".stripMargin.query
 
   def getUnspentByAsset(asset: AssetRef, offset: Int, limit: Int): Query0[Output] =

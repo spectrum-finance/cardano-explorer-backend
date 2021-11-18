@@ -9,7 +9,7 @@ import eu.timepit.refined.collection._
 import eu.timepit.refined.predicates.all.{And, Equal}
 import eu.timepit.refined.refineV
 import eu.timepit.refined.string.HexStringSpec
-import io.ergolabs.cardano.explorer.core.types.specs.Hash32Spec
+import io.ergolabs.cardano.explorer.core.types.specs.{Hash32Spec, HexStringR}
 import io.estatico.newtype.macros.newtype
 import sttp.tapir.json.circe._
 import sttp.tapir.{Codec, CodecFormat, DecodeResult, Schema, Validator}
@@ -23,6 +23,7 @@ import scala.util.Try
 object types {
 
   object specs {
+    val HexStringR = "^(([0-9a-f]+)|([0-9A-F]+))$"
     type Hash32Spec = HexStringSpec And Size[Equal[64]]
   }
 
@@ -160,8 +161,8 @@ object types {
   @newtype case class PolicyId(value: String)
 
   object PolicyId {
-    implicit val put: Put[PolicyId]           = deriving
-    implicit val get: Get[PolicyId]           = deriving
+    implicit val put: Put[PolicyId] = deriving
+    implicit val get: Get[PolicyId] = deriving
 
     implicit def schema: Schema[PolicyId] =
       Schema.schemaForString.description("Minting policy ID").asInstanceOf[Schema[PolicyId]]
@@ -217,6 +218,26 @@ object types {
 
     implicit def validator: Validator[Addr] =
       Validator.pass
+  }
+
+  @derive(loggable, encoder, decoder)
+  @newtype case class PaymentCred(value: String)
+
+  object PaymentCred {
+    implicit val put: Put[PaymentCred] = deriving
+    implicit val get: Get[PaymentCred] = deriving
+
+    implicit def plainCodec: Codec.PlainCodec[PaymentCred] = deriving
+
+    implicit def jsonCodec: Codec.JsonCodec[PaymentCred] = deriving
+
+    implicit def schema: Schema[PaymentCred] =
+      Schema.schemaForString
+        .description("Serialized PaymentCredential represented as a HEX string")
+        .asInstanceOf[Schema[PaymentCred]]
+
+    implicit def validator: Validator[PaymentCred] =
+      Validator.pattern[String](HexStringR).contramap(_.value)
   }
 
   private def deriveCodec[A, CF <: CodecFormat, T](
