@@ -46,4 +46,7 @@ final class NetworkParamsSql(implicit lh: LogHandler) {
   def getEpochStakes(epochNo: Int): Query0[Int] =
     sql"select pool_id from epoch_stake where epoch_no = $epochNo".query
   
+  def getCostModel(costModelId: Int): Query[String] =
+    sql"select costs from cost_model where id = $cosetModelId".query
+  
 }
