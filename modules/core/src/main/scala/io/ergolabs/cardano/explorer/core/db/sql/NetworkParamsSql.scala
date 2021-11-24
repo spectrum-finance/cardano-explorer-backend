@@ -17,7 +17,7 @@ final class NetworkParamsSql(implicit lh: LogHandler) {
         epoch_no,
         protocol_major,
         protocol_minor,
-        decentralization,
+        decentralisation,
         entropy,
         max_bh_size,
         max_block_size,
@@ -29,7 +29,18 @@ final class NetworkParamsSql(implicit lh: LogHandler) {
         pool_deposit,
         min_pool_cost,
         max_epoch,
-        optimal_pool_count
+        optimal_pool_count,
+        influence,
+        monetary_expand_rate,
+        treasury_growth_rate,
+        coins_per_utxo_word,
+        cost_model_id,
+        price_step,
+        max_tx_ex_steps,
+        max_block_ex_steps,
+        max_val_size,
+        collateral_percent,
+        max_collateral_inputs
       from epoch_param order by epoch_no desc limit 1""".stripMargin.query
 
   def getEpochStakes(epochNo: Int): Query0[Int] =
