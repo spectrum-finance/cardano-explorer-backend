@@ -19,7 +19,7 @@ object AssetInfo {
   implicit val schema: Schema[AssetInfo] =
     Schema
       .derived[AssetInfo]
-      .modify(_.policyId)(_.description("The asset minting policy id"))
+      .modify(_.policyId)(_.description("The asset minting policy ID"))
       .modify(_.name)(_.description("The asset name"))
       .modify(_.quantity)(_.description("Current emission of the asset"))
       .modify(_.jsQuantity)(_.description("Current emission of the asset (Encoded as a string)"))
