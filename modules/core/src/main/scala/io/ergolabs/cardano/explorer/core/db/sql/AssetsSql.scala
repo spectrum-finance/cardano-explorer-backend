@@ -14,10 +14,11 @@ final class AssetsSql(implicit lh: LogHandler) {
          |select
          |  o.id,
          |  o.tx_id,
-         |  encode(a.name, 'escape'),
+         |  encode(ma.name, 'escape'),
          |  a.quantity,
-         |  encode(a.policy, 'hex')
+         |  encode(ma.policy, 'hex')
          |from ma_tx_out a
+         |left join multi_asset ma on ma.id = a.ident
          |left join tx_out o on o.id = a.tx_out_id
          |where o.tx_id = $txId
          |""".stripMargin.query
@@ -26,11 +27,12 @@ final class AssetsSql(implicit lh: LogHandler) {
     sql"""
          |select
          |  o.id,
-         |  i.tx_id,
-         |  encode(a.name, 'escape'),
+         |  i.tx_in_id,
+         |  encode(ma.name, 'escape'),
          |  a.quantity,
-         |  encode(a.policy, 'hex')
+         |  encode(ma.policy, 'hex')
          |from ma_tx_out a
+         |left join multi_asset ma on ma.id = a.ident
          |left join tx_out o on o.id = a.tx_out_id
          |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
          |where i.tx_in_id = $txId
@@ -41,10 +43,11 @@ final class AssetsSql(implicit lh: LogHandler) {
          |select
          |  o.id,
          |  o.tx_id,
-         |  encode(a.name, 'escape'),
+         |  encode(ma.name, 'escape'),
          |  a.quantity,
-         |  encode(a.policy, 'hex')
+         |  encode(ma.policy, 'hex')
          |from ma_tx_out a
+         |left join multi_asset ma on ma.id = a.ident
          |left join tx_out o on o.id = a.tx_out_id
          |left join tx t on t.id = o.tx_id
          |where t.hash = decode($txHash, 'escape')
@@ -56,10 +59,11 @@ final class AssetsSql(implicit lh: LogHandler) {
            |select
            |  o.id,
            |  o.tx_id,
-           |  encode(a.name, 'escape'),
+           |  encode(ma.name, 'escape'),
            |  a.quantity,
-           |  encode(a.policy, 'hex')
+           |  encode(ma.policy, 'hex')
            |from ma_tx_out a
+           |left join multi_asset ma on ma.id = a.ident
            |left join tx_out o on o.id = a.tx_out_id
            |""".stripMargin
     (q ++ Fragments.in(fr"where o.tx_id", txIds)).query[AssetOutput]
@@ -70,15 +74,16 @@ final class AssetsSql(implicit lh: LogHandler) {
       sql"""
            |select
            |  o.id,
-           |  i.tx_id,
-           |  encode(a.name, 'escape'),
+           |  i.tx_in_id,
+           |  encode(ma.name, 'escape'),
            |  a.quantity,
-           |  encode(a.policy, 'hex')
+           |  encode(ma.policy, 'hex')
            |from ma_tx_out a
+           |left join multi_asset ma on ma.id = a.ident
            |left join tx_out o on o.id = a.tx_out_id
            |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
            |""".stripMargin
-    (q ++ Fragments.in(fr"where i.tx_id", txIds)).query[AssetInput]
+    (q ++ Fragments.in(fr"where i.tx_in_id", txIds)).query[AssetInput]
   }
 
   def getByOutputId(outputId: Long): Query0[AssetOutput] =
@@ -86,10 +91,11 @@ final class AssetsSql(implicit lh: LogHandler) {
          |select
          |  o.id,
          |  o.tx_id,
-         |  encode(a.name, 'escape'),
+         |  encode(ma.name, 'escape'),
          |  a.quantity,
-         |  encode(a.policy, 'hex')
+         |  encode(ma.policy, 'hex')
          |from ma_tx_out a
+         |left join multi_asset ma on ma.id = a.ident
          |left join tx_out o on o.id = a.tx_out_id
          |where o.id = $outputId
          |""".stripMargin.query
@@ -100,10 +106,11 @@ final class AssetsSql(implicit lh: LogHandler) {
            |select
            |  o.id,
            |  o.tx_id,
-           |  encode(a.name, 'escape'),
+           |  encode(ma.name, 'escape'),
            |  a.quantity,
-           |  encode(a.policy, 'hex')
+           |  encode(ma.policy, 'hex')
            |from ma_tx_out a
+           |left join multi_asset ma on ma.id = a.ident
            |left join tx_out o on o.id = a.tx_out_id
            |""".stripMargin
     (q ++ Fragments.in(fr"where a.tx_out_id", outputIds)).query[AssetOutput]
@@ -113,12 +120,13 @@ final class AssetsSql(implicit lh: LogHandler) {
     sql"""
          |select
          |  a.id,
-         |  encode(a.policy, 'hex'),
-         |  encode(a.name, 'escape'),
+         |  encode(ma.policy, 'hex'),
+         |  encode(ma.name, 'escape'),
          |  a.quantity,
          |  a.tx_id
          |from ma_tx_mint a
-         |where a.policy = ${ref.policyId} and
-         |      a.name = decode(${ref.name}, 'escape')
+         |left join multi_asset ma on ma.id = a.ident
+         |where ma.policy = ${ref.policyId} and
+         |      ma.name = decode(${ref.name}, 'escape')
          |""".stripMargin.query
 }

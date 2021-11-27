@@ -27,7 +27,7 @@ final class InputsSql(implicit lh: LogHandler) {
          |  case when (d.value is null) then rd.value else d.value end,
          |  rd.raw_value,
          |  i.id,
-         |  encode(ti.hash, 'hex')
+         |  encode(t.hash, 'hex')
          |from tx_in i
          |left join tx t on t.id = i.tx_in_id
          |left join block b on b.id = t.block_id
@@ -57,7 +57,7 @@ final class InputsSql(implicit lh: LogHandler) {
          |  case when (d.value is null) then rd.value else d.value end,
          |  rd.raw_value,
          |  i.id,
-         |  encode(ti.hash, 'hex')
+         |  encode(t.hash, 'hex')
          |from tx_in i
          |left join tx t on t.id = i.tx_in_id
          |left join block b on b.id = t.block_id
@@ -87,7 +87,7 @@ final class InputsSql(implicit lh: LogHandler) {
            |  case when (d.value is null) then rd.value else d.value end,
            |  rd.raw_value,
            |  i.id,
-           |  encode(ti.hash, 'hex')
+           |  encode(t.hash, 'hex')
            |from tx_in i
            |left join tx t on t.id = i.tx_in_id
            |left join block b on b.id = t.block_id
