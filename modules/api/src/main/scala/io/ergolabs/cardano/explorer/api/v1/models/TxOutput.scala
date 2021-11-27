@@ -4,7 +4,7 @@ import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
 import io.circe.Json
 import io.ergolabs.cardano.explorer.api.v1.instances._
-import io.ergolabs.cardano.explorer.core.db.models.{AssetOutput, Output}
+import io.ergolabs.cardano.explorer.core.db.models.{Asset, AssetOutput, Output}
 import io.ergolabs.cardano.explorer.core.types._
 import sttp.tapir.Schema
 
@@ -19,6 +19,7 @@ final case class TxOutput(
   value: List[OutAsset],
   dataHash: Option[Hash32],
   data: Option[Json],
+  dataBin: Option[Bytea],
   spentByTxHash: Option[TxHash]
 )
 
@@ -32,15 +33,23 @@ object TxOutput {
       .modify(_.ref)(_.description("The output reference."))
       .modify(_.blockHash)(_.description("The hash identifier of the output block."))
       .modify(_.txHash)(_.description("The hash identifier of the output transaction."))
-      .modify(_.index)(_.description("The index of an output in the transaction that contains this transaction output."))
+      .modify(_.index)(
+        _.description("The index of an output in the transaction that contains this transaction output.")
+      )
       .modify(_.globalIndex)(_.description("The index of an output in the blockchain."))
-      .modify(_.addr)(_.description("The human readable encoding of the output address. Will be Base58 for Byron era addresses and Bech32 for Shelley era."))
+      .modify(_.addr)(
+        _.description(
+          "The human readable encoding of the output address. Will be Base58 for Byron era addresses and Bech32 for Shelley era."
+        )
+      )
       .modify(_.value)(_.description("The output value (in Lovelace) of the transaction output."))
       .modify(_.dataHash)(_.description("The hash of the transaction output datum. (`null` for Txs without scripts)."))
       .modify(_.data)(_.description("The transaction output datum. (`null` for Txs without scripts)."))
-      .modify(_.spentByTxHash)(_.description("The hash of the transaction that spent this output. (`null` for unspent outputs)"))
+      .modify(_.spentByTxHash)(
+        _.description("The hash of the transaction that spent this output. (`null` for unspent outputs)")
+      )
 
-  def inflate(out: Output, assets: List[AssetOutput]): TxOutput =
+  def inflate(out: Output, assets: List[Asset]): TxOutput =
     TxOutput(
       OutRef(out.txHash, out.index),
       out.blockHash,
@@ -51,9 +60,10 @@ object TxOutput {
       Value(out.lovelace, assets),
       out.dataHash,
       out.data,
+      out.dataBin,
       out.spentByTxHash
     )
 
   def inflateBatch(outs: List[Output], assets: List[AssetOutput]): List[TxOutput] =
-    outs.map(o => inflate(o, assets.filter(_.outputId == o.id)))
+    outs.map(o => inflate(o, assets.filter(_.outputId == o.id).map(_.asset)))
 }

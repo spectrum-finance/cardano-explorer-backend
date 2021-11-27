@@ -7,7 +7,5 @@ final case class Input(
   redeemerId: Option[Long],
   blockHash: BlockHash,
   txHash: TxHash,
-  outTxHash: TxHash,
-  outIndex: Int,
-  value: BigInt
+  output: Output
 )

@@ -4,6 +4,7 @@ import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
 import io.ergolabs.cardano.explorer.api.v1.instances._
 import io.ergolabs.cardano.explorer.core.db.models.{
+  AssetInput,
   AssetOutput,
   Input,
   Output,
@@ -46,7 +47,8 @@ object Transaction {
     tx: DbTransaction,
     inputs: List[Input],
     outputs: List[Output],
-    assets: List[AssetOutput],
+    inputAssets: List[AssetInput],
+    outputAssets: List[AssetOutput],
     redeemers: List[DbRedeemer],
     meta: Option[TxMetadata]
   ): Transaction = {
@@ -56,9 +58,9 @@ object Transaction {
           rid <- i.redeemerId
           r   <- redeemers.find(_.id == rid)
         } yield Redeemer(r.unitMem, r.unitSteps, r.fee, r.purpose, r.index, r.scriptHash)
-      TxInput(OutRef(i.outTxHash, i.outIndex), i.outTxHash, i.outIndex, i.value, i.value.toString(), maybeRedeemer)
+      TxInput(TxOutput.inflate(i.output, inputAssets.filter(_.outputId == i.output.id).map(_.asset)), maybeRedeemer)
     }
-    val txOutputs = outputs.map(o => TxOutput.inflate(o, assets.filter(_.outIndex == o.index)))
+    val txOutputs = outputs.map(o => TxOutput.inflate(o, outputAssets.filter(_.outputId == o.id).map(_.asset)))
     val metadata  = meta.map(m => Metadata(m.key, m.raw, m.json))
     Transaction(
       tx.blockHash,
@@ -77,21 +79,24 @@ object Transaction {
     txs: List[DbTransaction],
     inputs: List[Input],
     outputs: List[Output],
-    assets: List[AssetOutput],
+    inputAssets: List[AssetInput],
+    outputAssets: List[AssetOutput],
     redeemers: List[DbRedeemer],
     meta: List[TxMetadata]
   ): List[Transaction] = {
-    val inputsByTx   = inputs.groupBy(_.txId)
-    val outputsByTx  = outputs.groupBy(_.txId)
-    val assetsByTx   = assets.groupBy(_.txId)
-    val redeemerByTx = redeemers.groupBy(_.txId)
-    val metaByTx     = meta.groupBy(_.txId)
+    val inputsByTx       = inputs.groupBy(_.txId)
+    val outputsByTx      = outputs.groupBy(_.txId)
+    val inputAssetsByTx  = inputAssets.groupBy(_.inputTxId)
+    val outputAssetsByTx = outputAssets.groupBy(_.outputTxId)
+    val redeemerByTx     = redeemers.groupBy(_.txId)
+    val metaByTx         = meta.groupBy(_.txId)
     txs.map { tx =>
       Transaction.inflate(
         tx,
         inputsByTx.getOrElse(tx.id, List.empty),
         outputsByTx.getOrElse(tx.id, List.empty),
-        assetsByTx.getOrElse(tx.id, List.empty),
+        inputAssetsByTx.getOrElse(tx.id, List.empty),
+        outputAssetsByTx.getOrElse(tx.id, List.empty),
         redeemerByTx.getOrElse(tx.id, List.empty),
         metaByTx.get(tx.id).flatMap(_.headOption)
       )

@@ -1,7 +1,7 @@
 package io.ergolabs.cardano.explorer.core.db.models
 
 import io.circe.Json
-import io.ergolabs.cardano.explorer.core.types.{Addr, BlockHash, Hash32, TxHash}
+import io.ergolabs.cardano.explorer.core.types.{Addr, BlockHash, Bytea, Hash32, TxHash}
 
 final case class Output(
   id: Long,
@@ -13,6 +13,7 @@ final case class Output(
   lovelace: BigInt,
   dataHash: Option[Hash32],
   data: Option[Json],
+  dataBin: Option[Bytea],
   inputId: Option[Long],
   spentByTxHash: Option[TxHash]
 )

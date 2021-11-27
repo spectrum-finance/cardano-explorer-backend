@@ -33,7 +33,7 @@ object Assets {
               case (Some(acc), nextEvent) =>
                 Some(acc.copy(quantity = acc.quantity + nextEvent.quantity))
               case (_, event) =>
-                Some(AssetInfo(event.policy, event.name, event.quantity))
+                Some(AssetInfo(event.policy, event.name, event.quantity, event.quantity.toString()))
             }
       } ||> txr.trans
   }

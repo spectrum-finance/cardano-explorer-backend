@@ -16,15 +16,26 @@ final class InputsSql(implicit lh: LogHandler) {
          |  i.redeemer_id,
          |  encode(b.hash, 'hex'),
          |  encode(t.hash, 'hex'),
+         |  o.id,
+         |  o.tx_id,
+         |  encode(b.hash, 'hex'),
          |  encode(ot.hash, 'hex'),
-         |  i.tx_out_index,
-         |  o.value
+         |  o.index,
+         |  o.address,
+         |  o.value,
+         |  encode(o.data_hash, 'hex'),
+         |  case when (d.value is null) then rd.value else d.value end,
+         |  rd.raw_value,
+         |  i.id,
+         |  encode(ti.hash, 'hex')
          |from tx_in i
          |left join tx t on t.id = i.tx_in_id
          |left join block b on b.id = t.block_id
          |left join tx ot on ot.id = i.tx_out_id
          |left join tx_out o on o.tx_id = i.tx_out_id and o.index = i.tx_out_index
          |left join redeemer r on r.id = i.redeemer_id
+         |left join datum d on d.hash = o.data_hash
+         |left join reported_datum rd on rd.hash = o.data_hash
          |where i.tx_in_id = $txId
          |""".stripMargin.query
 
@@ -35,14 +46,25 @@ final class InputsSql(implicit lh: LogHandler) {
          |  i.redeemer_id,
          |  encode(b.hash, 'hex'),
          |  encode(t.hash, 'hex'),
+         |  o.id,
+         |  o.tx_id,
+         |  encode(b.hash, 'hex'),
          |  encode(ot.hash, 'hex'),
-         |  i.tx_out_index,
-         |  o.value
+         |  o.index,
+         |  o.address,
+         |  o.value,
+         |  encode(o.data_hash, 'hex'),
+         |  case when (d.value is null) then rd.value else d.value end,
+         |  rd.raw_value,
+         |  i.id,
+         |  encode(ti.hash, 'hex')
          |from tx_in i
          |left join tx t on t.id = i.tx_in_id
          |left join block b on b.id = t.block_id
          |left join tx ot on ot.id = i.tx_out_id
          |left join tx_out o on o.tx_id = i.tx_out_id and o.index = i.tx_out_index
+         |left join datum d on d.hash = o.data_hash
+         |left join reported_datum rd on rd.hash = o.data_hash
          |where t.hash = $txHash
          |""".stripMargin.query[Input]
 
@@ -54,14 +76,25 @@ final class InputsSql(implicit lh: LogHandler) {
            |  i.redeemer_id,
            |  encode(b.hash, 'hex'),
            |  encode(t.hash, 'hex'),
+           |  o.id,
+           |  o.tx_id,
+           |  encode(b.hash, 'hex'),
            |  encode(ot.hash, 'hex'),
-           |  i.tx_out_index,
-           |  o.value
+           |  o.index,
+           |  o.address,
+           |  o.value,
+           |  encode(o.data_hash, 'hex'),
+           |  case when (d.value is null) then rd.value else d.value end,
+           |  rd.raw_value,
+           |  i.id,
+           |  encode(ti.hash, 'hex')
            |from tx_in i
            |left join tx t on t.id = i.tx_in_id
            |left join block b on b.id = t.block_id
            |left join tx ot on ot.id = i.tx_out_id
            |left join tx_out o on o.tx_id = i.tx_out_id and o.index = i.tx_out_index
+           |left join datum d on d.hash = o.data_hash
+           |left join reported_datum rd on rd.hash = o.data_hash
            |""".stripMargin
     (q ++ Fragments.in(fr"where i.tx_in_id", txIds)).query[Input]
   }
