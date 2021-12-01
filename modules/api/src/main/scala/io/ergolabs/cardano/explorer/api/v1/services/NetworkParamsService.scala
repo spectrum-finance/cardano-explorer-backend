@@ -8,11 +8,11 @@ import mouse.anyf._
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.transactor.Txr
 import tofu.syntax.monadic._
-import io.ergolabs.cardano.explorer.api.v1.models.NetworkParams
+import io.ergolabs.cardano.explorer.api.v1.models.EnvParams
 
 trait NetworkParamsService[F[_]] {
 
-  def getNetworkParams: F[NetworkParams]
+  def getNetworkParams: F[EnvParams]
 }
 
 object NetworkParamsService {
@@ -24,16 +24,18 @@ object NetworkParamsService {
 
   final class Live[F[_], D[_]: Monad](txr: Txr[F, D], repos: RepoBundle[D]) extends NetworkParamsService[F] {
 
-    def getNetworkParams: F[NetworkParams] =
+    def getNetworkParams: F[EnvParams] =
       (for {
         meta        <- repos.network.getMeta
         epochParams <- repos.network.getLastEpochParams
         stakes      <- repos.network.getEpochStakes(epochParams.epochNo)
-      } yield NetworkParams(
-        meta.startTime,
-        meta.networkName,
-        epochParams.epochNo,
-        stakes.ids
-      )) ||> txr.trans
+      } yield EnvParams(???, ???, ???, ???, ???, ???)
+//        EnvParams(
+//        meta.startTime,
+//        meta.networkName,
+//        epochParams.epochNo,
+//        stakes.ids
+//      )
+        ) ||> txr.trans
   }
 }
