@@ -49,7 +49,8 @@ lazy val core =
         Libraries.tapirCore,
         Libraries.tapirCirce,
         Libraries.derevoCirce,
-        Libraries.enumeratum
+        Libraries.enumeratum,
+        Libraries.enumeratumCirce
       )
     )
 

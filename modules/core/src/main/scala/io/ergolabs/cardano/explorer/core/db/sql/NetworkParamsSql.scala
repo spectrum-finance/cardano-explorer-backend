@@ -43,8 +43,14 @@ final class NetworkParamsSql(implicit lh: LogHandler) {
         max_collateral_inputs
       from epoch_param order by epoch_no desc limit 1""".stripMargin.query
 
-  def getEpochStakes(epochNo: Int): Query0[Int] =
-    sql"select pool_id from epoch_stake where epoch_no = $epochNo".query
+  def getEpochStakes(epochNo: Int): Query0[String] =
+    sql"""
+         |select
+         |  p.view
+         |from epoch_stake e
+         |left join pool_hash p on e.pool_id = p.id
+         |where e.epoch_no = $epochNo
+         |""".stripMargin.query
   
 //  def getCostModel(costModelId: Int): Query[String] =
 //    sql"select costs from cost_model where id = $costModelId".query

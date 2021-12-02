@@ -8,7 +8,8 @@ import mouse.anyf._
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.transactor.Txr
 import tofu.syntax.monadic._
-import io.ergolabs.cardano.explorer.api.v1.models.EnvParams
+import io.ergolabs.cardano.explorer.api.v1.models.{EnvParams, NetworkName, ProtocolParams, SystemStart}
+import io.ergolabs.cardano.explorer.core.types.PoolId
 
 trait NetworkParamsService[F[_]] {
 
@@ -29,13 +30,13 @@ object NetworkParamsService {
         meta        <- repos.network.getMeta
         epochParams <- repos.network.getLastEpochParams
         stakes      <- repos.network.getEpochStakes(epochParams.epochNo)
-      } yield EnvParams(???, ???, ???, ???, ???, ???)
-//        EnvParams(
-//        meta.startTime,
-//        meta.networkName,
-//        epochParams.epochNo,
-//        stakes.ids
-//      )
-        ) ||> txr.trans
+      } yield EnvParams(
+        ProtocolParams.fromEpochParams(epochParams),
+        NetworkName(meta.networkName),
+        SystemStart(meta.startTime),
+        stakes.poolIds.map(PoolId(_)),
+        "Test era", //todo: fix
+        epochParams.collateralPercent
+      )) ||> txr.trans
   }
 }

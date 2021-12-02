@@ -10,11 +10,11 @@ import sttp.tapir.Schema
 @derive(encoder, decoder)
 final case class EnvParams(
   pparams: ProtocolParams,
-  network: NetworkId,
+  network: NetworkName,
   sysstart: SystemStart,
   pools: List[PoolId],
   eraHistory: String, //todo: to EraHistory CardanoMode
-  collateralPercent: Long
+  collateralPercent: Option[Int]
 )
 
 object EnvParams {
@@ -28,5 +28,4 @@ object EnvParams {
       .modify(_.pools)(_.description("Pools list"))
       .modify(_.eraHistory)(_.description("Era history"))
       .modify(_.collateralPercent)(_.description("Collateral Percent"))
-
 }
