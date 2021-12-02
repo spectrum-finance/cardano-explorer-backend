@@ -2,10 +2,6 @@ package io.ergolabs.cardano.explorer.api.v1.models
 
 import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
-import sttp.tapir._
-import sttp.tapir.json.circe._
-import io.circe.generic.semiauto._
-import io.ergolabs.cardano.explorer.api.v1.instances._
 import io.ergolabs.cardano.explorer.core.db.models.EpochParams
 import sttp.tapir.Schema
 
@@ -13,7 +9,7 @@ import sttp.tapir.Schema
 
 @derive(encoder, decoder)
 final case class ProtocolParams(
-  protocolParamProtocolVersion: (Int, Int),
+  protocolParamProtocolVersion: ProtocolVersion,
   protocolParamDecentralization: Double,
   protocolParamExtraPraosEntropy: Option[Int],
   protocolParamMaxBlockHeaderSize: Int,
@@ -45,7 +41,7 @@ object ProtocolParams {
   implicit val schema: Schema[ProtocolParams] = Schema.derived[ProtocolParams]
 
   def fromEpochParams(epochParams: EpochParams): ProtocolParams = ProtocolParams(
-    protocolParamProtocolVersion     = (epochParams.majorVersion, epochParams.minorVersion),
+    protocolParamProtocolVersion     = ProtocolVersion(epochParams.majorVersion, epochParams.minorVersion),
     protocolParamDecentralization    = epochParams.decentralization,
     protocolParamExtraPraosEntropy   = epochParams.entropy,
     protocolParamMaxBlockHeaderSize  = epochParams.maxBlockHeaderSize,

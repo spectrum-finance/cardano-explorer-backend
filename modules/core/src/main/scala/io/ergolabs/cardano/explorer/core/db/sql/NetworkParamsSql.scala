@@ -45,14 +45,10 @@ final class NetworkParamsSql(implicit lh: LogHandler) {
 
   def getEpochStakes(epochNo: Int): Query0[String] =
     sql"""
-         |select
+         |select DISTINCT
          |  p.view
          |from epoch_stake e
          |left join pool_hash p on e.pool_id = p.id
          |where e.epoch_no = $epochNo
          |""".stripMargin.query
-  
-//  def getCostModel(costModelId: Int): Query[String] =
-//    sql"select costs from cost_model where id = $costModelId".query
-//
 }

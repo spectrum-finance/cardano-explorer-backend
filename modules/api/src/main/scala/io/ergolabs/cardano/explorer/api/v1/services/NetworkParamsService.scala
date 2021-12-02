@@ -35,7 +35,6 @@ object NetworkParamsService {
         NetworkName(meta.networkName),
         SystemStart(meta.startTime),
         stakes.poolIds.map(PoolId(_)),
-        "Test era", //todo: fix
         epochParams.collateralPercent
       )) ||> txr.trans
   }

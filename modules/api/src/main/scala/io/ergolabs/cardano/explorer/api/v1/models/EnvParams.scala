@@ -13,7 +13,6 @@ final case class EnvParams(
   network: NetworkName,
   sysstart: SystemStart,
   pools: List[PoolId],
-  eraHistory: String, //todo: to EraHistory CardanoMode
   collateralPercent: Option[Int]
 )
 
@@ -26,6 +25,5 @@ object EnvParams {
       .modify(_.network)(_.description("Network Id"))
       .modify(_.sysstart)(_.description(""))
       .modify(_.pools)(_.description("Pools list"))
-      .modify(_.eraHistory)(_.description("Era history"))
       .modify(_.collateralPercent)(_.description("Collateral Percent"))
 }
