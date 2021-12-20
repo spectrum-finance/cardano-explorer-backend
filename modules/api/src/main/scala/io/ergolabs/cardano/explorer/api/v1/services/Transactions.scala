@@ -39,9 +39,10 @@ object Transactions {
         ins       <- OptionT.liftF(inputs.getByTxId(tx.id))
         redeemers <- OptionT.liftF(redeemer.getByTxId(tx.id))
         outs      <- OptionT.liftF(outputs.getByTxId(tx.id))
-        assets    <- OptionT.liftF(assets.getByTxId(tx.id))
+        inAssets  <- OptionT.liftF(assets.getByInTxId(tx.id))
+        outAssets <- OptionT.liftF(assets.getByOutTxId(tx.id))
         meta      <- OptionT.liftF(metadata.getByTxId(tx.id))
-      } yield Transaction.inflate(tx, ins, outs, assets, redeemers, meta)).value ||> txr.trans
+      } yield Transaction.inflate(tx, ins, outs, inAssets, outAssets, redeemers, meta)).value ||> txr.trans
 
     def getAll(paging: Paging): F[Items[Transaction]] =
       (for {
@@ -71,9 +72,10 @@ object Transactions {
             ins       <- inputs.getByTxIds(ids)
             redeemers <- redeemer.getByTxIds(ids)
             outs      <- outputs.getByTxIds(ids)
-            assets    <- assets.getByTxIds(ids)
+            inAssets  <- assets.getByInTxIds(ids)
+            outAssets <- assets.getByOutTxIds(ids)
             meta      <- metadata.getByTxIds(ids)
-            xs = Transaction.inflateBatch(txs, ins, outs, assets, redeemers, meta)
+            xs = Transaction.inflateBatch(txs, ins, outs, inAssets, outAssets, redeemers, meta)
           } yield Items(xs, total)
         case None => Items.empty[Transaction].pure
       }

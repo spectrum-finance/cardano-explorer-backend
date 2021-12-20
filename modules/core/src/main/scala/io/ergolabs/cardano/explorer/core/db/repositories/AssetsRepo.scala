@@ -5,7 +5,7 @@ import cats.{FlatMap, Functor}
 import cats.tagless.syntax.functorK._
 import derevo.derive
 import doobie.ConnectionIO
-import io.ergolabs.cardano.explorer.core.db.models.{AssetMintEvent, AssetOutput}
+import io.ergolabs.cardano.explorer.core.db.models.{AssetInput, AssetMintEvent, AssetOutput}
 import io.ergolabs.cardano.explorer.core.db.sql.AssetsSql
 import io.ergolabs.cardano.explorer.core.types.{Asset32, AssetRef, TxHash}
 import tofu.doobie.LiftConnectionIO
@@ -17,11 +17,15 @@ import tofu.syntax.monadic._
 @derive(representableK)
 trait AssetsRepo[F[_]] {
 
-  def getByTxId(txId: Long): F[List[AssetOutput]]
+  def getByOutTxId(txId: Long): F[List[AssetOutput]]
 
-  def getByTxHash(txHash: TxHash): F[List[AssetOutput]]
+  def getByInTxId(txId: Long): F[List[AssetInput]]
 
-  def getByTxIds(txIds: NonEmptyList[Long]): F[List[AssetOutput]]
+  def getByOutTxHash(txHash: TxHash): F[List[AssetOutput]]
+
+  def getByOutTxIds(txIds: NonEmptyList[Long]): F[List[AssetOutput]]
+
+  def getByInTxIds(txIds: NonEmptyList[Long]): F[List[AssetInput]]
 
   def getByOutputId(outputId: Long): F[List[AssetOutput]]
 
@@ -44,14 +48,20 @@ object AssetsRepo {
 
   final class LiveCIO(sql: AssetsSql) extends AssetsRepo[ConnectionIO] {
 
-    def getByTxId(txId: Long): ConnectionIO[List[AssetOutput]] =
-      sql.getByTxId(txId).to[List]
+    def getByOutTxId(txId: Long): ConnectionIO[List[AssetOutput]] =
+      sql.getByOutTxId(txId).to[List]
 
-    def getByTxHash(txHash: TxHash): ConnectionIO[List[AssetOutput]] =
-      sql.getByTxHash(txHash).to[List]
+    def getByInTxId(txId: Long): ConnectionIO[List[AssetInput]] =
+      sql.getByInTxId(txId).to[List]
 
-    def getByTxIds(txIds: NonEmptyList[Long]): ConnectionIO[List[AssetOutput]] =
-      sql.getByTxIds(txIds).to[List]
+    def getByOutTxHash(txHash: TxHash): ConnectionIO[List[AssetOutput]] =
+      sql.getByOutTxHash(txHash).to[List]
+
+    def getByOutTxIds(txIds: NonEmptyList[Long]): ConnectionIO[List[AssetOutput]] =
+      sql.getByOutTxIds(txIds).to[List]
+
+    def getByInTxIds(txIds: NonEmptyList[Long]): ConnectionIO[List[AssetInput]] =
+      sql.getByInTxIds(txIds).to[List]
 
     def getByOutputId(outputId: Long): ConnectionIO[List[AssetOutput]] =
       sql.getByOutputId(outputId).to[List]

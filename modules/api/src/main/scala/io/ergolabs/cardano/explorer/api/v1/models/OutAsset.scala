@@ -8,7 +8,7 @@ import sttp.tapir.Schema
 
 @derive(encoder, decoder)
 final case class OutAsset(
-  policy: PolicyId,
+  policyId: PolicyId,
   name: Asset32,
   quantity: BigInt,
   jsQuantity: String
@@ -19,8 +19,7 @@ object OutAsset {
   implicit def schema: Schema[OutAsset] =
     Schema
       .derived[OutAsset]
-      .modify(_.policy)(_.description("The Asset policy hash."))
+      .modify(_.policyId)(_.description("The Asset policy hash."))
       .modify(_.name)(_.description("The Asset name."))
       .modify(_.quantity)(_.description("The Asset quantity."))
-
 }

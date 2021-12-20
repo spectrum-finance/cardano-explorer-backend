@@ -14,7 +14,7 @@ object AssetsEndpoints {
 
   def getAssetInfo: Endpoint[AssetRef, HttpError, AssetInfo, Any] =
     baseEndpoint.get
-      .in(pathPrefix / "getInfo" / path[AssetRef].description("Asset reference"))
+      .in(pathPrefix / "info" / path[AssetRef].description("Asset reference"))
       .out(jsonBody[AssetInfo])
       .tag(pathPrefix)
       .name("Info by reference")

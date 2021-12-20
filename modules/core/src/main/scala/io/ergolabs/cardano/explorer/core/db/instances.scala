@@ -19,7 +19,7 @@ object instances {
   implicit val jsonMeta: Meta[Json] =
     Meta.Advanced
       .other[PGobject]("json")
-      .imap[Json](a => parse(a.getValue).right.getOrElse(Json.Null))(mkPgJson)
+      .imap[Json](a => parse(a.getValue).getOrElse(Json.Null))(mkPgJson)
 
   private def mkPgJson(a: Json) = {
     val o = new PGobject

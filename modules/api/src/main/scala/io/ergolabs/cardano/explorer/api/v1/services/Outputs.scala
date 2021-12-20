@@ -42,7 +42,7 @@ object Outputs {
       (for {
         out    <- OptionT(outputs.getByRef(ref))
         assets <- OptionT.liftF(assets.getByOutputId(out.id))
-      } yield TxOutput.inflate(out, assets)).value ||> txr.trans
+      } yield TxOutput.inflate(out, assets.map(_.asset))).value ||> txr.trans
 
     def getUnspent(paging: Paging): F[Items[TxOutput]] =
       (for {
