@@ -14,7 +14,7 @@ package object models {
 
   object Value {
 
-    def apply(lovelace: BigInt, assets: List[AssetOutput]): List[OutAsset] =
+    def apply(lovelace: BigInt, assets: List[Asset]): List[OutAsset] =
       OutAsset(PolicyId.Ada, Asset32.Ada, lovelace, lovelace.toString()) +:
       assets.map(a => OutAsset(a.policy, a.name, a.quantity, a.quantity.toString()))
   }
