@@ -6,16 +6,7 @@ lazy val commonSettings = Seq(
   organization := "io.ergolabs",
   version := "0.1.0",
   scalacOptions ++= commonScalacOption,
-  libraryDependencies ++= List(CompilerPlugins.betterMonadicFor, CompilerPlugins.kindProjector),
-  assembly / test := {},
-  assembly / assemblyMergeStrategy  := {
-    case "logback.xml"                                             => MergeStrategy.first
-    case "module-info.class"                                       => MergeStrategy.discard
-    case other if other.contains("scala/annotation/nowarn.class")  => MergeStrategy.first
-    case other if other.contains("scala/annotation/nowarn$.class") => MergeStrategy.first
-    case other if other.contains("io.netty.versions")              => MergeStrategy.first
-    case other                                                     => (assemblyMergeStrategy in assembly).value(other)
-  }
+  libraryDependencies ++= List(CompilerPlugins.betterMonadicFor, CompilerPlugins.kindProjector)
 )
 
 lazy val commonScalacOption = List(
