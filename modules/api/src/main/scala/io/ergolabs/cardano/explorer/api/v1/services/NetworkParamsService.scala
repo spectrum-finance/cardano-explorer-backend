@@ -30,12 +30,14 @@ object NetworkParamsService {
         meta        <- repos.network.getMeta
         epochParams <- repos.network.getLastEpochParams
         // stakes      <- repos.network.getEpochStakes(epochParams.epochNo)
-      } yield EnvParams(
+        res = EnvParams(
         ProtocolParams.fromEpochParams(epochParams),
         NetworkName(meta.networkName),
         SystemStart("2019-07-24T20:20:16Z"),
         List.empty.map(PoolId(_)),
         epochParams.collateralPercent
-      )) ||> txr.trans
+      )
+      _ = println(epochParams.priceStep)
+      } yield res) ||> txr.trans
   }
 }

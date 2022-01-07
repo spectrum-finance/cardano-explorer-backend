@@ -4,7 +4,6 @@ import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
 import io.ergolabs.cardano.explorer.core.db.models.EpochParams
 import sttp.tapir.Schema
-
 // From https://github.com/input-output-hk/cardano-node/blob/0a553b572a3e2da9e401886155b1e1451c851901/cardano-api/src/Cardano/Api/ProtocolParameters.hs
 
 @derive(encoder, decoder)
@@ -28,7 +27,7 @@ final case class ProtocolParams(
   treasuryCut: Double,
   utxoCostPerWord: Option[Long],
   // costModels: Int,
-  protocolParamPrices: Option[Double],
+  executionUnitPrices: ExecutionUnitPrices,
   // maxTxExecutionUnits: Option[Double],
   // maxBlockExecutionUnits: Option[Double],
   maxValueSize: Option[Int],
@@ -36,6 +35,12 @@ final case class ProtocolParams(
   maxCollateralInputs: Option[Int]
 )
 
+@derive(encoder, decoder)
+case class ExecutionUnitPrices(priceSteps: Option[Double], priceMemory: Option[Double])
+
+object ExecutionUnitPrices {
+  implicit val schema: Schema[ExecutionUnitPrices] = Schema.derived[ExecutionUnitPrices]
+}
 object ProtocolParams {
 
   implicit val schema: Schema[ProtocolParams] = Schema.derived[ProtocolParams]
@@ -59,9 +64,8 @@ object ProtocolParams {
     monetaryExpansion   = epochParams.monetaryExpansion,
     treasuryCut         = epochParams.treasuryGrowthRate,
     utxoCostPerWord     = epochParams.costPerWord,
-    // executionUnitPrices ??
     // costModels          = epochParams.costModelId,
-    protocolParamPrices = epochParams.priceStep,
+    executionUnitPrices = ExecutionUnitPrices(epochParams.priceStep, epochParams.priceMemory),
     // maxTxExecutionUnits = epochParams.maxTxExSteps,
     // maxBlockExecutionUnits     = epochParams.maxBlockExSteps,
     maxValueSize        = epochParams.maxValSize,

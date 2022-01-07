@@ -23,6 +23,7 @@ final case class EpochParams(
   costPerWord: Option[Long],
   costModelId: Int,
   priceStep: Option[Double],
+  priceMemory: Option[Double],
   maxTxExSteps: Option[Double],
   maxBlockExSteps: Option[Double],
   maxValSize: Option[Int],

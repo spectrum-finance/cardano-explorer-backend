@@ -36,6 +36,7 @@ final class NetworkParamsSql(implicit lh: LogHandler) {
         coins_per_utxo_word,
         cost_model_id,
         price_step,
+        price_mem,
         max_tx_ex_steps,
         max_block_ex_steps,
         max_val_size,
