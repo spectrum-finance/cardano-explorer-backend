@@ -5,7 +5,7 @@ import derevo.derive
 import sttp.tapir.Schema
 
 @derive(encoder, decoder)
-final case class ProtocolVersion (majorVersion: Int, minorVersion: Int)
+final case class ProtocolVersion (major: Int, minor: Int)
 
 object ProtocolVersion {
 

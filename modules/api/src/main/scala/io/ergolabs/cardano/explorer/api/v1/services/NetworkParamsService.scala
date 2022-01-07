@@ -29,12 +29,12 @@ object NetworkParamsService {
       (for {
         meta        <- repos.network.getMeta
         epochParams <- repos.network.getLastEpochParams
-        stakes      <- repos.network.getEpochStakes(epochParams.epochNo)
+        // stakes      <- repos.network.getEpochStakes(epochParams.epochNo)
       } yield EnvParams(
         ProtocolParams.fromEpochParams(epochParams),
         NetworkName(meta.networkName),
-        SystemStart(meta.startTime),
-        stakes.poolIds.map(PoolId(_)),
+        SystemStart("2019-07-24T20:20:16Z"),
+        List.empty.map(PoolId(_)),
         epochParams.collateralPercent
       )) ||> txr.trans
   }
