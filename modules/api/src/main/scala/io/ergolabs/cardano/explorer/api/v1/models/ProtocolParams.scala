@@ -28,8 +28,8 @@ final case class ProtocolParams(
   utxoCostPerWord: Option[Long],
   // costModels: Int,
   executionUnitPrices: ExecutionUnitPrices,
-  // maxTxExecutionUnits: Option[Double],
-  // maxBlockExecutionUnits: Option[Double],
+  maxTxExecutionUnits: ExecutionUnits,
+  maxBlockExecutionUnits: ExecutionUnits,
   maxValueSize: Option[Int],
   collateralPercentage: Option[Int],
   maxCollateralInputs: Option[Int]
@@ -41,6 +41,14 @@ case class ExecutionUnitPrices(priceSteps: Option[Double], priceMemory: Option[D
 object ExecutionUnitPrices {
   implicit val schema: Schema[ExecutionUnitPrices] = Schema.derived[ExecutionUnitPrices]
 }
+
+@derive(encoder, decoder)
+case class ExecutionUnits(steps: Option[Double], memory: Option[Double])
+
+object ExecutionUnits {
+  implicit val schema: Schema[ExecutionUnits] = Schema.derived[ExecutionUnits]
+}
+
 object ProtocolParams {
 
   implicit val schema: Schema[ProtocolParams] = Schema.derived[ProtocolParams]
@@ -66,8 +74,8 @@ object ProtocolParams {
     utxoCostPerWord     = epochParams.costPerWord,
     // costModels          = epochParams.costModelId,
     executionUnitPrices = ExecutionUnitPrices(epochParams.priceStep, epochParams.priceMemory),
-    // maxTxExecutionUnits = epochParams.maxTxExSteps,
-    // maxBlockExecutionUnits     = epochParams.maxBlockExSteps,
+    maxTxExecutionUnits = ExecutionUnits(epochParams.maxTxExSteps, epochParams.maxTxExMem),
+    maxBlockExecutionUnits = ExecutionUnits(epochParams.maxBlockExSteps, epochParams.maxBlockExMem),
     maxValueSize        = epochParams.maxValSize,
     collateralPercentage   = epochParams.collateralPercent,
     maxCollateralInputs = epochParams.maxCollateralInputs

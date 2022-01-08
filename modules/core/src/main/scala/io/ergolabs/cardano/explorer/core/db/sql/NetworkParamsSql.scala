@@ -38,7 +38,9 @@ final class NetworkParamsSql(implicit lh: LogHandler) {
         price_step,
         price_mem,
         max_tx_ex_steps,
+        max_tx_ex_mem,
         max_block_ex_steps,
+        max_block_ex_mem,
         max_val_size,
         collateral_percent,
         max_collateral_inputs

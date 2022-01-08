@@ -25,7 +25,9 @@ final case class EpochParams(
   priceStep: Option[Double],
   priceMemory: Option[Double],
   maxTxExSteps: Option[Double],
+  maxTxExMem: Option[Double],
   maxBlockExSteps: Option[Double],
+  maxBlockExMem: Option[Double],
   maxValSize: Option[Int],
   collateralPercent: Option[Int],
   maxCollateralInputs: Option[Int]
