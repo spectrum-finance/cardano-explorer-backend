@@ -22,6 +22,8 @@ trait NetworkParamsRepo[F[_]] {
   def getLastEpochParams: F[EpochParams]
 
   def getEpochStakes(epochNo: Int): F[EpochStakes]
+
+  def getCostModel(cost_model_id: Int): F[String]
 }
 
 object NetworkParamsRepo {
@@ -46,5 +48,8 @@ object NetworkParamsRepo {
 
     def getEpochStakes(epochNo: Int): ConnectionIO[EpochStakes] =
       sql.getEpochStakes(epochNo).to[List].map(EpochStakes)
+
+    def getCostModel(cost_model_id: Int): ConnectionIO[String] =
+      sql.getCostModel(cost_model_id).unique
   }
 }

@@ -29,12 +29,17 @@ object NetworkParamsService {
       (for {
         meta        <- repos.network.getMeta
         epochParams <- repos.network.getLastEpochParams
+        costModel <- repos.network.getCostModel(epochParams.costModelId)
+        parsedCm = io.circe.parser.parse(costModel).leftMap(throw _).merge
+                    .as[Map[String, Map[String, Int]]].leftMap(throw _).merge
+                    .map { case (k, v) => "PlutusScriptV1" -> v }
+        _ = println(parsedCm)
         // stakes      <- repos.network.getEpochStakes(epochParams.epochNo)
         res = EnvParams(
-        ProtocolParams.fromEpochParams(epochParams),
+        ProtocolParams.fromEpochParams(epochParams, parsedCm),
         NetworkName(meta.networkName),
         SystemStart("2019-07-24T20:20:16Z"),
-        List.empty.map(PoolId(_)),
+        List(PoolId("stake_test1uzxpncx82vfkl5ml00ws44hzfdh64r22kr93e79jqsumv0q8g8cy0")),
         epochParams.collateralPercent
       )
       _ = println(epochParams.priceStep)

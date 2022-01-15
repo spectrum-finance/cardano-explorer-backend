@@ -54,4 +54,7 @@ final class NetworkParamsSql(implicit lh: LogHandler) {
          |left join pool_hash p on e.pool_id = p.id
          |where e.epoch_no = $epochNo
          |""".stripMargin.query
+
+  def getCostModel(cost_model_id: Int): Query0[String] =
+    sql"select costs from cost_model where id = $cost_model_id".query
 }
