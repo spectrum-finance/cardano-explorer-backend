@@ -35,7 +35,7 @@ object NetworkParamsService {
         costModel       <- repos.network.getCostModel(epochParams.costModelId)
         parsedCm        <- parser.parse(costModel).toRaise
         transformed     <- parsedCm.as[Map[String, Map[String, Int]]].toRaise
-        cmCorrectFormat = transformed.map { case (k, v) => "PlutusScriptV1" -> v }         
+        cmCorrectFormat = transformed.map { case (k, v) => "PlutusScriptV1" -> v }
       } yield 
           EnvParams(
             ProtocolParams.fromEpochParams(epochParams, cmCorrectFormat),
