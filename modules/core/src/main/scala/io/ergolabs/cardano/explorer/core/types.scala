@@ -100,6 +100,17 @@ object types {
   }
 
   @derive(loggable, encoder, decoder)
+  @newtype case class PoolId(value: String)
+
+  object PoolId {
+    implicit val put: Put[PoolId] = deriving
+    implicit val get: Get[PoolId] = deriving
+
+    implicit def schema: Schema[PoolId] =
+      Schema.schemaForString.description("Pool Id").asInstanceOf[Schema[PoolId]]
+  }
+
+  @derive(loggable, encoder, decoder)
   @newtype case class TxHash(value: String)
 
   object TxHash {
