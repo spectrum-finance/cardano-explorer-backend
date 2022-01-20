@@ -8,6 +8,5 @@ import sttp.tapir.Schema
 final case class ProtocolVersion (major: Int, minor: Int)
 
 object ProtocolVersion {
-
   implicit val scheme: Schema[ProtocolVersion] = Schema.derived[ProtocolVersion]
 }

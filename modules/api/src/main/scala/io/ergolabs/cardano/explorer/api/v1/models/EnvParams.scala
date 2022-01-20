@@ -12,7 +12,6 @@ final case class EnvParams(
   pparams: ProtocolParams,
   network: NetworkName,
   sysstart: SystemStart,
-  pools: List[PoolId],
   collateralPercent: Option[Int]
 )
 
@@ -23,7 +22,6 @@ object EnvParams {
       .derived[EnvParams]
       .modify(_.pparams)(_.description("Protocol parameters"))
       .modify(_.network)(_.description("Network Id"))
-      .modify(_.sysstart)(_.description(""))
-      .modify(_.pools)(_.description("Pools list"))
+      .modify(_.sysstart)(_.description("System start"))
       .modify(_.collateralPercent)(_.description("Collateral Percent"))
 }

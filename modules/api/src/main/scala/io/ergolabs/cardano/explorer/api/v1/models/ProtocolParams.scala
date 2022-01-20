@@ -35,49 +35,35 @@ final case class ProtocolParams(
   maxCollateralInputs: Option[Int]
 )
 
-@derive(encoder, decoder)
-case class ExecutionUnitPrices(priceSteps: Option[Double], priceMemory: Option[Double])
-
-object ExecutionUnitPrices {
-  implicit val schema: Schema[ExecutionUnitPrices] = Schema.derived[ExecutionUnitPrices]
-}
-
-@derive(encoder, decoder)
-case class ExecutionUnits(steps: Option[Double], memory: Option[Double])
-
-object ExecutionUnits {
-  implicit val schema: Schema[ExecutionUnits] = Schema.derived[ExecutionUnits]
-}
-
 object ProtocolParams {
 
   implicit val schema: Schema[ProtocolParams] = Schema.derived[ProtocolParams]
 
-  def fromEpochParams(epochParams: EpochParams, cm: Map[String, Map[String, Int]]): ProtocolParams = ProtocolParams(
-    protocolVersion     = ProtocolVersion(epochParams.majorVersion, epochParams.minorVersion),
-    decentralization    = epochParams.decentralization,
-    extraPraosEntropy   = epochParams.entropy,
-    maxBlockHeaderSize  = epochParams.maxBlockHeaderSize,
-    maxBlockBodySize    = epochParams.maxBlockSize,
-    maxTxSize           = epochParams.maxTxSize,
-    txFeeFixed          = epochParams.txFeeFixed,
-    txFeePerByte        = epochParams.txFeePerByte,
-    minUTxOValue        = epochParams.minUtxoValue,
-    stakeAddressDeposit = epochParams.keyDeposit,
-    stakePoolDeposit    = epochParams.poolDeposit,
-    minPoolCost         = epochParams.minPoolCost,
-    poolRetireMaxEpoch  = epochParams.maxEpoch,
-    stakePoolTargetNum  = epochParams.optimalPoolCount,
-    poolPledgeInfluence = epochParams.influence,
-    monetaryExpansion   = epochParams.monetaryExpansion,
-    treasuryCut         = epochParams.treasuryGrowthRate,
-    utxoCostPerWord     = epochParams.costPerWord,
-    costModels          = cm,
-    executionUnitPrices = ExecutionUnitPrices(epochParams.priceStep, epochParams.priceMemory),
-    maxTxExecutionUnits = ExecutionUnits(epochParams.maxTxExSteps, epochParams.maxTxExMem),
+  def fromEpochParams(epochParams: EpochParams, costModelsMap: Map[String, Map[String, Int]]): ProtocolParams = ProtocolParams(
+    protocolVersion        = ProtocolVersion(epochParams.majorVersion, epochParams.minorVersion),
+    decentralization       = epochParams.decentralization,
+    extraPraosEntropy      = epochParams.entropy,
+    maxBlockHeaderSize     = epochParams.maxBlockHeaderSize,
+    maxBlockBodySize       = epochParams.maxBlockSize,
+    maxTxSize              = epochParams.maxTxSize,
+    txFeeFixed             = epochParams.txFeeFixed,
+    txFeePerByte           = epochParams.txFeePerByte,
+    minUTxOValue           = epochParams.minUtxoValue,
+    stakeAddressDeposit    = epochParams.keyDeposit,
+    stakePoolDeposit       = epochParams.poolDeposit,
+    minPoolCost            = epochParams.minPoolCost,
+    poolRetireMaxEpoch     = epochParams.maxEpoch,
+    stakePoolTargetNum     = epochParams.optimalPoolCount,
+    poolPledgeInfluence    = epochParams.influence,
+    monetaryExpansion      = epochParams.monetaryExpansion,
+    treasuryCut            = epochParams.treasuryGrowthRate,
+    utxoCostPerWord        = epochParams.costPerWord,
+    costModels             = costModelsMap,
+    executionUnitPrices    = ExecutionUnitPrices(epochParams.priceStep, epochParams.priceMemory),
+    maxTxExecutionUnits    = ExecutionUnits(epochParams.maxTxExSteps, epochParams.maxTxExMem),
     maxBlockExecutionUnits = ExecutionUnits(epochParams.maxBlockExSteps, epochParams.maxBlockExMem),
-    maxValueSize        = epochParams.maxValSize,
+    maxValueSize           = epochParams.maxValSize,
     collateralPercentage   = epochParams.collateralPercent,
-    maxCollateralInputs = epochParams.maxCollateralInputs
+    maxCollateralInputs    = epochParams.maxCollateralInputs
   )
 }

@@ -7,6 +7,7 @@ import io.ergolabs.cardano.explorer.core.types.{Asset32, PolicyId}
 import io.estatico.newtype.macros.newtype
 import sttp.tapir.Schema
 import cats.syntax.option._
+import java.text.SimpleDateFormat
 
 package object models {
 
@@ -32,6 +33,13 @@ package object models {
   @newtype final case class SystemStart(value: String)
 
   object SystemStart {
+
+    def fromExplorer(str: String): SystemStart = {
+      val formatterFrom = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+      val parsedDate    = formatterFrom.parse(str)
+      val formatterTo   = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss")
+      SystemStart(formatterTo.format(parsedDate))
+    }
 
     implicit val encoder: Encoder[SystemStart] = deriving
     implicit val decoder: Decoder[SystemStart] = deriving

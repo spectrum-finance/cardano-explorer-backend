@@ -10,6 +10,9 @@ import tofu.doobie.transactor.Txr
 import tofu.syntax.monadic._
 import io.ergolabs.cardano.explorer.api.v1.models.{EnvParams, NetworkName, ProtocolParams, SystemStart}
 import io.ergolabs.cardano.explorer.core.types.PoolId
+import tofu.Throws
+import tofu.syntax.raise._
+import io.circe.parser
 
 trait NetworkParamsService[F[_]] {
 
@@ -18,31 +21,29 @@ trait NetworkParamsService[F[_]] {
 
 object NetworkParamsService {
 
-  def make[F[_], D[_]: Monad: LiftConnectionIO](implicit
+  def make[F[_], D[_]: Monad: LiftConnectionIO: Throws](implicit
     txr: Txr[F, D],
     repos: RepoBundle[D]
   ): NetworkParamsService[F] = new Live[F, D](txr, repos)
 
-  final class Live[F[_], D[_]: Monad](txr: Txr[F, D], repos: RepoBundle[D]) extends NetworkParamsService[F] {
+  final class Live[F[_], D[_]: Monad: Throws](txr: Txr[F, D], repos: RepoBundle[D]) extends NetworkParamsService[F] {
 
     def getNetworkParams: F[EnvParams] =
       (for {
-        meta        <- repos.network.getMeta
-        epochParams <- repos.network.getLastEpochParams
-        costModel <- repos.network.getCostModel(epochParams.costModelId)
-        parsedCm = io.circe.parser.parse(costModel).leftMap(throw _).merge
-                    .as[Map[String, Map[String, Int]]].leftMap(throw _).merge
-                    .map { case (k, v) => "PlutusScriptV1" -> v }
-        _ = println(parsedCm)
-        // stakes      <- repos.network.getEpochStakes(epochParams.epochNo)
-        res = EnvParams(
-        ProtocolParams.fromEpochParams(epochParams, parsedCm),
-        NetworkName(meta.networkName),
-        SystemStart("2019-07-24T20:20:16Z"),
-        List(PoolId("stake_test1uzxpncx82vfkl5ml00ws44hzfdh64r22kr93e79jqsumv0q8g8cy0")),
-        epochParams.collateralPercent
-      )
-      _ = println(epochParams.priceStep)
-      } yield res) ||> txr.trans
+        meta            <- repos.network.getMeta
+        epochParams     <- repos.network.getLastEpochParams
+        costModel       <- repos.network.getCostModel(epochParams.costModelId)
+        parsedCm        <- parser.parse(costModel).toRaise
+        transformed     <- parsedCm.as[Map[String, Map[String, Int]]].toRaise
+        cmCorrectFormat = transformed.map { case (k, v) => "PlutusScriptV1" -> v }         
+      } yield 
+          EnvParams(
+            ProtocolParams.fromEpochParams(epochParams, cmCorrectFormat),
+            NetworkName(meta.networkName),
+            SystemStart.fromExplorer(meta.startTime),
+            epochParams.collateralPercent
+          )
+        ) ||> txr.trans
+
   }
 }
