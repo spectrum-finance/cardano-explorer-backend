@@ -4,7 +4,6 @@ import doobie._
 import doobie.syntax.all._
 import io.ergolabs.cardano.explorer.core.db.models.MetaData
 import io.ergolabs.cardano.explorer.core.db.models.EpochParams
-import io.ergolabs.cardano.explorer.core.db.models.EpochStakes
 
 final class NetworkParamsSql(implicit lh: LogHandler) {
 
@@ -45,15 +44,6 @@ final class NetworkParamsSql(implicit lh: LogHandler) {
         collateral_percent,
         max_collateral_inputs
       from epoch_param order by epoch_no desc limit 1""".stripMargin.query
-
-  def getEpochStakes(epochNo: Int): Query0[String] =
-    sql"""
-         |select DISTINCT
-         |  p.view
-         |from epoch_stake e
-         |left join pool_hash p on e.pool_id = p.id
-         |where e.epoch_no = $epochNo
-         |""".stripMargin.query
 
   def getCostModel(cost_model_id: Int): Query0[String] =
     sql"select costs from cost_model where id = $cost_model_id".query

@@ -2,7 +2,6 @@ package io.ergolabs.cardano.explorer.core.db.repositories
 
 import io.ergolabs.cardano.explorer.core.db.models.MetaData
 import io.ergolabs.cardano.explorer.core.db.models.EpochParams
-import io.ergolabs.cardano.explorer.core.db.models.EpochStakes
 import cats.tagless.syntax.functorK._
 import tofu.higherKind.derived.representableK
 import tofu.logging.Logs
@@ -20,8 +19,6 @@ trait NetworkParamsRepo[F[_]] {
   def getMeta: F[MetaData]
 
   def getLastEpochParams: F[EpochParams]
-
-  def getEpochStakes(epochNo: Int): F[EpochStakes]
 
   def getCostModel(cost_model_id: Int): F[String]
 }
@@ -45,9 +42,6 @@ object NetworkParamsRepo {
 
     def getLastEpochParams: ConnectionIO[EpochParams] =
       sql.getLastEpochParams.unique
-
-    def getEpochStakes(epochNo: Int): ConnectionIO[EpochStakes] =
-      sql.getEpochStakes(epochNo).to[List].map(EpochStakes)
 
     def getCostModel(cost_model_id: Int): ConnectionIO[String] =
       sql.getCostModel(cost_model_id).unique

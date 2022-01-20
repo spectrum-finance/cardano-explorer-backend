@@ -1,6 +1,6 @@
 package io.ergolabs.cardano.explorer.api.v1.routes
 
-import cats.effect.{Concurrent, ContextShift, Sync, Timer}
+import cats.effect.{Concurrent, ContextShift, Timer}
 import io.ergolabs.cardano.explorer.api.v1.endpoints.{AssetsEndpoints, BlocksEndpoints}
 import io.ergolabs.cardano.explorer.api.v1.services.{Assets, Blocks}
 import org.http4s.HttpRoutes
