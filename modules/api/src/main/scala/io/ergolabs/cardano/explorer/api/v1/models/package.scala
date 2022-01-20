@@ -37,7 +37,7 @@ package object models {
     def fromExplorer(str: String): SystemStart = {
       val formatterFrom = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
       val parsedDate    = formatterFrom.parse(str)
-      val formatterTo   = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss")
+      val formatterTo   = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssZ")
       SystemStart(formatterTo.format(parsedDate))
     }
 

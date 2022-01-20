@@ -45,6 +45,6 @@ final class NetworkParamsSql(implicit lh: LogHandler) {
         max_collateral_inputs
       from epoch_param order by epoch_no desc limit 1""".stripMargin.query
 
-  def getCostModel(cost_model_id: Int): Query0[String] =
-    sql"select costs from cost_model where id = $cost_model_id".query
+  def getCostModel(costModelId: Int): Query0[String] =
+    sql"select costs from cost_model where id = $costModelId".query
 }

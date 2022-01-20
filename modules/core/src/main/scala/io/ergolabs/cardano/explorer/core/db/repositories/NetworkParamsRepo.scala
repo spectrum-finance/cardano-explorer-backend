@@ -20,7 +20,7 @@ trait NetworkParamsRepo[F[_]] {
 
   def getLastEpochParams: F[EpochParams]
 
-  def getCostModel(cost_model_id: Int): F[String]
+  def getCostModel(costModelId: Int): F[String]
 }
 
 object NetworkParamsRepo {
@@ -43,7 +43,7 @@ object NetworkParamsRepo {
     def getLastEpochParams: ConnectionIO[EpochParams] =
       sql.getLastEpochParams.unique
 
-    def getCostModel(cost_model_id: Int): ConnectionIO[String] =
-      sql.getCostModel(cost_model_id).unique
+    def getCostModel(costModelId: Int): ConnectionIO[String] =
+      sql.getCostModel(costModelId).unique
   }
 }
