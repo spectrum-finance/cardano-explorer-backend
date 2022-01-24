@@ -2,7 +2,7 @@ package io.ergolabs.cardano.explorer.api
 
 import cats.effect.{Blocker, Resource}
 import io.ergolabs.cardano.explorer.api.configs.ConfigBundle
-import io.ergolabs.cardano.explorer.api.v1.services.{Assets, Blocks, Outputs, Transactions}
+import io.ergolabs.cardano.explorer.api.v1.services.{Assets, Blocks, Outputs, Transactions, NetworkParamsService}
 import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle
 import org.http4s.server.Server
 import sttp.tapir.server.http4s.Http4sServerOptions
@@ -33,10 +33,11 @@ object App extends EnvApp[AppContext] {
         Resource.eval(doobieLogging.makeEmbeddableHandler[InitF, RunF, xa.DB]("explorer-db-logging"))
       implicit0(logsDb: Logs[InitF, xa.DB]) = Logs.sync[InitF, xa.DB]
       implicit0(txReps: RepoBundle[xa.DB]) <- Resource.eval(RepoBundle.make[InitF, xa.DB])
-      implicit0(txs: Transactions[RunF]) = Transactions.make[RunF, xa.DB]
-      implicit0(outs: Outputs[RunF])     = Outputs.make[RunF, xa.DB]
-      implicit0(blocks: Blocks[RunF])    = Blocks.make[RunF, xa.DB]
-      implicit0(assets: Assets[RunF])    = Assets.make[RunF, xa.DB]
+      implicit0(m: NetworkParamsService[RunF]) = NetworkParamsService.make[RunF, xa.DB]
+      implicit0(txs: Transactions[RunF])       = Transactions.make[RunF, xa.DB]
+      implicit0(outs: Outputs[RunF])           = Outputs.make[RunF, xa.DB]
+      implicit0(blocks: Blocks[RunF])          = Blocks.make[RunF, xa.DB]
+      implicit0(assets: Assets[RunF])          = Assets.make[RunF, xa.DB]
       server <- HttpServer.make[InitF, RunF](configs, runtime.platform.executor.asEC)
     } yield server
 }

@@ -3,15 +3,16 @@ import sbt._
 object Dependencies {
 
   object V {
-    val tofu       = "0.10.3"
-    val derevo     = "0.12.5"
-    val catsEffect = "2.5.3"
-    val doobie     = "0.13.4"
-    val pureconfig = "0.14.1"
-    val tapir      = "0.18.3"
-    val newtype    = "0.4.3"
-    val mouse      = "0.26.2"
-    val enumeratum = "1.7.0"
+    val tofu            = "0.10.3"
+    val derevo          = "0.12.5"
+    val catsEffect      = "2.5.3"
+    val doobie          = "0.13.4"
+    val pureconfig      = "0.14.1"
+    val tapir           = "0.18.3"
+    val newtype         = "0.4.3"
+    val mouse           = "0.26.2"
+    val enumeratum      = "1.7.0"
+    val enumeratumCirce = "1.7.0"
 
     val betterMonadicFor = "0.3.1"
     val kindProjector    = "0.13.2"
@@ -52,7 +53,8 @@ object Dependencies {
 
     val newtype = "io.estatico" %% "newtype" % V.newtype
 
-    val enumeratum = "com.beachape" %% "enumeratum" % V.enumeratum
+    val enumeratum      = "com.beachape" %% "enumeratum"       % V.enumeratum
+    val enumeratumCirce = "com.beachape" %% "enumeratum-circe" % V.enumeratumCirce
   }
 
   object CompilerPlugins {
