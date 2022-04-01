@@ -13,6 +13,7 @@ import io.ergolabs.cardano.explorer.core.types.PoolId
 import tofu.Throws
 import tofu.syntax.raise._
 import io.circe.parser
+import io.ergolabs.cardano.explorer.core.ogmios.service.OgmiosService
 
 trait NetworkParamsService[F[_]] {
 
@@ -21,29 +22,37 @@ trait NetworkParamsService[F[_]] {
 
 object NetworkParamsService {
 
-  def make[F[_], D[_]: Monad: LiftConnectionIO: Throws](implicit
+  def make[F[_]: Monad, D[_]: Monad: LiftConnectionIO: Throws](implicit
     txr: Txr[F, D],
-    repos: RepoBundle[D]
-  ): NetworkParamsService[F] = new Live[F, D](txr, repos)
+    repos: RepoBundle[D],
+    ogmios: OgmiosService[F]
+  ): NetworkParamsService[F] = new Live[F, D](txr, repos, ogmios)
 
-  final class Live[F[_], D[_]: Monad: Throws](txr: Txr[F, D], repos: RepoBundle[D]) extends NetworkParamsService[F] {
+  final class Live[F[_]: Monad, D[_]: Monad: Throws](
+    txr: Txr[F, D],
+    repos: RepoBundle[D],
+    ogmios: OgmiosService[F]
+  ) extends NetworkParamsService[F] {
 
     def getNetworkParams: F[EnvParams] =
-      (for {
-        meta            <- repos.network.getMeta
-        epochParams     <- repos.network.getLastEpochParams
-        costModel       <- repos.network.getCostModel(epochParams.costModelId)
-        parsedCm        <- parser.parse(costModel).toRaise
-        transformed     <- parsedCm.as[Map[String, Map[String, Int]]].toRaise
+      ((for {
+        meta        <- repos.network.getMeta
+        epochParams <- repos.network.getLastEpochParams
+        costModel   <- repos.network.getCostModel(epochParams.costModelId)
+        parsedCm    <- parser.parse(costModel).toRaise[D]
+        transformed <- parsedCm.as[Map[String, Map[String, Int]]].toRaise[D]
         cmCorrectFormat = transformed.map { case (k, v) => "PlutusScriptV1" -> v }
-      } yield 
-          EnvParams(
-            ProtocolParams.fromEpochParams(epochParams, cmCorrectFormat),
-            NetworkName(meta.networkName),
-            SystemStart.fromExplorer(meta.startTime),
-            epochParams.collateralPercent
+      } yield (meta, epochParams, cmCorrectFormat)) ||> txr.trans).flatMap {
+        case (meta, epochParams, cmCorrectFormat) =>
+          ogmios.getEraSummaries.map(eraSums =>
+            EnvParams(
+              ProtocolParams.fromEpochParams(epochParams, cmCorrectFormat),
+              NetworkName(meta.networkName),
+              SystemStart.fromExplorer(meta.startTime),
+              epochParams.collateralPercent,
+              eraSums.infoList
+            )
           )
-        ) ||> txr.trans
-
+      }
   }
 }

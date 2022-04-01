@@ -4,6 +4,8 @@ import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
 import io.circe.Json
 import io.ergolabs.cardano.explorer.api.v1.instances._
+import io.ergolabs.cardano.explorer.core.ogmios.models.EraInfo
+import io.ergolabs.cardano.explorer.core.ogmios.models.OgmiosResponseBody.EraSummaries
 import io.ergolabs.cardano.explorer.core.types.{Bytea, PoolId}
 import sttp.tapir.Schema
 
@@ -12,7 +14,8 @@ final case class EnvParams(
   pparams: ProtocolParams,
   network: NetworkName,
   sysstart: SystemStart,
-  collateralPercent: Option[Int]
+  collateralPercent: Option[Int],
+  eraHistory: List[EraInfo]
 )
 
 object EnvParams {
@@ -24,4 +27,5 @@ object EnvParams {
       .modify(_.network)(_.description("Network Id"))
       .modify(_.sysstart)(_.description("System start"))
       .modify(_.collateralPercent)(_.description("Collateral Percent"))
+      .modify(_.eraHistory)(_.description("Era history"))
 }
