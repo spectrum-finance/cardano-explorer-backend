@@ -4,7 +4,7 @@ import sbt.Keys.organization
 lazy val commonSettings = Seq(
   scalaVersion := "2.13.6",
   organization := "io.ergolabs",
-  version := "0.1.0",
+  version := "0.1.1",
   scalacOptions ++= commonScalacOption,
   libraryDependencies ++= List(CompilerPlugins.betterMonadicFor, CompilerPlugins.kindProjector),
   assembly / test := {},
@@ -76,3 +76,4 @@ lazy val api =
       )
     )
     .dependsOn(core)
+    .enablePlugins(JavaAppPackaging, UniversalPlugin, DockerPlugin)
