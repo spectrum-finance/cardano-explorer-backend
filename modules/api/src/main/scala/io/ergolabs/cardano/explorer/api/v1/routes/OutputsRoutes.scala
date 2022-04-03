@@ -19,13 +19,13 @@ final class OutputsRoutes[F[_]: Concurrent: ContextShift: Timer](requestConfig: 
   private val interpreter = Http4sServerInterpreter(opts)
 
   def routes: HttpRoutes[F] =
+    getUnspentIndexedR <+>
+    searchUnspentR <+>
+    getUnspentR <+>
     getUnspentByAddrR <+>
     getUnspentByPCredR <+>
     getUnspentByAssetR <+>
-    searchUnspentR <+>
-    getByOutRefR <+>
-    getUnspentIndexedR <+>
-    getUnspentR
+    getByOutRefR
 
   def getByOutRefR: HttpRoutes[F] =
     interpreter.toRoutes(endpoints.getByOutRef)(ref => service.getByOutRef(ref).orNotFound(s"Output{ref=$ref}"))

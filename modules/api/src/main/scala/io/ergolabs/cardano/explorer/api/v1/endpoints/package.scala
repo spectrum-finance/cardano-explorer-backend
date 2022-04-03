@@ -10,8 +10,10 @@ import sttp.tapir.json.circe._
 
 package object endpoints {
 
+  val V1Prefix: EndpointInput[Unit] = "v1"
+
   val baseEndpoint: Endpoint[Unit, HttpError, Unit, Any] =
-    endpoint.errorOut(
+    endpoint.in(V1Prefix).errorOut(
       oneOf[HttpError](
         oneOfMapping(StatusCode.NotFound, jsonBody[HttpError.NotFound].description("not found")),
         oneOfMapping(StatusCode.NoContent, emptyOutputAs(HttpError.NoContent)),
