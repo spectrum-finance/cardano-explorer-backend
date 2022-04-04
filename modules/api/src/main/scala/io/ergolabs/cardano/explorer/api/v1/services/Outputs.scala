@@ -2,6 +2,7 @@ package io.ergolabs.cardano.explorer.api.v1.services
 
 import cats.Monad
 import cats.data.{NonEmptyList, OptionT}
+import cats.effect.Sync
 import io.ergolabs.cardano.explorer.api.v1.models._
 import io.ergolabs.cardano.explorer.core.db.models.{Output => DbOutput}
 import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle

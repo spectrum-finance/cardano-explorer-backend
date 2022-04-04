@@ -13,13 +13,13 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/log/cardano-explorer-backend/explorer-api.log</file>
+        <file>/Users/aleksandr/IdeaProjects/cardano-explorer-backend-scala/logs/explorer-api.log</file>
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
             <layout class="tofu.logging.ELKLayout"/>
         </encoder>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/var/log/cardano-explorer-backend/explorer-api.%d{yyyy-MM-dd}.%i.log
+            <fileNamePattern>/Users/aleksandr/IdeaProjects/cardano-explorer-backend-scala/logs/explorer-api.%d{yyyy-MM-dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">

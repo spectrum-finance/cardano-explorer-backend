@@ -8,7 +8,9 @@ object Dependencies {
     val catsEffect      = "2.5.3"
     val doobie          = "0.13.4"
     val pureconfig      = "0.14.1"
+    val sttp            = "3.1.1"
     val tapir           = "0.18.3"
+    val zioInterop      = "3.4.0.0-RC1"
     val newtype         = "0.4.3"
     val mouse           = "0.26.2"
     val enumeratum      = "1.7.0"
@@ -43,6 +45,14 @@ object Dependencies {
     val mouse = "org.typelevel" %% "mouse" % V.mouse
 
     val pureconfig = "com.github.pureconfig" %% "pureconfig-cats-effect" % V.pureconfig
+
+    val sttpClient       = "com.softwaremill.sttp.client3" %% "core"                            % V.sttp
+    val sttpBackendMonix = "com.softwaremill.sttp.client3" %% "async-http-client-backend-monix" % V.sttp
+    val sttpBackendCats  = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats" %  V.sttp
+    val sttpCirce        = "com.softwaremill.sttp.client3" %% "circe"                           % V.sttp
+    val sttpSlf4j        = "com.softwaremill.sttp.client3" %% "slf4j-backend"                   % V.sttp
+
+    val zioInterop       = "dev.zio" % "zio-interop-monix_2.13" % V.zioInterop
 
     val tapirCore    = "com.softwaremill.sttp.tapir" %% "tapir-core"               % V.tapir
     val tapirCirce   = "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % V.tapir

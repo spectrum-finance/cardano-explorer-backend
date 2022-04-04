@@ -1,11 +1,12 @@
 package io.ergolabs.cardano.explorer.api.v1.routes
 
-import cats.effect.{Concurrent, ContextShift, Timer}
+import cats.effect.{Concurrent, ContextShift, Sync, Timer}
 import cats.syntax.semigroupk._
 import io.ergolabs.cardano.explorer.api.configs.RequestConfig
 import io.ergolabs.cardano.explorer.api.v1.endpoints.OutputsEndpoints
 import io.ergolabs.cardano.explorer.api.v1.services.Outputs
 import io.ergolabs.cardano.explorer.api.v1.syntax._
+import tofu.syntax.monadic._
 import org.http4s.HttpRoutes
 import sttp.tapir.server.http4s.{Http4sServerInterpreter, Http4sServerOptions}
 
@@ -42,7 +43,10 @@ final class OutputsRoutes[F[_]: Concurrent: ContextShift: Timer](requestConfig: 
 
   def getUnspentByAddrR: HttpRoutes[F] =
     interpreter.toRoutes(endpoints.getUnspentByAddr) { case (addr, paging) =>
-      service.getUnspentByAddr(addr, paging).eject
+      for {
+        test <- service.getUnspentByAddr(addr, paging)
+        res <- service.getUnspentByAddr(addr, paging).eject
+      } yield res
     }
 
   def getUnspentByPCredR: HttpRoutes[F] =

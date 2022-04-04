@@ -50,7 +50,14 @@ lazy val core =
         Libraries.tapirCirce,
         Libraries.derevoCirce,
         Libraries.enumeratum,
-        Libraries.enumeratumCirce
+        Libraries.enumeratumCirce,
+        Libraries.sttpClient,
+        Libraries.sttpBackendCats,
+        Libraries.derevoPureconfig,
+        Libraries.sttpBackendMonix,
+        Libraries.zioInterop,
+        Libraries.sttpCirce,
+        Libraries.sttpSlf4j
       )
     )
 
@@ -72,7 +79,11 @@ lazy val api =
         Libraries.tapirDocs,
         Libraries.tapirOpenApi,
         Libraries.derevoPureconfig,
-        Libraries.pureconfig
+        Libraries.pureconfig,
+        Libraries.sttpClient,
+        Libraries.sttpBackendCats,
+        Libraries.sttpCirce,
+        Libraries.sttpSlf4j
       )
     )
     .dependsOn(core)

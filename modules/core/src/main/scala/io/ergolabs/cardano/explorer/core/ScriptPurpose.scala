@@ -9,6 +9,7 @@ import sttp.tapir.Schema
 sealed abstract class ScriptPurpose(override val entryName: String) extends EnumEntry
 
 object ScriptPurpose extends Enum[ScriptPurpose] {
+
   val values = findValues
 
   case object Spend extends ScriptPurpose("spend")
