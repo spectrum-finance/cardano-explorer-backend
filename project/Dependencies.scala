@@ -9,6 +9,7 @@ object Dependencies {
     val doobie          = "0.13.4"
     val pureconfig      = "0.14.1"
     val tapir           = "0.18.3"
+    val http4s          = "0.22.11"
     val newtype         = "0.4.3"
     val mouse           = "0.26.2"
     val enumeratum      = "1.7.0"
@@ -43,6 +44,8 @@ object Dependencies {
     val mouse = "org.typelevel" %% "mouse" % V.mouse
 
     val pureconfig = "com.github.pureconfig" %% "pureconfig-cats-effect" % V.pureconfig
+
+    val http4sServer = "org.http4s" %% "http4s-blaze-server" % V.http4s
 
     val tapirCore    = "com.softwaremill.sttp.tapir" %% "tapir-core"               % V.tapir
     val tapirCirce   = "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % V.tapir

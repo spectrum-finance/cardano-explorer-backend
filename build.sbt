@@ -4,7 +4,7 @@ import sbt.Keys.organization
 lazy val commonSettings = Seq(
   scalaVersion := "2.13.6",
   organization := "io.ergolabs",
-  version := "0.1.3",
+  version := "0.1.4",
   scalacOptions ++= commonScalacOption,
   libraryDependencies ++= List(CompilerPlugins.betterMonadicFor, CompilerPlugins.kindProjector),
   assembly / test := {},
@@ -66,6 +66,7 @@ lazy val api =
         Libraries.tofuZio,
         Libraries.tofuFs2,
         Libraries.doobieHikari,
+        Libraries.http4sServer,
         Libraries.tapirCirce,
         Libraries.tapirHttp4s,
         Libraries.tapirRedoc,
