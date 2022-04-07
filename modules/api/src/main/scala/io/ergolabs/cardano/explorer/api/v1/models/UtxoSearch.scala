@@ -7,7 +7,7 @@ import sttp.tapir.Schema
 
 @derive(encoder, decoder)
 final case class UtxoSearch(
-  pcred: PaymentCred,
+  paymentCred: PaymentCred,
   containsAllOf: Option[List[AssetRef]],
   containsAnyOf: Option[List[AssetRef]]
 )
@@ -17,7 +17,7 @@ object UtxoSearch {
   implicit val schema: Schema[UtxoSearch] =
     Schema
       .derived[UtxoSearch]
-      .modify(_.pcred)(_.description("Target address credential"))
+      .modify(_.paymentCred)(_.description("Target address credential"))
       .modify(_.containsAllOf)(_.description("Should contain all assets in list"))
       .modify(_.containsAnyOf)(_.description("Should contain any of assets in list"))
 }

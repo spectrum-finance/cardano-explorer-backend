@@ -4,11 +4,11 @@ import sbt.Keys.organization
 lazy val commonSettings = Seq(
   scalaVersion := "2.13.6",
   organization := "io.ergolabs",
-  version := "0.1.7",
+  version := "0.1.8",
   scalacOptions ++= commonScalacOption,
   libraryDependencies ++= List(CompilerPlugins.betterMonadicFor, CompilerPlugins.kindProjector),
   assembly / test := {},
-  assembly / assemblyMergeStrategy  := {
+  assembly / assemblyMergeStrategy := {
     case "logback.xml"                                             => MergeStrategy.first
     case "module-info.class"                                       => MergeStrategy.discard
     case other if other.contains("scala/annotation/nowarn.class")  => MergeStrategy.first
