@@ -314,7 +314,7 @@ final class OutputsSql(implicit lh: LogHandler) {
       |${containsAllOf.map(innerJoinAllOfAssets("au", "o", _)).getOrElse("")}
       |where
       |  i.id is null and
-      |  o.payment_cred = decode($pcred, 'hex') and
+      |  o.payment_cred = decode('$pcred', 'hex') and
       |  ${containsAnyOf.map(as => s"a.policy in (${as.map(s => s"'${s.policyId}'").mkString(", ")}) and").getOrElse("")}
       |  ${containsAnyOf.map(as => s"a.name in (${as.map(s => s"'${s.name}'").mkString(", ")}) and").getOrElse("")}
       |offset $offset limit $limit
@@ -333,7 +333,7 @@ final class OutputsSql(implicit lh: LogHandler) {
              |${containsAllOf.map(innerJoinAllOfAssets("au", "o", _)).getOrElse("")}
              |where
              |  i.id is null and
-             |  o.payment_cred = decode($pcred, 'hex') and
+             |  o.payment_cred = decode('$pcred', 'hex') and
              |  ${containsAnyOf.map(as => s"a.policy in (${as.map(s => s"'${s.policyId}'").mkString(", ")}) and").getOrElse("")}
              |  ${containsAnyOf.map(as => s"a.name in (${as.map(s => s"'${s.name}'").mkString(", ")}) and").getOrElse("")}
              |""".stripMargin).query

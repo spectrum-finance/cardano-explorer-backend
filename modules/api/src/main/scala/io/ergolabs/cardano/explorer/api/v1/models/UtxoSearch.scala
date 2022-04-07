@@ -20,5 +20,4 @@ object UtxoSearch {
       .modify(_.pcred)(_.description("Target address credential"))
       .modify(_.containsAllOf)(_.description("Should contain all assets in list"))
       .modify(_.containsAnyOf)(_.description("Should contain any of assets in list"))
-
 }
