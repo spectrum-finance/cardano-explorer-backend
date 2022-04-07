@@ -3,9 +3,9 @@ package io.ergolabs.cardano.explorer.api.v1.services
 import cats.Monad
 import cats.data.{NonEmptyList, OptionT}
 import io.ergolabs.cardano.explorer.api.v1.models.{Items, Paging, Transaction}
-import io.ergolabs.cardano.explorer.core.db.SortOrder
 import io.ergolabs.cardano.explorer.core.db.models.{Transaction => DbTransaction}
 import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle
+import io.ergolabs.cardano.explorer.core.models.Sorting.SortOrder
 import io.ergolabs.cardano.explorer.core.types.{Addr, TxHash}
 import mouse.anyf._
 import tofu.doobie.LiftConnectionIO

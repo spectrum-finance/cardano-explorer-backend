@@ -5,6 +5,7 @@ import cats.data.{NonEmptyList, OptionT}
 import io.ergolabs.cardano.explorer.api.v1.models._
 import io.ergolabs.cardano.explorer.core.db.models.{Output => DbOutput}
 import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle
+import io.ergolabs.cardano.explorer.core.models.Sorting.SortOrder
 import io.ergolabs.cardano.explorer.core.types.{Addr, AssetRef, OutRef, PaymentCred}
 import mouse.anyf._
 import tofu.doobie.LiftConnectionIO
@@ -23,7 +24,7 @@ trait Outputs[F[_]] {
 
   def getUnspentByPCred(pcred: PaymentCred, paging: Paging): F[Items[TxOutput]]
 
-  def getUnspentByAsset(asset: AssetRef, paging: Paging): F[Items[TxOutput]]
+  def getUnspentByAsset(asset: AssetRef, paging: Paging, ordering: SortOrder): F[Items[TxOutput]]
 
   def searchUnspent(query: UtxoSearch, paging: Paging): F[Items[TxOutput]]
 }
@@ -72,9 +73,9 @@ object Outputs {
         batch <- getBatch(txs, total)
       } yield batch) ||> txr.trans
 
-    def getUnspentByAsset(asset: AssetRef, paging: Paging): F[Items[TxOutput]] =
+    def getUnspentByAsset(asset: AssetRef, paging: Paging, ordering: SortOrder): F[Items[TxOutput]] =
       (for {
-        txs   <- outputs.getUnspentByAsset(asset, paging.offset, paging.limit)
+        txs   <- outputs.getUnspentByAsset(asset, paging.offset, paging.limit, ordering)
         total <- outputs.countUnspentByAsset(asset)
         batch <- getBatch(txs, total)
       } yield batch) ||> txr.trans

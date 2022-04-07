@@ -4,8 +4,8 @@ import doobie._
 import doobie.syntax.all._
 import doobie.util.fragment.Fragment.const
 import io.ergolabs.cardano.explorer.core.db.instances._
-import io.ergolabs.cardano.explorer.core.db.SortOrder
 import io.ergolabs.cardano.explorer.core.db.models.Transaction
+import io.ergolabs.cardano.explorer.core.models.Sorting.SortOrder
 import io.ergolabs.cardano.explorer.core.types.{Addr, TxHash}
 
 class TransactionsSql(implicit lh: LogHandler) {

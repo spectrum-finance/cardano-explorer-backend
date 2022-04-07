@@ -4,9 +4,9 @@ import cats.tagless.syntax.functorK._
 import cats.{FlatMap, Functor}
 import derevo.derive
 import doobie.ConnectionIO
-import io.ergolabs.cardano.explorer.core.db.SortOrder
 import io.ergolabs.cardano.explorer.core.db.models.Transaction
 import io.ergolabs.cardano.explorer.core.db.sql.TransactionsSql
+import io.ergolabs.cardano.explorer.core.models.Sorting.SortOrder
 import io.ergolabs.cardano.explorer.core.types.{Addr, TxHash}
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.log.EmbeddableLogHandler
@@ -81,9 +81,9 @@ object TransactionsRepo {
 
     def getAll(offset: Int, limit: Int, ordering: SortOrder): Mid[F, List[Transaction]] =
       for {
-        _ <- trace"getAll(offset=$offset, limit=$limit, ordering=${ordering.value})"
+        _ <- trace"getAll(offset=$offset, limit=$limit, ordering=${ordering.unwrapped})"
         r <- _
-        _ <- trace"getAll(offset=$offset, limit=$limit, ordering=${ordering.value}) -> $r"
+        _ <- trace"getAll(offset=$offset, limit=$limit, ordering=${ordering.unwrapped}) -> $r"
       } yield r
 
     def countAll: Mid[F, Int] =

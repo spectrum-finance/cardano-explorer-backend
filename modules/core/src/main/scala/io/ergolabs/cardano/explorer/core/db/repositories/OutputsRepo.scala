@@ -7,6 +7,7 @@ import derevo.derive
 import doobie.ConnectionIO
 import io.ergolabs.cardano.explorer.core.db.models.Output
 import io.ergolabs.cardano.explorer.core.db.sql.OutputsSql
+import io.ergolabs.cardano.explorer.core.models.Sorting.SortOrder
 import io.ergolabs.cardano.explorer.core.types.{Addr, AssetRef, OutRef, PaymentCred, TxHash}
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.log.EmbeddableLogHandler
@@ -39,7 +40,7 @@ trait OutputsRepo[F[_]] {
 
   def countUnspentByPCred(pcred: PaymentCred): F[Int]
 
-  def getUnspentByAsset(asset: AssetRef, offset: Int, limit: Int): F[List[Output]]
+  def getUnspentByAsset(asset: AssetRef, offset: Int, limit: Int, ordering: SortOrder): F[List[Output]]
 
   def countUnspentByAsset(asset: AssetRef): F[Int]
 
@@ -99,8 +100,8 @@ object OutputsRepo {
     def countUnspentByPCred(pcred: PaymentCred): ConnectionIO[Int] =
       sql.countUnspentByPCred(pcred).unique
 
-    def getUnspentByAsset(asset: AssetRef, offset: Int, limit: Int): ConnectionIO[List[Output]] =
-      sql.getUnspentByAsset(asset, offset, limit).to[List]
+    def getUnspentByAsset(asset: AssetRef, offset: Int, limit: Int, ordering: SortOrder): ConnectionIO[List[Output]] =
+      sql.getUnspentByAsset(asset, offset, limit, ordering).to[List]
 
     def countUnspentByAsset(asset: AssetRef): ConnectionIO[Int] =
       sql.countUnspentByAsset(asset).unique

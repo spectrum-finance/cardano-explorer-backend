@@ -6,6 +6,7 @@ import doobie.syntax.all._
 import doobie.util.fragment.Fragment._
 import io.ergolabs.cardano.explorer.core.db.instances._
 import io.ergolabs.cardano.explorer.core.db.models.Output
+import io.ergolabs.cardano.explorer.core.models.Sorting.SortOrder
 import io.ergolabs.cardano.explorer.core.types.{Addr, AssetRef, OutRef, PaymentCred, TxHash}
 
 final class OutputsSql(implicit lh: LogHandler) {
@@ -243,8 +244,9 @@ final class OutputsSql(implicit lh: LogHandler) {
          |where o.payment_cred = decode($pcred, 'hex') and i.id is null
          |""".stripMargin.query
 
-  def getUnspentByAsset(asset: AssetRef, offset: Int, limit: Int): Query0[Output] =
-    sql"""
+  def getUnspentByAsset(asset: AssetRef, offset: Int, limit: Int, ordering: SortOrder): Query0[Output] = {
+    val q =
+      sql"""
          |select distinct on (o.id)
          |  o.id,
          |  o.tx_id,
@@ -267,8 +269,9 @@ final class OutputsSql(implicit lh: LogHandler) {
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
          |where a.policy = ${asset.policyId.value} and a.name = ${asset.name.value} and i.id is null
-         |offset $offset limit $limit
-         |""".stripMargin.query
+         |""".stripMargin
+    (q ++ const(s"order by t.id ${ordering.unwrapped}") ++ const(s"offset $offset limit $limit")).query
+  }
 
   def countUnspentByAsset(asset: AssetRef): Query0[Int] =
     sql"""
