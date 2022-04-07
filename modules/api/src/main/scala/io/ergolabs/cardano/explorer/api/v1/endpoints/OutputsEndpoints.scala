@@ -78,7 +78,7 @@ final class OutputsEndpoints(conf: RequestConfig) {
       .description("Allow to get info about unspent outputs by assetRef with paging")
 
   def searchUnspent: Endpoint[(Paging, UtxoSearch), HttpError, Items[TxOutput], Any] =
-    baseEndpoint
+    baseEndpoint.post
       .in(pathPrefix / "unspent" / "search")
       .in(paging(conf.maxLimitOutputs))
       .in(jsonBody[UtxoSearch])

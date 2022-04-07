@@ -283,7 +283,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |""".stripMargin.query
 
   def searchUnspent(
-    addr: Addr,
+    pcred: PaymentCred,
     containsAllOf: Option[List[AssetRef]],
     containsAnyOf: Option[List[AssetRef]],
     offset: Int,
@@ -314,14 +314,14 @@ final class OutputsSql(implicit lh: LogHandler) {
       |${containsAllOf.map(innerJoinAllOfAssets("au", "o", _)).getOrElse("")}
       |where
       |  i.id is null and
-      |  o.address = '$addr' and
+      |  o.payment_cred = decode($pcred, 'hex') and
       |  ${containsAnyOf.map(as => s"a.policy in (${as.map(s => s"'${s.policyId}'").mkString(", ")}) and").getOrElse("")}
       |  ${containsAnyOf.map(as => s"a.name in (${as.map(s => s"'${s.name}'").mkString(", ")}) and").getOrElse("")}
       |offset $offset limit $limit
       |""".stripMargin).query
 
   def countUnspent(
-    addr: Addr,
+    pcred: PaymentCred,
     containsAllOf: Option[List[AssetRef]],
     containsAnyOf: Option[List[AssetRef]]
   ): Query0[Int] =
@@ -333,7 +333,7 @@ final class OutputsSql(implicit lh: LogHandler) {
              |${containsAllOf.map(innerJoinAllOfAssets("au", "o", _)).getOrElse("")}
              |where
              |  i.id is null and
-             |  o.address = '$addr' and
+             |  o.payment_cred = decode($pcred, 'hex') and
              |  ${containsAnyOf.map(as => s"a.policy in (${as.map(s => s"'${s.policyId}'").mkString(", ")}) and").getOrElse("")}
              |  ${containsAnyOf.map(as => s"a.name in (${as.map(s => s"'${s.name}'").mkString(", ")}) and").getOrElse("")}
              |""".stripMargin).query

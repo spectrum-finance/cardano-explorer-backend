@@ -45,14 +45,18 @@ trait OutputsRepo[F[_]] {
   def countUnspentByAsset(asset: AssetRef): F[Int]
 
   def searchUnspent(
-    addr: Addr,
+    pcred: PaymentCred,
     containsAllOf: Option[List[AssetRef]],
     containsAnyOf: Option[List[AssetRef]],
     offset: Int,
     limit: Int
   ): F[List[Output]]
 
-  def countUnspent(addr: Addr, containsAllOf: Option[List[AssetRef]], containsAnyOf: Option[List[AssetRef]]): F[Int]
+  def countUnspent(
+    pcred: PaymentCred,
+    containsAllOf: Option[List[AssetRef]],
+    containsAnyOf: Option[List[AssetRef]]
+  ): F[Int]
 }
 
 object OutputsRepo {
@@ -107,19 +111,19 @@ object OutputsRepo {
       sql.countUnspentByAsset(asset).unique
 
     def searchUnspent(
-      addr: Addr,
+      pcred: PaymentCred,
       containsAllOf: Option[List[AssetRef]],
       containsAnyOf: Option[List[AssetRef]],
       offset: Int,
       limit: Int
     ): ConnectionIO[List[Output]] =
-      sql.searchUnspent(addr, containsAllOf, containsAnyOf, offset, limit).to[List]
+      sql.searchUnspent(pcred, containsAllOf, containsAnyOf, offset, limit).to[List]
 
     def countUnspent(
-      addr: Addr,
+      pcred: PaymentCred,
       containsAllOf: Option[List[AssetRef]],
       containsAnyOf: Option[List[AssetRef]]
     ): ConnectionIO[Int] =
-      sql.countUnspent(addr, containsAllOf, containsAnyOf).unique
+      sql.countUnspent(pcred, containsAllOf, containsAnyOf).unique
   }
 }

@@ -82,8 +82,8 @@ object Outputs {
 
     def searchUnspent(query: UtxoSearch, paging: Paging): F[Items[TxOutput]] =
       (for {
-        txs   <- outputs.searchUnspent(query.addr, query.containsAllOf, query.containsAnyOf, paging.offset, paging.limit)
-        total <- outputs.countUnspent(query.addr, query.containsAllOf, query.containsAnyOf)
+        txs   <- outputs.searchUnspent(query.pcred, query.containsAllOf, query.containsAnyOf, paging.offset, paging.limit)
+        total <- outputs.countUnspent(query.pcred, query.containsAllOf, query.containsAnyOf)
         batch <- getBatch(txs, total)
       } yield batch) ||> txr.trans
 
