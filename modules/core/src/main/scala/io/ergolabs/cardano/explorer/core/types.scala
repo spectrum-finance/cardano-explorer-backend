@@ -201,10 +201,10 @@ object types {
     implicit def validator: Validator[AssetRef] =
       Validator.pass
 
-    val RefSeparator = "."
+    val RefSeparator = '.'
 
     def apply(policy: PolicyId, assetName: Asset32): AssetRef =
-      AssetRef(s"$policy.$assetName")
+      AssetRef(s"$policy$RefSeparator$assetName")
 
     def unapply(ref: AssetRef): Option[(PolicyId, Asset32)] =
       Try {
