@@ -269,9 +269,9 @@ final class OutputsSql(implicit lh: LogHandler) {
          |left join multi_asset ma on ma.id = a.ident
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
-         |where ma.policy = decode(${asset.policyId.value}, 'hex') and ma.name = ${asset.name.value} and i.id is null
+         |where ma.policy = decode(${asset.policyId.value}, 'hex') and ma.name = decode(${asset.name.value}, 'escape') and i.id is null
          |""".stripMargin
-    (q ++ const(s"order by t.id ${ordering.unwrapped}") ++ const(s"offset $offset limit $limit")).query
+    (q ++ const(s"order by o.id ${ordering.unwrapped}") ++ const(s"offset $offset limit $limit")).query
   }
 
   def countUnspentByAsset(asset: AssetRef): Query0[Int] =
@@ -281,7 +281,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
          |left join ma_tx_out a on a.tx_out_id = o.id
          |left join multi_asset ma on ma.id = a.ident
-         |where ma.policy = decode(${asset.policyId.value}, 'hex') and ma.name = ${asset.name.value} and i.id is null
+         |where ma.policy = decode(${asset.policyId.value}, 'hex') and ma.name = decode(${asset.name.value}, 'escape') and i.id is null
          |""".stripMargin.query
 
   def searchUnspent(
@@ -311,14 +311,15 @@ final class OutputsSql(implicit lh: LogHandler) {
       |left join block b on b.id = t.block_id
       |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
       |left join ma_tx_out a on a.tx_out_id = o.id
+      |left join multi_asset ma on ma.id = a.ident
       |left join datum d on d.hash = o.data_hash
       |left join reported_datum rd on rd.hash = o.data_hash
       |${containsAllOf.map(innerJoinAllOfAssets("au", "o", _)).getOrElse("")}
       |where
       |  i.id is null and
       |  o.payment_cred = decode('$pcred', 'hex') ${if (containsAnyOf.isDefined) "and" else ""}
-      |  ${containsAnyOf.map(as => s"a.policy in (${as.map(s => s"decode('${s.policyId}', 'hex')").mkString(", ")}) and").getOrElse("")}
-      |  ${containsAnyOf.map(as => s"a.name in (${as.map(s => s"'${s.name}'").mkString(", ")})").getOrElse("")}
+      |  ${containsAnyOf.map(as => s"ma.policy in (${as.map(s => s"decode('${s.policyId}', 'hex')").mkString(", ")}) and").getOrElse("")}
+      |  ${containsAnyOf.map(as => s"ma.name in (${as.map(s => s"'${s.name}'").mkString(", ")})").getOrElse("")}
       |offset $offset limit $limit
       |""".stripMargin).query
 
@@ -332,12 +333,13 @@ final class OutputsSql(implicit lh: LogHandler) {
              |from tx_out o
              |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
              |left join ma_tx_out a on a.tx_out_id = o.id
+             |left join multi_asset ma on ma.id = a.ident
              |${containsAllOf.map(innerJoinAllOfAssets("au", "o", _)).getOrElse("")}
              |where
              |  i.id is null and
              |  o.payment_cred = decode('$pcred', 'hex') ${if (containsAnyOf.isDefined) "and" else ""}
-             |  ${containsAnyOf.map(as => s"a.policy in (${as.map(s => s"'${s.policyId}'").mkString(", ")}) and").getOrElse("")}
-             |  ${containsAnyOf.map(as => s"a.name in (${as.map(s => s"'${s.name}'").mkString(", ")})").getOrElse("")}
+             |  ${containsAnyOf.map(as => s"ma.policy in (${as.map(s => s"decode('${s.policyId}', 'hex')").mkString(", ")}) and").getOrElse("")}
+             |  ${containsAnyOf.map(as => s"ma.name in (${as.map(s => s"'${s.name}'").mkString(", ")})").getOrElse("")}
              |""".stripMargin).query
 
   private def innerJoinAllOfAssets(
