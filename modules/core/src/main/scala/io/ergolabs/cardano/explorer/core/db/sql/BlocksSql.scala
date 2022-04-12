@@ -1,12 +1,11 @@
 package io.ergolabs.cardano.explorer.core.db.sql
 
-import doobie.Query0
 import doobie._
 import doobie.syntax.all._
 import io.ergolabs.cardano.explorer.core.db.instances._
 import doobie.implicits.javasql._
 import doobie.postgres.implicits._
-import io.ergolabs.cardano.explorer.core.db.models.{AssetOutput, BlockHeader}
+import io.ergolabs.cardano.explorer.core.db.models.BlockHeader
 
 final class BlocksSql(implicit lh: LogHandler) {
 
@@ -15,12 +14,13 @@ final class BlocksSql(implicit lh: LogHandler) {
          |select
          |  id,
          |  encode(hash, 'hex'),
+         |  block_no,
          |  epoch_no,
          |  slot_no,
          |  slot_leader_id,
          |  tx_count,
          |  time
          |from block
-         |where id = (SELECT MAX(id) FROM block)
+         |where id = (select max(id) from block)
          |""".stripMargin.query
 }

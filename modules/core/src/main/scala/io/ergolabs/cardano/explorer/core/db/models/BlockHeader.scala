@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 final case class BlockHeader(
   blockId: BigInt,
   blockHash: BlockHash,
+  blockNo: Int,
   epochNo: Int,
   slotNo: Int,
   slotLeaderId: BigInt,

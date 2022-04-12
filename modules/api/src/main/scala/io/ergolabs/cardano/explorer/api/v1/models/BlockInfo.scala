@@ -13,6 +13,7 @@ import java.time.LocalDateTime
 final case class BlockInfo(
   blockId: BigInt,
   blockHash: BlockHash,
+  blockNo: Int,
   epochNo: Int,
   slotNo: Int,
   slotLeader: String,
@@ -27,6 +28,7 @@ object BlockInfo {
       .derived[BlockInfo]
       .modify(_.blockId)(_.description("The block identifier."))
       .modify(_.blockHash)(_.description("The hash identifier of the block."))
+      .modify(_.blockNo)(_.description("The block number."))
       .modify(_.epochNo)(_.description("The epoch number."))
       .modify(_.slotNo)(_.description("The slot number."))
       .modify(_.slotLeader)(_.description("The SlotLeader index number of the creator of this block."))
@@ -39,6 +41,7 @@ object BlockInfo {
     BlockInfo(
       blockHeader.blockId,
       blockHeader.blockHash,
+      blockHeader.blockNo,
       blockHeader.epochNo,
       blockHeader.slotNo,
       slotLeaderOpt.map(_.description).getOrElse(UNKNOWN_SLOT_LEADER),
