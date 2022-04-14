@@ -17,6 +17,7 @@ final case class TxOutput(
   globalIndex: Long,
   addr: Addr,
   rawAddr: Bytea,
+  paymentCred: PaymentCred,
   value: List[OutAsset],
   dataHash: Option[Hash32],
   data: Option[Json],
@@ -43,6 +44,7 @@ object TxOutput {
           "The human readable encoding of the output address. Will be Base58 for Byron era addresses and Bech32 for Shelley era."
         )
       )
+      .modify(_.paymentCred)(_.description("Payment credential of the address."))
       .modify(_.value)(_.description("The output value (in Lovelace) of the transaction output."))
       .modify(_.dataHash)(_.description("The hash of the transaction output datum. (`null` for Txs without scripts)."))
       .modify(_.data)(_.description("The transaction output datum. (`null` for Txs without scripts)."))
@@ -59,6 +61,7 @@ object TxOutput {
       out.id,
       out.addr,
       out.rawAddr,
+      out.pcred,
       Value(out.lovelace, assets),
       out.dataHash,
       out.data,
