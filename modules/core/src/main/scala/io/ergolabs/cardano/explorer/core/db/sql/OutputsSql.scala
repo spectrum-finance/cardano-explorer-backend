@@ -218,32 +218,34 @@ final class OutputsSql(implicit lh: LogHandler) {
          |where o.address = $addr and i.id is null
          |""".stripMargin.query
 
-  def getUnspentByPCred(pcred: PaymentCred, offset: Int, limit: Int): Query0[Output] =
-    sql"""
-         |select
-         |  o.id,
-         |  o.tx_id,
-         |  encode(b.hash, 'hex'),
-         |  encode(t.hash, 'hex'),
-         |  o.index,
-         |  o.address,
-         |  encode(o.address_raw, 'hex'),
-         |  encode(o.payment_cred, 'hex'),
-         |  o.value,
-         |  encode(o.data_hash, 'hex'),
-         |  case when (d.value is null) then rd.value else d.value end,
-         |  encode(rd.raw_value, 'hex'),
-         |  null,
-         |  null
-         |from tx_out o
-         |left join tx t on t.id = o.tx_id
-         |left join block b on b.id = t.block_id
-         |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
-         |left join datum d on d.hash = o.data_hash
-         |left join reported_datum rd on rd.hash = o.data_hash
-         |where o.payment_cred = decode($pcred, 'hex') and i.id is null
-         |offset $offset limit $limit
-         |""".stripMargin.query
+  def getUnspentByPCred(pcred: PaymentCred, offset: Int, limit: Int, ordering: SortOrder): Query0[Output] = {
+    val q =
+      sql"""
+           |select distinct on (o.id)
+           |  o.id,
+           |  o.tx_id,
+           |  encode(b.hash, 'hex'),
+           |  encode(t.hash, 'hex'),
+           |  o.index,
+           |  o.address,
+           |  encode(o.address_raw, 'hex'),
+           |  encode(o.payment_cred, 'hex'),
+           |  o.value,
+           |  encode(o.data_hash, 'hex'),
+           |  case when (d.value is null) then rd.value else d.value end,
+           |  encode(rd.raw_value, 'hex'),
+           |  null,
+           |  null
+           |from tx_out o
+           |left join tx t on t.id = o.tx_id
+           |left join block b on b.id = t.block_id
+           |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
+           |left join datum d on d.hash = o.data_hash
+           |left join reported_datum rd on rd.hash = o.data_hash
+           |where o.payment_cred = decode($pcred, 'hex') and i.id is null
+           |""".stripMargin
+    (q ++ const(s"order by o.id ${ordering.unwrapped}") ++ const(s"offset $offset limit $limit")).query
+  }
 
   def countUnspentByPCred(pcred: PaymentCred): Query0[Int] =
     sql"""

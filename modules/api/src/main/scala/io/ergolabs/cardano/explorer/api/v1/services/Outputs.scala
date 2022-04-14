@@ -22,7 +22,7 @@ trait Outputs[F[_]] {
 
   def getUnspentByAddr(addr: Addr, paging: Paging): F[Items[TxOutput]]
 
-  def getUnspentByPCred(pcred: PaymentCred, paging: Paging): F[Items[TxOutput]]
+  def getUnspentByPCred(pcred: PaymentCred, paging: Paging, ordering: SortOrder): F[Items[TxOutput]]
 
   def getUnspentByAsset(asset: AssetRef, paging: Paging, ordering: SortOrder): F[Items[TxOutput]]
 
@@ -66,9 +66,9 @@ object Outputs {
         batch <- getBatch(txs, total)
       } yield batch) ||> txr.trans
 
-    def getUnspentByPCred(pcred: PaymentCred, paging: Paging): F[Items[TxOutput]] =
+    def getUnspentByPCred(pcred: PaymentCred, paging: Paging, ordering: SortOrder): F[Items[TxOutput]] =
       (for {
-        txs   <- outputs.getUnspentByPCred(pcred, paging.offset, paging.limit)
+        txs   <- outputs.getUnspentByPCred(pcred, paging.offset, paging.limit, ordering)
         total <- outputs.countUnspentByPCred(pcred)
         batch <- getBatch(txs, total)
       } yield batch) ||> txr.trans

@@ -46,8 +46,8 @@ final class OutputsRoutes[F[_]: Concurrent: ContextShift: Timer](requestConfig: 
     }
 
   def getUnspentByPCredR: HttpRoutes[F] =
-    interpreter.toRoutes(endpoints.getUnspentByPCred) { case (pcred, paging) =>
-      service.getUnspentByPCred(pcred, paging).eject
+    interpreter.toRoutes(endpoints.getUnspentByPCred) { case (pcred, paging, ordering) =>
+      service.getUnspentByPCred(pcred, paging, ordering).eject
     }
 
   def getUnspentByAssetR: HttpRoutes[F] =

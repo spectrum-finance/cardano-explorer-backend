@@ -36,7 +36,7 @@ trait OutputsRepo[F[_]] {
 
   def countUnspentByAddr(addr: Addr): F[Int]
 
-  def getUnspentByPCred(pcred: PaymentCred, offset: Int, limit: Int): F[List[Output]]
+  def getUnspentByPCred(pcred: PaymentCred, offset: Int, limit: Int, ordering: SortOrder): F[List[Output]]
 
   def countUnspentByPCred(pcred: PaymentCred): F[Int]
 
@@ -98,8 +98,8 @@ object OutputsRepo {
     def countUnspentByAddr(addr: Addr): ConnectionIO[Int] =
       sql.countUnspentByAddr(addr).unique
 
-    def getUnspentByPCred(pcred: PaymentCred, offset: Int, limit: Int): ConnectionIO[List[Output]] =
-      sql.getUnspentByPCred(pcred, offset, limit).to[List]
+    def getUnspentByPCred(pcred: PaymentCred, offset: Int, limit: Int, ordering: SortOrder): ConnectionIO[List[Output]] =
+      sql.getUnspentByPCred(pcred, offset, limit, ordering).to[List]
 
     def countUnspentByPCred(pcred: PaymentCred): ConnectionIO[Int] =
       sql.countUnspentByPCred(pcred).unique

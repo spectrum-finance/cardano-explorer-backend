@@ -58,10 +58,11 @@ final class OutputsEndpoints(conf: RequestConfig) {
       .name("Unspent outputs by address")
       .description("Query unspent outputs by address")
 
-  def getUnspentByPCred: Endpoint[(PaymentCred, Paging), HttpError, Items[TxOutput], Any] =
+  def getUnspentByPCred: Endpoint[(PaymentCred, Paging, SortOrder), HttpError, Items[TxOutput], Any] =
     baseEndpoint.get
       .in(pathPrefix / "unspent" / "byPaymentCred" / path[PaymentCred].description("A payment credential to search by"))
       .in(paging(conf.maxLimitOutputs))
+      .in(ordering)
       .out(jsonBody[Items[TxOutput]])
       .tag(pathPrefix)
       .name("Unspent outputs by PaymentCred")
