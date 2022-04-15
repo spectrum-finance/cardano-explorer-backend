@@ -17,7 +17,7 @@ final case class TxOutput(
   globalIndex: Long,
   addr: Addr,
   rawAddr: Bytea,
-  paymentCred: PaymentCred,
+  paymentCred: Option[PaymentCred],
   value: List[OutAsset],
   dataHash: Option[Hash32],
   data: Option[Json],

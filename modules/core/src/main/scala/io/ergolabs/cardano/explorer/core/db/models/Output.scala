@@ -11,7 +11,7 @@ final case class Output(
   index: Int,
   addr: Addr,
   rawAddr: Bytea,
-  pcred: PaymentCred,
+  pcred: Option[PaymentCred],
   lovelace: BigInt,
   dataHash: Option[Hash32],
   data: Option[Json],
