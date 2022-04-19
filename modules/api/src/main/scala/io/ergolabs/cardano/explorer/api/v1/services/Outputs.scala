@@ -55,8 +55,8 @@ object Outputs {
     def getUnspent(indexing: Indexing): F[Items[TxOutput]] =
       (for {
         txs   <- outputs.getUnspentIndexed(indexing.minIndex, indexing.limit)
-        total <- outputs.countUnspent
-        batch <- getBatch(txs, total)
+        //total <- outputs.countUnspent
+        batch <- getBatch(txs, 0) // todo
       } yield batch) ||> txr.trans
 
     def getUnspentByAddr(addr: Addr, paging: Paging): F[Items[TxOutput]] =
