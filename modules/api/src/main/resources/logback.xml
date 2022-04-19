@@ -36,7 +36,7 @@
     <logger name="org.http4s" level="DEBUG"/>
     <logger name="org.apache.kafka" level="INFO"/>
     <logger name="sttp.client3.asynchttpclient" level="INFO"/>
-    <root level="INFO">
+    <root level="TRACE">
         <appender-ref ref="ASYNCSTDOUT"/>
     </root>
 
