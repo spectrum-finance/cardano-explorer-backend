@@ -148,6 +148,9 @@ object types {
   @newtype case class OutRef private[types] (value: String)
 
   object OutRef {
+
+    val RefSeparator = '#'
+
     implicit def plainCodec: Codec.PlainCodec[OutRef] = deriving
 
     implicit def jsonCodec: Codec.JsonCodec[OutRef] = deriving
@@ -159,11 +162,11 @@ object types {
       Validator.pass
 
     def apply(txHash: TxHash, index: Int): OutRef =
-      OutRef(s"$txHash:$index")
+      OutRef(s"$txHash$RefSeparator$index")
 
     def unapply(ref: OutRef): Option[(TxHash, Int)] =
       Try {
-        val Array(hash, i) = ref.value.split("#")
+        val Array(hash, i) = ref.value.split(RefSeparator)
         TxHash.fromStringUnsafe(hash) -> i.toInt
       }.toOption
   }
