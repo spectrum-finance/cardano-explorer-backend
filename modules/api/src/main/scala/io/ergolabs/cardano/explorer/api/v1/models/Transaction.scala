@@ -57,7 +57,7 @@ object Transaction {
         for {
           rid <- i.redeemerId
           r   <- redeemers.find(_.id == rid)
-        } yield Redeemer(r.unitMem, r.unitSteps, r.fee, r.purpose, r.index, r.scriptHash)
+        } yield Redeemer(r.unitMem, r.unitSteps, r.fee, r.purpose, r.index, r.scriptHash, r.data, r.dataBin)
       TxInput(TxOutput.inflate(i.output, inputAssets.filter(_.outputId == i.output.id).map(_.asset)), maybeRedeemer)
     }
     val txOutputs = outputs.map(o => TxOutput.inflate(o, outputAssets.filter(_.outputId == o.id).map(_.asset)))
