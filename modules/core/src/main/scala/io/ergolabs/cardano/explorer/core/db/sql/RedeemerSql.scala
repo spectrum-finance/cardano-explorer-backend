@@ -18,8 +18,12 @@ final class RedeemerSql(implicit lh: LogHandler) {
          |  r.fee,
          |  r.purpose,
          |  r.index,
-         |  encode(r.script_hash, 'hex')
+         |  encode(r.script_hash, 'hex'),
+         |  case when (d.value is null) then rd.value else d.value end,
+         |  encode(rd.raw_value, 'hex')
          |from redeemer r
+         |left join datum d on d.id = r.datum_id
+         |left join reported_datum rd on rd.hash = d.hash
          |where r.tx_id = $txId
          |""".stripMargin.query
 
@@ -34,7 +38,11 @@ final class RedeemerSql(implicit lh: LogHandler) {
            |  r.fee,
            |  r.purpose,
            |  r.index,
-           |  encode(r.script_hash, 'hex')
+           |  encode(r.script_hash, 'hex'),
+           |  case when (d.value is null) then rd.value else d.value end,
+           |  encode(rd.raw_value, 'hex')
+           |left join datum d on d.id = r.datum_id
+           |left join reported_datum rd on rd.hash = d.hash
            |from redeemer r
            |""".stripMargin
     (q ++ Fragments.in(fr"where r.tx_id", txIds)).query
