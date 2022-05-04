@@ -6,7 +6,7 @@ import io.ergolabs.cardano.explorer.api.v1.models.{Items, Paging, Transaction}
 import io.ergolabs.cardano.explorer.core.db.models.{Transaction => DbTransaction}
 import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle
 import io.ergolabs.cardano.explorer.core.models.Sorting.SortOrder
-import io.ergolabs.cardano.explorer.core.types.{Addr, TxHash}
+import io.ergolabs.cardano.explorer.core.types.{Addr, PaymentCred, TxHash}
 import mouse.anyf._
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.transactor.Txr
@@ -21,6 +21,8 @@ trait Transactions[F[_]] {
   def getByBlock(blockHeight: Int): F[Items[Transaction]]
 
   def getByAddress(addr: Addr, paging: Paging): F[Items[Transaction]]
+
+  def getByPCred(pcred: PaymentCred, paging: Paging): F[Items[Transaction]]
 }
 
 object Transactions {
@@ -62,6 +64,13 @@ object Transactions {
       (for {
         txs   <- transactions.getByAddress(addr, paging.offset, paging.limit)
         total <- transactions.countByAddress(addr)
+        batch <- getBatch(txs, total)
+      } yield batch) ||> txr.trans
+
+    def getByPCred(pcred: PaymentCred, paging: Paging): F[Items[Transaction]] =
+      (for {
+        txs   <- transactions.getByPCred(pcred, paging.offset, paging.limit)
+        total <- transactions.countByPCred(pcred)
         batch <- getBatch(txs, total)
       } yield batch) ||> txr.trans
 

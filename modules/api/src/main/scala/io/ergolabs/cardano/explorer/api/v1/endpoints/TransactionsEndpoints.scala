@@ -3,7 +3,7 @@ package io.ergolabs.cardano.explorer.api.v1.endpoints
 import io.ergolabs.cardano.explorer.api.configs.RequestConfig
 import io.ergolabs.cardano.explorer.api.v1.HttpError
 import io.ergolabs.cardano.explorer.api.v1.models.{Items, Paging, Transaction}
-import io.ergolabs.cardano.explorer.core.types.{Addr, TxHash}
+import io.ergolabs.cardano.explorer.core.types.{Addr, PaymentCred, TxHash}
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
 
@@ -12,7 +12,7 @@ final class TransactionsEndpoints(conf: RequestConfig) {
   val pathPrefix = "transactions"
 
   def endpoints: List[Endpoint[_, _, _, _]] =
-    getByTxHash :: getAll :: getByBlock :: getByAddress :: Nil
+    getByTxHash :: getAll :: getByBlock :: getByAddress :: getByPCred :: Nil
 
   def getByTxHash: Endpoint[TxHash, HttpError, Transaction, Any] =
     baseEndpoint.get
@@ -46,5 +46,14 @@ final class TransactionsEndpoints(conf: RequestConfig) {
       .out(jsonBody[Items[Transaction]])
       .tag(pathPrefix)
       .name("Transactions by address")
-      .description("Allow to get transactions involving a given address by address with paging")
+      .description("Allow to get transactions involving a given address with paging")
+
+  def getByPCred: Endpoint[(PaymentCred, Paging), HttpError, Items[Transaction], Any] =
+    baseEndpoint.get
+      .in(pathPrefix / "byPaymentCred" / path[PaymentCred].description("Payment Credential to search by"))
+      .in(paging(conf.maxLimitTransactions))
+      .out(jsonBody[Items[Transaction]])
+      .tag(pathPrefix)
+      .name("Transactions by Payment Credential")
+      .description("Allow to get transactions involving a given Payment Credential with paging")
 }

@@ -7,7 +7,7 @@ import doobie.ConnectionIO
 import io.ergolabs.cardano.explorer.core.db.models.Transaction
 import io.ergolabs.cardano.explorer.core.db.sql.TransactionsSql
 import io.ergolabs.cardano.explorer.core.models.Sorting.SortOrder
-import io.ergolabs.cardano.explorer.core.types.{Addr, TxHash}
+import io.ergolabs.cardano.explorer.core.types.{Addr, PaymentCred, TxHash}
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.log.EmbeddableLogHandler
 import tofu.higherKind.Mid
@@ -32,6 +32,10 @@ trait TransactionsRepo[F[_]] {
   def getByAddress(addr: Addr, offset: Int, limit: Int): F[List[Transaction]]
 
   def countByAddress(addr: Addr): F[Int]
+
+  def getByPCred(pcred: PaymentCred, offset: Int, limit: Int): F[List[Transaction]]
+
+  def countByPCred(pcred: PaymentCred): F[Int]
 }
 
 object TransactionsRepo {
@@ -68,6 +72,12 @@ object TransactionsRepo {
 
     def countByAddress(addr: Addr): ConnectionIO[Int] =
       sql.countByAddress(addr).unique
+
+    def getByPCred(pcred: PaymentCred, offset: Int, limit: Int): ConnectionIO[List[Transaction]] =
+      sql.getByPCred(pcred, offset, limit).to[List]
+
+    def countByPCred(pcred: PaymentCred): ConnectionIO[Int] =
+      sql.countByPCred(pcred).unique
   }
 
   final class Tracing[F[_]: Logging: FlatMap] extends TransactionsRepo[Mid[F, *]] {
@@ -119,6 +129,20 @@ object TransactionsRepo {
         _ <- trace"countByAddress(addr=$addr)"
         r <- _
         _ <- trace"countByAddress(addr=$addr) -> $r"
+      } yield r
+
+    def getByPCred(pcred: PaymentCred, offset: Int, limit: Int): Mid[F, List[Transaction]] =
+      for {
+        _ <- trace"getByPCred(pcred=$pcred, offset=$offset, limit=$limit)"
+        r <- _
+        _ <- trace"getByPCred(pcred=$pcred, offset=$offset, limit=$limit) -> $r"
+      } yield r
+
+    def countByPCred(pcred: PaymentCred): Mid[F, Int] =
+      for {
+        _ <- trace"countByPCred(pcred=$pcred)"
+        r <- _
+        _ <- trace"countByPCred(pcred=$pcred) -> $r"
       } yield r
   }
 }

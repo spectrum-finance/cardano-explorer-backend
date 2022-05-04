@@ -18,7 +18,7 @@ final class TransactionsRoutes[F[_]: Concurrent: ContextShift: Timer](requestCon
 
   private val interpreter = Http4sServerInterpreter(opts)
 
-  def routes: HttpRoutes[F] = getAllR <+> getByBlockR <+> getByAddressR <+> getByTxHashR
+  def routes: HttpRoutes[F] = getAllR <+> getByBlockR <+> getByAddressR <+> getByPCredR <+> getByTxHashR
 
   def getByTxHashR: HttpRoutes[F] =
     interpreter.toRoutes(endpoints.getByTxHash)(q => service.getByTxHash(q).orNotFound(s"Transaction{txHash=$q}"))
@@ -31,6 +31,9 @@ final class TransactionsRoutes[F[_]: Concurrent: ContextShift: Timer](requestCon
 
   def getByAddressR: HttpRoutes[F] =
     interpreter.toRoutes(endpoints.getByAddress) { case (addr, p) => service.getByAddress(addr, p).eject }
+
+  def getByPCredR: HttpRoutes[F] =
+    interpreter.toRoutes(endpoints.getByPCred) { case (addr, p) => service.getByPCred(addr, p).eject }
 }
 
 object TransactionsRoutes {
