@@ -22,7 +22,7 @@ trait Transactions[F[_]] {
 
   def getByAddress(addr: Addr, paging: Paging): F[Items[Transaction]]
 
-  def getByPCred(pcred: PaymentCred, paging: Paging): F[Items[Transaction]]
+  def getByPCred(pcred: PaymentCred, paging: Paging): F[List[Transaction]]
 }
 
 object Transactions {
@@ -50,31 +50,30 @@ object Transactions {
       (for {
         txs   <- transactions.getAll(paging.offset, paging.limit, SortOrder.Desc)
         total <- transactions.countAll
-        batch <- getBatch(txs, total)
-      } yield batch) ||> txr.trans
+        batch <- getBatch(txs)
+      } yield Items(batch, total)) ||> txr.trans
 
     def getByBlock(blockHeight: Int): F[Items[Transaction]] =
       (for {
         txs   <- transactions.getByBlock(blockHeight)
         total <- transactions.countByBlock(blockHeight)
-        batch <- getBatch(txs, total)
-      } yield batch) ||> txr.trans
+        batch <- getBatch(txs)
+      } yield Items(batch, total)) ||> txr.trans
 
     def getByAddress(addr: Addr, paging: Paging): F[Items[Transaction]] =
       (for {
         txs   <- transactions.getByAddress(addr, paging.offset, paging.limit)
         total <- transactions.countByAddress(addr)
-        batch <- getBatch(txs, total)
-      } yield batch) ||> txr.trans
+        batch <- getBatch(txs)
+      } yield Items(batch, total)) ||> txr.trans
 
-    def getByPCred(pcred: PaymentCred, paging: Paging): F[Items[Transaction]] =
+    def getByPCred(pcred: PaymentCred, paging: Paging): F[List[Transaction]] =
       (for {
         txs   <- transactions.getByPCred(pcred, paging.offset, paging.limit)
-        total <- transactions.countByPCred(pcred)
-        batch <- getBatch(txs, total)
+        batch <- getBatch(txs)
       } yield batch) ||> txr.trans
 
-    private def getBatch(txs: List[DbTransaction], total: Int) =
+    private def getBatch(txs: List[DbTransaction]) =
       NonEmptyList.fromList(txs.map(_.id)) match {
         case Some(ids) =>
           for {
@@ -84,9 +83,8 @@ object Transactions {
             inAssets  <- assets.getByInTxIds(ids)
             outAssets <- assets.getByOutTxIds(ids)
             meta      <- metadata.getByTxIds(ids)
-            xs = Transaction.inflateBatch(txs, ins, outs, inAssets, outAssets, redeemers, meta)
-          } yield Items(xs, total)
-        case None => Items.empty[Transaction].pure
+          } yield Transaction.inflateBatch(txs, ins, outs, inAssets, outAssets, redeemers, meta)
+        case None => List.empty[Transaction].pure
       }
   }
 }
