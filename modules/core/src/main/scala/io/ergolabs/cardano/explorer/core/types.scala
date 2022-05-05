@@ -149,7 +149,7 @@ object types {
 
   object OutRef {
 
-    val RefSeparator = '#'
+    val RefSeparator = ':'
 
     implicit def plainCodec: Codec.PlainCodec[OutRef] = deriving
 
