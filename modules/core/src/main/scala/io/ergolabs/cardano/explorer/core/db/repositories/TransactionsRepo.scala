@@ -3,7 +3,9 @@ package io.ergolabs.cardano.explorer.core.db.repositories
 import cats.tagless.syntax.functorK._
 import cats.{FlatMap, Functor}
 import derevo.derive
+import derevo.tagless.functorK
 import doobie.ConnectionIO
+import fs2.Stream
 import io.ergolabs.cardano.explorer.core.db.models.Transaction
 import io.ergolabs.cardano.explorer.core.db.sql.TransactionsSql
 import io.ergolabs.cardano.explorer.core.models.Sorting.SortOrder
@@ -11,10 +13,35 @@ import io.ergolabs.cardano.explorer.core.types.{Addr, PaymentCred, TxHash}
 import tofu.doobie.LiftConnectionIO
 import tofu.doobie.log.EmbeddableLogHandler
 import tofu.higherKind.Mid
-import tofu.higherKind.derived.representableK
+import tofu.higherKind.derived.{embed, representableK}
 import tofu.logging.{Logging, Logs}
 import tofu.syntax.logging._
 import tofu.syntax.monadic._
+import tofu.fs2Instances._
+
+@derive(embed, functorK)
+trait StreamingTransactionRepo[F[_]] {
+  def streamAll(offset: Int, limit: Int, ordering: SortOrder): Stream[F, Transaction]
+}
+
+object StreamingTransactionRepo {
+
+  def make[I[_]: Functor, D[_]: FlatMap: LiftConnectionIO](implicit
+    elh: EmbeddableLogHandler[D],
+    logs: Logs[I, D]
+  ): I[StreamingTransactionRepo[D]] =
+    logs.forService[StreamingTransactionRepo[D]].map { implicit l =>
+      elh.embed { implicit lh =>
+        new LiveCIO(new TransactionsSql).mapK(LiftConnectionIO[D].liftF)
+      }
+    }
+
+  final class LiveCIO(sql: TransactionsSql) extends StreamingTransactionRepo[ConnectionIO] {
+
+    def streamAll(offset: Int, limit: Int, ordering: SortOrder): Stream[ConnectionIO, Transaction] =
+      sql.getAll(offset, limit, ordering).stream
+  }
+}
 
 @derive(representableK)
 trait TransactionsRepo[F[_]] {

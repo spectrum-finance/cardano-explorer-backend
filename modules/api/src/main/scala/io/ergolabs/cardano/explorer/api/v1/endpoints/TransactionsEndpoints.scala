@@ -3,16 +3,18 @@ package io.ergolabs.cardano.explorer.api.v1.endpoints
 import io.ergolabs.cardano.explorer.api.configs.RequestConfig
 import io.ergolabs.cardano.explorer.api.v1.HttpError
 import io.ergolabs.cardano.explorer.api.v1.models.{Items, Paging, Transaction}
+import io.ergolabs.cardano.explorer.core.models.Sorting.SortOrder
 import io.ergolabs.cardano.explorer.core.types.{Addr, PaymentCred, TxHash}
+import sttp.capabilities.fs2.Fs2Streams
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
 
-final class TransactionsEndpoints(conf: RequestConfig) {
+final class TransactionsEndpoints[F[_]](conf: RequestConfig) {
 
   val pathPrefix = "transactions"
 
   def endpoints: List[Endpoint[_, _, _, _]] =
-    getByTxHash :: getAll :: getByBlock :: getByAddress :: getByPCred :: Nil
+    streamAll :: getByTxHash :: getAll :: getByBlock :: getByAddress :: getByPCred :: Nil
 
   def getByTxHash: Endpoint[TxHash, HttpError, Transaction, Any] =
     baseEndpoint.get
@@ -30,6 +32,16 @@ final class TransactionsEndpoints(conf: RequestConfig) {
       .tag(pathPrefix)
       .name("All transactions")
       .description("Allow to get all transactions with paging")
+
+  def streamAll: Endpoint[(Paging, SortOrder), HttpError, fs2.Stream[F, Byte], Fs2Streams[F]] =
+    baseEndpoint.get
+      .in(pathPrefix / "stream")
+      .in(paging(conf.maxLimitTransactions))
+      .in(ordering)
+      .out(streamBody(Fs2Streams[F])(Schema.derived[List[Transaction]], CodecFormat.Json(), None))
+      .tag(pathPrefix)
+      .name("TransactionsStreamAll")
+      .description("Stream all transactions")
 
   def getByBlock: Endpoint[Int, HttpError, Items[Transaction], Any] =
     baseEndpoint.get

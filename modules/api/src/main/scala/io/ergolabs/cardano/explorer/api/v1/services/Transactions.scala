@@ -2,6 +2,7 @@ package io.ergolabs.cardano.explorer.api.v1.services
 
 import cats.Monad
 import cats.data.{NonEmptyList, OptionT}
+import fs2.{Chunk, Pipe, Stream}
 import io.ergolabs.cardano.explorer.api.v1.models.{Items, Paging, Transaction}
 import io.ergolabs.cardano.explorer.core.db.models.{Transaction => DbTransaction}
 import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle
@@ -18,6 +19,8 @@ trait Transactions[F[_]] {
 
   def getAll(paging: Paging): F[Items[Transaction]]
 
+  def streamAll(paging: Paging, ordering: SortOrder): Stream[F, Transaction]
+
   def getByBlock(blockHeight: Int): F[Items[Transaction]]
 
   def getByAddress(addr: Addr, paging: Paging): F[Items[Transaction]]
@@ -26,6 +29,8 @@ trait Transactions[F[_]] {
 }
 
 object Transactions {
+
+  val ChunkSize = 128
 
   def make[F[_], D[_]: Monad: LiftConnectionIO](implicit
     txr: Txr[F, D],
@@ -53,6 +58,12 @@ object Transactions {
         batch <- getBatch(txs)
       } yield Items(batch, total)) ||> txr.trans
 
+    def streamAll(paging: Paging, ordering: SortOrder): Stream[F, Transaction] =
+      transactionsStream.streamAll(paging.offset, paging.limit, ordering)
+        .chunkN(ChunkSize)
+        .through(streamBatch)
+        .thrushK(txr.transP)
+
     def getByBlock(blockHeight: Int): F[Items[Transaction]] =
       (for {
         txs   <- transactions.getByBlock(blockHeight)
@@ -73,7 +84,7 @@ object Transactions {
         batch <- getBatch(txs)
       } yield batch) ||> txr.trans
 
-    private def getBatch(txs: List[DbTransaction]) =
+    private def getBatch(txs: List[DbTransaction]): D[List[Transaction]] =
       NonEmptyList.fromList(txs.map(_.id)) match {
         case Some(ids) =>
           for {
@@ -86,5 +97,8 @@ object Transactions {
           } yield Transaction.inflateBatch(txs, ins, outs, inAssets, outAssets, redeemers, meta)
         case None => List.empty[Transaction].pure
       }
+
+    private def streamBatch: Pipe[D, Chunk[DbTransaction], Transaction] =
+      _ >>= (chunk => Stream.evals(getBatch(chunk.toList)))
   }
 }

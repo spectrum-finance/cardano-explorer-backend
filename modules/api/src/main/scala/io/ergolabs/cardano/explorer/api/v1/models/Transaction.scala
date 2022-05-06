@@ -19,6 +19,7 @@ import sttp.tapir.Schema
 final case class Transaction(
   blockHash: BlockHash,
   blockIndex: Long,
+  globalIndex: Long,
   hash: TxHash,
   inputs: List[TxInput],
   outputs: List[TxOutput],
@@ -65,6 +66,7 @@ object Transaction {
     Transaction(
       tx.blockHash,
       tx.blockIndex,
+      tx.id,
       tx.hash,
       txInputs,
       txOutputs,

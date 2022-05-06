@@ -11,6 +11,7 @@ final case class RepoBundle[F[_]](
   inputs: InputsRepo[F],
   outputs: OutputsRepo[F],
   transactions: TransactionsRepo[F],
+  transactionsStream: StreamingTransactionRepo[F],
   metadata: TxMetadataRepo[F],
   redeemer: RedeemerRepo[F],
   blocks: BlocksRepo[F],
@@ -25,14 +26,26 @@ object RepoBundle {
     logs: Logs[I, D]
   ): I[RepoBundle[D]] =
     for {
-      assetsR       <- AssetsRepo.make[I, D]
-      inputsR       <- InputsRepo.make[I, D]
-      outputsR      <- OutputsRepo.make[I, D]
-      transactionsR <- TransactionsRepo.make[I, D]
-      metadata      <- TxMetadataRepo.make[I, D]
-      redeemer      <- RedeemerRepo.make[I, D]
-      blocks        <- BlocksRepo.make[I, D]
-      slots         <- SlotsRepo.make[I, D]
-      network       <- NetworkParamsRepo.make[I, D]
-    } yield RepoBundle(assetsR, inputsR, outputsR, transactionsR, metadata, redeemer, blocks, slots, network)
+      assetsR             <- AssetsRepo.make[I, D]
+      inputsR             <- InputsRepo.make[I, D]
+      outputsR            <- OutputsRepo.make[I, D]
+      transactionsR       <- TransactionsRepo.make[I, D]
+      transactionsStreamR <- StreamingTransactionRepo.make[I, D]
+      metadata            <- TxMetadataRepo.make[I, D]
+      redeemer            <- RedeemerRepo.make[I, D]
+      blocks              <- BlocksRepo.make[I, D]
+      slots               <- SlotsRepo.make[I, D]
+      network             <- NetworkParamsRepo.make[I, D]
+    } yield RepoBundle(
+      assetsR,
+      inputsR,
+      outputsR,
+      transactionsR,
+      transactionsStreamR,
+      metadata,
+      redeemer,
+      blocks,
+      slots,
+      network
+    )
 }
