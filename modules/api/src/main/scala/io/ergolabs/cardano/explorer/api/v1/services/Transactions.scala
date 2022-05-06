@@ -30,7 +30,7 @@ trait Transactions[F[_]] {
 
 object Transactions {
 
-  val ChunkSize = 128
+  val ChunkSize = 64
 
   def make[F[_], D[_]: Monad: LiftConnectionIO](implicit
     txr: Txr[F, D],
