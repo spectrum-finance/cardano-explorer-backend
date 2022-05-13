@@ -60,7 +60,7 @@ trait TransactionsRepo[F[_]] {
 
   def countByAddress(addr: Addr): F[Int]
 
-  def getByPCred(pcred: PaymentCred, offset: Int, limit: Int): F[List[Transaction]]
+  def getByPCred(pcred: PaymentCred, offset: Int, limit: Int, ordering: SortOrder): F[List[Transaction]]
 
   def countByPCred(pcred: PaymentCred): F[Int]
 }
@@ -100,8 +100,8 @@ object TransactionsRepo {
     def countByAddress(addr: Addr): ConnectionIO[Int] =
       sql.countByAddress(addr).unique
 
-    def getByPCred(pcred: PaymentCred, offset: Int, limit: Int): ConnectionIO[List[Transaction]] =
-      sql.getByPCred(pcred, offset, limit).to[List]
+    def getByPCred(pcred: PaymentCred, offset: Int, limit: Int, ordering: SortOrder): ConnectionIO[List[Transaction]] =
+      sql.getByPCred(pcred, offset, limit, ordering).to[List]
 
     def countByPCred(pcred: PaymentCred): ConnectionIO[Int] =
       sql.countByPCred(pcred).unique
@@ -158,11 +158,11 @@ object TransactionsRepo {
         _ <- trace"countByAddress(addr=$addr) -> $r"
       } yield r
 
-    def getByPCred(pcred: PaymentCred, offset: Int, limit: Int): Mid[F, List[Transaction]] =
+    def getByPCred(pcred: PaymentCred, offset: Int, limit: Int, ordering: SortOrder): Mid[F, List[Transaction]] =
       for {
-        _ <- trace"getByPCred(pcred=$pcred, offset=$offset, limit=$limit)"
+        _ <- trace"getByPCred(pcred=$pcred, offset=$offset, limit=$limit, ordering=${ordering.unwrapped})"
         r <- _
-        _ <- trace"getByPCred(pcred=$pcred, offset=$offset, limit=$limit) -> $r"
+        _ <- trace"getByPCred(pcred=$pcred, offset=$offset, limit=$limit, ordering=${ordering.unwrapped}) -> $r"
       } yield r
 
     def countByPCred(pcred: PaymentCred): Mid[F, Int] =

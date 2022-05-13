@@ -39,7 +39,9 @@ final class TransactionsRoutes[F[_]: Concurrent: ContextShift: Timer](requestCon
     interpreter.toRoutes(endpoints.getByAddress) { case (addr, p) => service.getByAddress(addr, p).eject }
 
   def getByPCredR: HttpRoutes[F] =
-    interpreter.toRoutes(endpoints.getByPCred) { case (addr, p) => service.getByPCred(addr, p).eject }
+    interpreter.toRoutes(endpoints.getByPCred) { case (addr, paging, order) =>
+      service.getByPCred(addr, paging, order).eject
+    }
 }
 
 object TransactionsRoutes {

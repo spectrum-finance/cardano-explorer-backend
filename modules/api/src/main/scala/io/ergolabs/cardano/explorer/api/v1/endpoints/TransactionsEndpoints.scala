@@ -60,10 +60,11 @@ final class TransactionsEndpoints[F[_]](conf: RequestConfig) {
       .name("Transactions by address")
       .description("Allow to get transactions involving a given address with paging")
 
-  def getByPCred: Endpoint[(PaymentCred, Paging), HttpError, List[Transaction], Any] =
+  def getByPCred: Endpoint[(PaymentCred, Paging, SortOrder), HttpError, List[Transaction], Any] =
     baseEndpoint.get
       .in(pathPrefix / "byPaymentCred" / path[PaymentCred].description("Payment Credential to search by"))
       .in(paging(conf.maxLimitTransactions))
+      .in(ordering)
       .out(jsonBody[List[Transaction]])
       .tag(pathPrefix)
       .name("Transactions by Payment Credential")

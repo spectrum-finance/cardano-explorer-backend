@@ -25,7 +25,7 @@ trait Transactions[F[_]] {
 
   def getByAddress(addr: Addr, paging: Paging): F[Items[Transaction]]
 
-  def getByPCred(pcred: PaymentCred, paging: Paging): F[List[Transaction]]
+  def getByPCred(pcred: PaymentCred, paging: Paging, ordering: SortOrder): F[List[Transaction]]
 }
 
 object Transactions {
@@ -78,9 +78,9 @@ object Transactions {
         batch <- getBatch(txs)
       } yield Items(batch, total)) ||> txr.trans
 
-    def getByPCred(pcred: PaymentCred, paging: Paging): F[List[Transaction]] =
+    def getByPCred(pcred: PaymentCred, paging: Paging, ordering: SortOrder): F[List[Transaction]] =
       (for {
-        txs   <- transactions.getByPCred(pcred, paging.offset, paging.limit)
+        txs   <- transactions.getByPCred(pcred, paging.offset, paging.limit, ordering)
         batch <- getBatch(txs)
       } yield batch) ||> txr.trans
 
