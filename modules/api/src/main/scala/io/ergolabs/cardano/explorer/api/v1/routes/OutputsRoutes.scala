@@ -31,13 +31,13 @@ final class OutputsRoutes[F[_]: Concurrent: ContextShift: Timer](requestConfig: 
     interpreter.toRoutes(endpoints.getByOutRef)(ref => service.getByOutRef(ref).orNotFound(s"Output{ref=$ref}"))
 
   def getUnspentR: HttpRoutes[F] =
-    interpreter.toRoutes(endpoints.getUnspent) { paging =>
-      service.getUnspent(paging).eject
+    interpreter.toRoutes(endpoints.getUnspent) { case (paging, ordering) =>
+      service.getUnspent(paging, ordering).eject
     }
 
   def getUnspentIndexedR: HttpRoutes[F] =
-    interpreter.toRoutes(endpoints.getUnspentIndexed) { indexing =>
-      service.getUnspent(indexing).eject
+    interpreter.toRoutes(endpoints.getUnspentIndexed) { case (indexing, ordering) =>
+      service.getUnspent(indexing, ordering).eject
     }
 
   def getUnspentByAddrR: HttpRoutes[F] =

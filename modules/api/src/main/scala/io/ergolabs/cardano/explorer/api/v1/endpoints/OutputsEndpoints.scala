@@ -31,19 +31,21 @@ final class OutputsEndpoints(conf: RequestConfig) {
       .name("Info by reference")
       .description("Allow to get info about output by reference")
 
-  def getUnspent: Endpoint[Paging, HttpError, Items[TxOutput], Any] =
+  def getUnspent: Endpoint[(Paging, SortOrder), HttpError, Items[TxOutput], Any] =
     baseEndpoint.get
       .in(pathPrefix / "unspent")
       .in(paging(conf.maxLimitOutputs))
+      .in(ordering)
       .out(jsonBody[Items[TxOutput]])
       .tag(pathPrefix)
       .name("Unspent outputs with paging")
       .description("Allow to get info about unspent outputs with paging")
 
-  def getUnspentIndexed: Endpoint[Indexing, HttpError, Items[TxOutput], Any] =
+  def getUnspentIndexed: Endpoint[(Indexing, SortOrder), HttpError, Items[TxOutput], Any] =
     baseEndpoint.get
       .in(pathPrefix / "unspent" / "indexed")
       .in(indexing)
+      .in(ordering)
       .out(jsonBody[Items[TxOutput]])
       .tag(pathPrefix)
       .name("Unspent outputs with indexing")

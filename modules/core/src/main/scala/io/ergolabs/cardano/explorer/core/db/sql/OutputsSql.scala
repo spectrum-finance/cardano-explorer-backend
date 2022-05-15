@@ -123,8 +123,8 @@ final class OutputsSql(implicit lh: LogHandler) {
     (q ++ Fragments.in(fr"where o.tx_id", txIds)).query
   }
 
-  def getUnspent(offset: Int, limit: Int): Query0[Output] =
-    sql"""
+  def getUnspent(offset: Int, limit: Int, ordering: SortOrder): Query0[Output] = {
+    val q = sql"""
          |select
          |  o.id,
          |  o.tx_id,
@@ -147,11 +147,12 @@ final class OutputsSql(implicit lh: LogHandler) {
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
          |where i.id is null
-         |offset $offset limit $limit
-         |""".stripMargin.query
+         |""".stripMargin
+    (q ++ const(s"order by o.id ${ordering.unwrapped}") ++ const(s"offset $offset limit $limit")).query
+  }
 
-  def getUnspentIndexed(minIndex: Int, limit: Int): Query0[Output] =
-    sql"""
+  def getUnspentIndexed(minIndex: Int, limit: Int, ordering: SortOrder): Query0[Output] = {
+    val q = sql"""
          |select
          |  o.id,
          |  o.tx_id,
@@ -174,8 +175,9 @@ final class OutputsSql(implicit lh: LogHandler) {
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
          |where o.id >= $minIndex and i.id is null
-         |limit $limit
-         |""".stripMargin.query
+         |""".stripMargin
+    (q ++ const(s"order by o.id ${ordering.value}") ++ const(s"limit $limit")).query
+  }
 
   def countUnspent: Query0[Int] =
     sql"""
