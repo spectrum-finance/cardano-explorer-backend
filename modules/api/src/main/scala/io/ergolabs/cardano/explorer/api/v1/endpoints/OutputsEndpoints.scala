@@ -14,6 +14,7 @@ final class OutputsEndpoints(conf: RequestConfig) {
   val pathPrefix = "outputs"
 
   def endpoints: List[Endpoint[_, _, _, _]] =
+    getAll ::
     getByOutRef ::
     getUnspent ::
     getUnspentIndexed ::
@@ -30,6 +31,16 @@ final class OutputsEndpoints(conf: RequestConfig) {
       .tag(pathPrefix)
       .name("Info by reference")
       .description("Allow to get info about output by reference")
+
+  def getAll: Endpoint[(Paging, SortOrder), HttpError, List[TxOutput], Any] =
+    baseEndpoint.get
+      .in(pathPrefix)
+      .in(paging(conf.maxLimitOutputs))
+      .in(ordering)
+      .out(jsonBody[List[TxOutput]])
+      .tag(pathPrefix)
+      .name("All outputs with paging")
+      .description("Allow to get info about unspent outputs with paging")
 
   def getUnspent: Endpoint[(Paging, SortOrder), HttpError, Items[TxOutput], Any] =
     baseEndpoint.get

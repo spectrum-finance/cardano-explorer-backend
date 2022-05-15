@@ -26,6 +26,8 @@ trait OutputsRepo[F[_]] {
 
   def getByTxIds(txIds: NonEmptyList[Long]): F[List[Output]]
 
+  def getAll(offset: Int, limit: Int, ordering: SortOrder): F[List[Output]]
+
   def getUnspent(offset: Int, limit: Int, ordering: SortOrder): F[List[Output]]
 
   def getUnspentIndexed(minIndex: Int, limit: Int, ordering: SortOrder): F[List[Output]]
@@ -82,6 +84,9 @@ object OutputsRepo {
 
     def getByTxIds(txIds: NonEmptyList[Long]): ConnectionIO[List[Output]] =
       sql.getByTxIds(txIds).to[List]
+
+    def getAll(offset: Int, limit: Int, ordering: SortOrder): ConnectionIO[List[Output]] =
+      sql.getAll(offset, limit, ordering).to[List]
 
     def getUnspent(offset: Int, limit: Int, ordering: SortOrder): ConnectionIO[List[Output]] =
       sql.getUnspent(offset, limit, ordering).to[List]

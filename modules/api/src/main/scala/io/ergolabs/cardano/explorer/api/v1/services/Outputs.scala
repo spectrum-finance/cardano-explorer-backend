@@ -16,6 +16,8 @@ trait Outputs[F[_]] {
 
   def getByOutRef(ref: OutRef): F[Option[TxOutput]]
 
+  def getAll(paging: Paging, ordering: SortOrder): F[List[TxOutput]]
+
   def getUnspent(paging: Paging, ordering: SortOrder): F[Items[TxOutput]]
 
   def getUnspent(indexing: Indexing, ordering: SortOrder): F[Items[TxOutput]]
@@ -44,6 +46,12 @@ object Outputs {
         out    <- OptionT(outputs.getByRef(ref))
         assets <- OptionT.liftF(assets.getByOutputId(out.id))
       } yield TxOutput.inflate(out, assets.map(_.asset))).value ||> txr.trans
+
+    def getAll(paging: Paging, ordering: SortOrder): F[List[TxOutput]] =
+      (for {
+        txs   <- outputs.getAll(paging.offset, paging.limit, ordering)
+        batch <- getBatch(txs)
+      } yield batch) ||> txr.trans
 
     def getUnspent(paging: Paging, ordering: SortOrder): F[Items[TxOutput]] =
       (for {
@@ -95,6 +103,15 @@ object Outputs {
             xs = TxOutput.inflateBatch(os, assets)
           } yield Items(xs, total)
         case None => Items.empty[TxOutput].pure
+      }
+
+    private def getBatch(os: List[DbOutput]): D[List[TxOutput]] =
+      NonEmptyList.fromList(os.map(_.id)) match {
+        case Some(ids) =>
+          for {
+            assets <- assets.getByOutputIds(ids)
+          } yield TxOutput.inflateBatch(os, assets)
+        case None => List.empty[TxOutput].pure
       }
   }
 }

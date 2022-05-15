@@ -151,6 +151,35 @@ final class OutputsSql(implicit lh: LogHandler) {
     (q ++ const(s"order by o.id ${ordering.unwrapped}") ++ const(s"offset $offset limit $limit")).query
   }
 
+  def getAll(offset: Int, limit: Int, ordering: SortOrder): Query0[Output] = {
+    val q =
+      sql"""
+         |select
+         |  o.id,
+         |  o.tx_id,
+         |  encode(b.hash, 'hex'),
+         |  encode(t.hash, 'hex'),
+         |  o.index,
+         |  o.address,
+         |  encode(o.address_raw, 'hex'),
+         |  encode(o.payment_cred, 'hex'),
+         |  o.value,
+         |  encode(o.data_hash, 'hex'),
+         |  case when (d.value is null) then rd.value else d.value end,
+         |  encode(rd.raw_value, 'hex'),
+         |  i.id,
+         |  encode(ti.hash, 'hex')
+         |from tx_out o
+         |left join tx t on t.id = o.tx_id
+         |left join block b on b.id = t.block_id
+         |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
+         |left join tx ti on ti.id = i.tx_in_id
+         |left join datum d on d.hash = o.data_hash
+         |left join reported_datum rd on rd.hash = o.data_hash
+         |""".stripMargin
+    (q ++ const(s"order by o.id ${ordering.value}") ++ const(s"offset $offset limit $limit")).query
+  }
+
   def getUnspentIndexed(minIndex: Int, limit: Int, ordering: SortOrder): Query0[Output] = {
     val q = sql"""
          |select
