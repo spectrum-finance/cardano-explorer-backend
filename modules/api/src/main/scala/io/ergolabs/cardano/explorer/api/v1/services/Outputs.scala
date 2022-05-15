@@ -16,9 +16,9 @@ trait Outputs[F[_]] {
 
   def getByOutRef(ref: OutRef): F[Option[TxOutput]]
 
-  def getUnspent(paging: Paging): F[Items[TxOutput]]
+  def getUnspent(paging: Paging, ordering: SortOrder): F[Items[TxOutput]]
 
-  def getUnspent(indexing: Indexing): F[Items[TxOutput]]
+  def getUnspent(indexing: Indexing, ordering: SortOrder): F[Items[TxOutput]]
 
   def getUnspentByAddr(addr: Addr, paging: Paging): F[Items[TxOutput]]
 
@@ -45,16 +45,16 @@ object Outputs {
         assets <- OptionT.liftF(assets.getByOutputId(out.id))
       } yield TxOutput.inflate(out, assets.map(_.asset))).value ||> txr.trans
 
-    def getUnspent(paging: Paging): F[Items[TxOutput]] =
+    def getUnspent(paging: Paging, ordering: SortOrder): F[Items[TxOutput]] =
       (for {
-        txs   <- outputs.getUnspent(paging.offset, paging.limit)
+        txs   <- outputs.getUnspent(paging.offset, paging.limit, ordering)
         total <- outputs.countUnspent
         batch <- getBatch(txs, total)
       } yield batch) ||> txr.trans
 
-    def getUnspent(indexing: Indexing): F[Items[TxOutput]] =
+    def getUnspent(indexing: Indexing, ordering: SortOrder): F[Items[TxOutput]] =
       (for {
-        txs   <- outputs.getUnspentIndexed(indexing.minIndex, indexing.limit)
+        txs   <- outputs.getUnspentIndexed(indexing.minIndex, indexing.limit, ordering)
         //total <- outputs.countUnspent
         batch <- getBatch(txs, 0) // todo
       } yield batch) ||> txr.trans
