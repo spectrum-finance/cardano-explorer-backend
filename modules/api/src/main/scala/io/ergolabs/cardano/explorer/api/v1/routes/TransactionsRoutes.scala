@@ -25,7 +25,9 @@ final class TransactionsRoutes[F[_]: Concurrent: ContextShift: Timer](requestCon
     interpreter.toRoutes(endpoints.getByTxHash)(q => service.getByTxHash(q).orNotFound(s"Transaction{txHash=$q}"))
 
   def getAllR: HttpRoutes[F] =
-    interpreter.toRoutes(endpoints.getAll)(service.getAll(_).eject)
+    interpreter.toRoutes(endpoints.getAll) { case (paging, order) =>
+      service.getAll(paging, order).eject
+    }
 
   def streamAllR: HttpRoutes[F] =
     interpreter.toRoutes(endpoints.streamAll) { case (paging, order) =>

@@ -24,10 +24,11 @@ final class TransactionsEndpoints[F[_]](conf: RequestConfig) {
       .name("Info by tx hash")
       .description("Allow to get info about transaction by transaction hash")
 
-  def getAll: Endpoint[Paging, HttpError, Items[Transaction], Any] =
+  def getAll: Endpoint[(Paging, SortOrder), HttpError, Items[Transaction], Any] =
     baseEndpoint.get
       .in(pathPrefix)
       .in(paging(conf.maxLimitTransactions))
+      .in(ordering)
       .out(jsonBody[Items[Transaction]])
       .tag(pathPrefix)
       .name("All transactions")

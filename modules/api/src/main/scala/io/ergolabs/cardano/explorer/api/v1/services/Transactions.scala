@@ -17,7 +17,7 @@ trait Transactions[F[_]] {
 
   def getByTxHash(txHash: TxHash): F[Option[Transaction]]
 
-  def getAll(paging: Paging): F[Items[Transaction]]
+  def getAll(paging: Paging, ordering: SortOrder): F[Items[Transaction]]
 
   def streamAll(paging: Paging, ordering: SortOrder): Stream[F, Transaction]
 
@@ -51,9 +51,9 @@ object Transactions {
         meta      <- OptionT.liftF(metadata.getByTxId(tx.id))
       } yield Transaction.inflate(tx, ins, outs, inAssets, outAssets, redeemers, meta)).value ||> txr.trans
 
-    def getAll(paging: Paging): F[Items[Transaction]] =
+    def getAll(paging: Paging, ordering: SortOrder): F[Items[Transaction]] =
       (for {
-        txs   <- transactions.getAll(paging.offset, paging.limit, SortOrder.Desc)
+        txs   <- transactions.getAll(paging.offset, paging.limit, ordering)
         total <- transactions.countAll
         batch <- getBatch(txs)
       } yield Items(batch, total)) ||> txr.trans
