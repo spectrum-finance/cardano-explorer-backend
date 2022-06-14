@@ -35,7 +35,8 @@ class TransactionsSql(implicit lh: LogHandler) {
            |  encode(t.hash, 'hex'),
            |  t.invalid_before,
            |  t.invalid_hereafter,
-           |  t.size
+           |  t.size,
+           |  EXTRACT(EPOCH FROM time)
            |from tx t
            |left join block b on b.id = t.block_id
            |""".stripMargin

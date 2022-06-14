@@ -12,5 +12,6 @@ final case class Transaction(
   hash: TxHash,
   invalidBefore: Option[BigInt],
   invalidHereafter: Option[BigInt],
-  size: Int
+  size: Int,
+  timestamp: Long
 )

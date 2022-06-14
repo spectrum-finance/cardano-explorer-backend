@@ -26,7 +26,8 @@ final case class Transaction(
   invalidBefore: Option[BigInt],
   invalidHereafter: Option[BigInt],
   metadata: Option[Metadata],
-  size: Int
+  size: Int,
+  timestamp: Long
 )
 
 object Transaction {
@@ -43,6 +44,7 @@ object Transaction {
       .modify(_.invalidHereafter)(_.description("Transaction in invalid at or after this slot number."))
       .modify(_.metadata)(_.description("The transaction metadata."))
       .modify(_.size)(_.description("The size of the transaction in bytes."))
+      .modify(_.timestamp)(_.description(s"Timestamp of a block where transaction exists."))
 
   def inflate(
     tx: DbTransaction,
@@ -73,7 +75,8 @@ object Transaction {
       tx.invalidBefore,
       tx.invalidHereafter,
       metadata,
-      tx.size
+      tx.size,
+      tx.timestamp
     )
   }
 
