@@ -143,10 +143,9 @@ final class OutputsSql(implicit lh: LogHandler) {
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id
-         |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
-         |where i.id is null
+         |where NOT EXISTS (select id from tx_in where tx_out_id = o.tx_id and tx_out_index = o.index)
          |""".stripMargin
     (q ++ const(s"order by o.id ${ordering.unwrapped}") ++ const(s"offset $offset limit $limit")).query
   }
@@ -200,10 +199,9 @@ final class OutputsSql(implicit lh: LogHandler) {
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id
-         |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
-         |where o.id >= $minIndex and i.id is null
+         |where o.id >= $minIndex and NOT EXISTS (select id from tx_in where tx_out_id = o.tx_id and tx_out_index = o.index)
          |""".stripMargin
     (q ++ const(s"order by o.id ${ordering.value}") ++ const(s"limit $limit")).query
   }
@@ -235,10 +233,9 @@ final class OutputsSql(implicit lh: LogHandler) {
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id
-         |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
-         |where o.address = $addr and i.id is null
+         |where o.address = $addr and NOT EXISTS (select id from tx_in where tx_out_id = o.tx_id and tx_out_index = o.index)
          |offset $offset limit $limit
          |""".stripMargin.query
 
@@ -270,10 +267,9 @@ final class OutputsSql(implicit lh: LogHandler) {
            |from tx_out o
            |left join tx t on t.id = o.tx_id
            |left join block b on b.id = t.block_id
-           |left join tx_in i on i.tx_out_id = o.tx_id and i.tx_out_index = o.index
            |left join datum d on d.hash = o.data_hash
            |left join reported_datum rd on rd.hash = o.data_hash
-           |where o.payment_cred = decode($pcred, 'hex') and i.id is null
+           |where o.payment_cred = decode($pcred, 'hex') and NOT EXISTS (select id from tx_in where tx_out_id = o.tx_id and tx_out_index = o.index)
            |""".stripMargin
     (q ++ const(s"order by o.id ${ordering.unwrapped}") ++ const(s"offset $offset limit $limit")).query
   }
