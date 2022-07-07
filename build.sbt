@@ -4,7 +4,7 @@ import sbt.Keys.organization
 lazy val commonSettings = Seq(
   scalaVersion := "2.13.6",
   organization := "io.ergolabs",
-  version := "0.8.3",
+  version := "0.8.4",
   scalacOptions ++= commonScalacOption,
   libraryDependencies ++= List(CompilerPlugins.betterMonadicFor, CompilerPlugins.kindProjector),
   assembly / test := {},
