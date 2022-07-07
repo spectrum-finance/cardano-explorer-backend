@@ -8,7 +8,7 @@ import io.ergolabs.cardano.explorer.core.types.Bytea
 import sttp.tapir.Schema
 
 @derive(encoder, decoder)
-final case class Metadata(key: BigInt, raw: Bytea, json: Json)
+final case class Metadata(key: BigInt, raw: Bytea, json: Option[Json])
 
 object Metadata {
   implicit def schemaJson: Schema[Json] = Schema.string[Json]
