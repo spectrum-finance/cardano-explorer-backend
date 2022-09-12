@@ -26,7 +26,7 @@ final case class ProtocolParams(
   monetaryExpansion: Double,
   treasuryCut: Double,
   utxoCostPerWord: Option[Long],
-  costModels: Map[String, Map[String, Int]],
+  costModels: Map[String, Map[String, Long]],
   executionUnitPrices: ExecutionUnitPrices,
   maxTxExecutionUnits: ExecutionUnits,
   maxBlockExecutionUnits: ExecutionUnits,
@@ -39,10 +39,10 @@ object ProtocolParams {
 
   implicit val schema: Schema[ProtocolParams] = Schema.derived[ProtocolParams]
 
-  def fromEpochParams(epochParams: EpochParams, costModelsMap: Map[String, Map[String, Int]]): ProtocolParams = ProtocolParams(
+  def fromEpochParams(epochParams: EpochParams, costModelsMap: Map[String, Map[String, Long]]): ProtocolParams = ProtocolParams(
     protocolVersion        = ProtocolVersion(epochParams.majorVersion, epochParams.minorVersion),
     decentralization       = epochParams.decentralization,
-    extraPraosEntropy      = epochParams.entropy,
+    extraPraosEntropy      = epochParams.extraEntropy,
     maxBlockHeaderSize     = epochParams.maxBlockHeaderSize,
     maxBlockBodySize       = epochParams.maxBlockSize,
     maxTxSize              = epochParams.maxTxSize,
@@ -57,7 +57,7 @@ object ProtocolParams {
     poolPledgeInfluence    = epochParams.influence,
     monetaryExpansion      = epochParams.monetaryExpansion,
     treasuryCut            = epochParams.treasuryGrowthRate,
-    utxoCostPerWord        = epochParams.costPerWord,
+    utxoCostPerWord        = epochParams.costPerSize,
     costModels             = costModelsMap,
     executionUnitPrices    = ExecutionUnitPrices(epochParams.priceStep, epochParams.priceMemory),
     maxTxExecutionUnits    = ExecutionUnits(epochParams.maxTxExSteps, epochParams.maxTxExMem),
