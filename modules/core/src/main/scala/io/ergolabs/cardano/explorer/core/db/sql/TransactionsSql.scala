@@ -105,6 +105,7 @@ class TransactionsSql(implicit lh: LogHandler) {
            | t.invalid_before,
            | t.invalid_hereafter,
            | t.size
+           | EXTRACT(EPOCH FROM b.time)
            |from tx t
            |left join block b on b.id = t.block_id
            |inner join (
