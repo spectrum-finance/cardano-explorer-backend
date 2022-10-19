@@ -26,7 +26,7 @@ final class OutputsSql(implicit lh: LogHandler) {
            |  o.value,
            |  encode(o.data_hash, 'hex'),
            |  case when (d.value is null) then rd.value else d.value end,
-           |  encode(rd.raw_value, 'hex'),
+           |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
            |  i.id,
            |  encode(ti.hash, 'hex')
            |from tx_out o
@@ -54,7 +54,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  o.value,
          |  encode(o.data_hash, 'hex'),
          |  case when (d.value is null) then rd.value else d.value end,
-         |  encode(rd.raw_value, 'hex'),
+         |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  i.id,
          |  encode(ti.hash, 'hex')
          |from tx_out o
@@ -81,7 +81,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  o.value,
          |  encode(o.data_hash, 'hex'),
          |  case when (d.value is null) then rd.value else d.value end,
-         |  encode(rd.raw_value, 'hex'),
+         |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  i.id,
          |  encode(ti.hash, 'hex')
          |from tx_out o
@@ -109,7 +109,7 @@ final class OutputsSql(implicit lh: LogHandler) {
            |  o.value,
            |  encode(o.data_hash, 'hex'),
            |  case when (d.value is null) then rd.value else d.value end,
-           |  encode(rd.raw_value, 'hex'),
+           |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
            |  i.id,
            |  encode(ti.hash, 'hex')
            |from tx_out o
@@ -137,7 +137,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  o.value,
          |  encode(o.data_hash, 'hex'),
          |  case when (d.value is null) then rd.value else d.value end,
-         |  encode(rd.raw_value, 'hex'),
+         |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  null,
          |  null
          |from tx_out o
@@ -165,7 +165,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  o.value,
          |  encode(o.data_hash, 'hex'),
          |  case when (d.value is null) then rd.value else d.value end,
-         |  encode(rd.raw_value, 'hex'),
+         |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  i.id,
          |  encode(ti.hash, 'hex')
          |from tx_out o
@@ -193,7 +193,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  o.value,
          |  encode(o.data_hash, 'hex'),
          |  case when (d.value is null) then rd.value else d.value end,
-         |  encode(rd.raw_value, 'hex'),
+         |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  null,
          |  null
          |from tx_out o
@@ -227,7 +227,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  o.value,
          |  encode(o.data_hash, 'hex'),
          |  case when (d.value is null) then rd.value else d.value end,
-         |  encode(rd.raw_value, 'hex'),
+         |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  null,
          |  null
          |from tx_out o
@@ -296,7 +296,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  o.value,
          |  encode(o.data_hash, 'hex'),
          |  case when (d.value is null) then rd.value else d.value end,
-         |  encode(rd.raw_value, 'hex'),
+         |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  null,
          |  null
          |from tx_out o
@@ -342,7 +342,7 @@ final class OutputsSql(implicit lh: LogHandler) {
       |  o.value,
       |  encode(o.data_hash, 'hex'),
       |  case when (d.value is null) then rd.value else d.value end,
-      |  encode(rd.raw_value, 'hex'),
+      |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
       |  null,
       |  null
       |from tx_out o
