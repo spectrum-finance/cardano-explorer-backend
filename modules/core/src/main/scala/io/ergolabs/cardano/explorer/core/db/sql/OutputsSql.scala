@@ -28,7 +28,8 @@ final class OutputsSql(implicit lh: LogHandler) {
            |  case when (d.value is null) then rd.value else d.value end,
            |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
            |  i.id,
-           |  encode(ti.hash, 'hex')
+           |  encode(ti.hash, 'hex'),
+           |  encode(s.hash, 'hex')
            |from tx_out o
            |left join tx t on t.id = o.tx_id
            |left join block b on b.id = t.block_id
@@ -36,6 +37,7 @@ final class OutputsSql(implicit lh: LogHandler) {
            |left join tx ti on ti.id = i.tx_in_id
            |left join datum d on d.hash = o.data_hash
            |left join reported_datum rd on rd.hash = o.data_hash
+           |left join script s on s.id = o.reference_script_id
            |where t.hash = decode($txHash, 'hex') and o.index = $i
            |""".stripMargin.query
   }
@@ -56,7 +58,8 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  case when (d.value is null) then rd.value else d.value end,
          |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  i.id,
-         |  encode(ti.hash, 'hex')
+         |  encode(ti.hash, 'hex'),
+         |  encode(s.hash, 'hex')
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id
@@ -64,6 +67,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |left join tx ti on ti.id = i.tx_in_id
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
+         |left join script s on s.id = o.reference_script_id
          |where o.tx_id = $txId
          |""".stripMargin.query
 
@@ -83,7 +87,8 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  case when (d.value is null) then rd.value else d.value end,
          |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  i.id,
-         |  encode(ti.hash, 'hex')
+         |  encode(ti.hash, 'hex'),
+         |  encode(s.hash, 'hex')
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id
@@ -91,6 +96,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |left join tx ti on ti.id = i.tx_in_id
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
+         |left join script s on s.id = o.reference_script_id
          |where t.hash = $txHash
          |""".stripMargin.query
 
@@ -119,6 +125,7 @@ final class OutputsSql(implicit lh: LogHandler) {
            |left join tx ti on ti.id = i.tx_in_id
            |left join datum d on d.hash = o.data_hash
            |left join reported_datum rd on rd.hash = o.data_hash
+           |left join script s on s.id = o.reference_script_id
            |""".stripMargin
     (q ++ Fragments.in(fr"where o.tx_id", txIds)).query
   }
@@ -139,12 +146,14 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  case when (d.value is null) then rd.value else d.value end,
          |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  null,
-         |  null
+         |  null,
+         |  encode(s.hash, 'hex')
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
+         |left join script s on s.id = o.reference_script_id
          |where NOT EXISTS (select id from tx_in where tx_out_id = o.tx_id and tx_out_index = o.index)
          |""".stripMargin
     (q ++ const(s"order by o.id ${ordering.unwrapped}") ++ const(s"offset $offset limit $limit")).query
@@ -167,7 +176,8 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  case when (d.value is null) then rd.value else d.value end,
          |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  i.id,
-         |  encode(ti.hash, 'hex')
+         |  encode(ti.hash, 'hex'),
+         |  encode(s.hash, 'hex')
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id
@@ -175,6 +185,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |left join tx ti on ti.id = i.tx_in_id
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
+         |left join script s on s.id = o.reference_script_id
          |""".stripMargin
     (q ++ const(s"order by o.id ${ordering.value}") ++ const(s"offset $offset limit $limit")).query
   }
@@ -195,12 +206,14 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  case when (d.value is null) then rd.value else d.value end,
          |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  null,
-         |  null
+         |  null,
+         |  encode(s.hash, 'hex')
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
+         |left join script s on s.id = o.reference_script_id
          |where o.id >= $minIndex and NOT EXISTS (select id from tx_in where tx_out_id = o.tx_id and tx_out_index = o.index)
          |""".stripMargin
     (q ++ const(s"order by o.id ${ordering.value}") ++ const(s"limit $limit")).query
@@ -229,12 +242,14 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  case when (d.value is null) then rd.value else d.value end,
          |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  null,
-         |  null
+         |  null,
+         |  encode(s.hash, 'hex')
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
+         |left join script s on s.id = o.reference_script_id
          |where o.address = $addr and NOT EXISTS (select id from tx_in where tx_out_id = o.tx_id and tx_out_index = o.index)
          |offset $offset limit $limit
          |""".stripMargin.query
@@ -263,12 +278,14 @@ final class OutputsSql(implicit lh: LogHandler) {
            |  case when (d.value is null) then rd.value else d.value end,
            |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
            |  null,
-           |  null
+           |  null,
+           |  encode(s.hash, 'hex')
            |from tx_out o
            |left join tx t on t.id = o.tx_id
            |left join block b on b.id = t.block_id
            |left join datum d on d.hash = o.data_hash
            |left join reported_datum rd on rd.hash = o.data_hash
+           |left join script s on s.id = o.reference_script_id
            |where o.payment_cred = decode($pcred, 'hex') and NOT EXISTS (select id from tx_in where tx_out_id = o.tx_id and tx_out_index = o.index)
            |""".stripMargin
     (q ++ const(s"order by o.id ${ordering.unwrapped}") ++ const(s"offset $offset limit $limit")).query
@@ -298,7 +315,8 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  case when (d.value is null) then rd.value else d.value end,
          |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
          |  null,
-         |  null
+         |  null,
+         |  encode(s.hash, 'hex')
          |from tx_out o
          |left join tx t on t.id = o.tx_id
          |left join block b on b.id = t.block_id
@@ -307,6 +325,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |left join multi_asset ma on ma.id = a.ident
          |left join datum d on d.hash = o.data_hash
          |left join reported_datum rd on rd.hash = o.data_hash
+         |left join script s on s.id = o.reference_script_id
          |where ma.policy = decode(${asset.policyId.value}, 'hex') and ma.name = decode(${asset.name.value}, 'escape') and i.id is null
          |""".stripMargin
     (q ++ const(s"order by o.id ${ordering.unwrapped}") ++ const(s"offset $offset limit $limit")).query
@@ -344,7 +363,8 @@ final class OutputsSql(implicit lh: LogHandler) {
       |  case when (d.value is null) then rd.value else d.value end,
       |  case when (d.bytes is null) then encode(rd.raw_value, 'hex') else encode(d.bytes, 'hex') end,
       |  null,
-      |  null
+      |  null,
+      |  encode(s.hash, 'hex')
       |from tx_out o
       |left join tx t on t.id = o.tx_id
       |left join block b on b.id = t.block_id
@@ -353,6 +373,7 @@ final class OutputsSql(implicit lh: LogHandler) {
       |left join multi_asset ma on ma.id = a.ident
       |left join datum d on d.hash = o.data_hash
       |left join reported_datum rd on rd.hash = o.data_hash
+      |left join script s on s.id = o.reference_script_id
       |${containsAllOf.map(innerJoinAllOfAssets("au", "o", _)).getOrElse("")}
       |where
       |  i.id is null and

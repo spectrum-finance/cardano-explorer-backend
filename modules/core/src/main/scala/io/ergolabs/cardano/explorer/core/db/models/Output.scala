@@ -17,5 +17,6 @@ final case class Output(
   data: Option[Json],
   dataBin: Option[Bytea],
   inputId: Option[Long],
-  spentByTxHash: Option[TxHash]
+  spentByTxHash: Option[TxHash],
+  refScriptHash: Option[Hash32]
 )
