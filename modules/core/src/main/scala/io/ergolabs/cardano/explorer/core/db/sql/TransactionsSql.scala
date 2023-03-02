@@ -19,7 +19,8 @@ class TransactionsSql(implicit lh: LogHandler) {
          |  encode(t.hash, 'hex'),
          |  t.invalid_before,
          |  t.invalid_hereafter,
-         |  t.size
+         |  t.size,
+         |  EXTRACT(EPOCH FROM b.time)
          |from tx t
          |left join block b on b.id = t.block_id
          |where t.hash = decode($txHash, 'hex')
@@ -55,7 +56,8 @@ class TransactionsSql(implicit lh: LogHandler) {
          |  encode(t.hash, 'hex'),
          |  t.invalid_before,
          |  t.invalid_hereafter,
-         |  t.size
+         |  t.size,
+         |  EXTRACT(EPOCH FROM b.time)
          |from tx t
          |left join block b on b.id = t.block_id
          |where t.block_id = $blockHeight
@@ -73,7 +75,8 @@ class TransactionsSql(implicit lh: LogHandler) {
          |  encode(t.hash, 'hex'),
          |  t.invalid_before,
          |  t.invalid_hereafter,
-         |  t.size
+         |  t.size,
+         |  EXTRACT(EPOCH FROM b.time)
          |from tx t
          |left join block b on b.id = t.block_id
          |left join tx_out o on o.tx_id = t.id
@@ -104,7 +107,8 @@ class TransactionsSql(implicit lh: LogHandler) {
            | encode(t.hash, 'hex'),
            | t.invalid_before,
            | t.invalid_hereafter,
-           | t.size
+           | t.size,
+           | EXTRACT(EPOCH FROM b.time)
            |from tx t
            |left join block b on b.id = t.block_id
            |inner join (

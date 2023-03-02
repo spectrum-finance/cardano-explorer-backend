@@ -22,7 +22,8 @@ final case class TxOutput(
   dataHash: Option[Hash32],
   data: Option[Json],
   dataBin: Option[Bytea],
-  spentByTxHash: Option[TxHash]
+  spentByTxHash: Option[TxHash],
+  refScriptHash: Option[Hash32]
 )
 
 object TxOutput {
@@ -51,8 +52,11 @@ object TxOutput {
       .modify(_.spentByTxHash)(
         _.description("The hash of the transaction that spent this output. (`null` for unspent outputs)")
       )
+      .modify(_.spentByTxHash)(
+        _.description("The hash of ref.input")
+      )
 
-  def inflate(out: Output, assets: List[Asset]): TxOutput =
+  def inflate(out: Output, assets: List[Asset]): TxOutput = {
     TxOutput(
       OutRef(out.txHash, out.index),
       out.blockHash,
@@ -66,8 +70,10 @@ object TxOutput {
       out.dataHash,
       out.data,
       out.dataBin,
-      out.spentByTxHash
+      out.spentByTxHash,
+      out.refScriptHash
     )
+  }
 
   def inflateBatch(outs: List[Output], assets: List[AssetOutput]): List[TxOutput] =
     outs.map(o => inflate(o, assets.filter(_.outputId == o.id).map(_.asset)))

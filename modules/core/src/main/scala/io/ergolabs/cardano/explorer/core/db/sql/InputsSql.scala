@@ -26,10 +26,11 @@ final class InputsSql(implicit lh: LogHandler) {
          |  encode(o.payment_cred, 'hex'),
          |  o.value,
          |  encode(o.data_hash, 'hex'),
-         |  case when (d.value is null) then rd.value else d.value end,
-         |  encode(rd.raw_value, 'hex'),
+         |  d.value,
+         |  encode(d.bytes, 'hex'),
          |  i.id,
-         |  encode(t.hash, 'hex')
+         |  encode(t.hash, 'hex'),
+         |  encode(s.hash, 'hex')
          |from tx_in i
          |left join tx t on t.id = i.tx_in_id
          |left join block b on b.id = t.block_id
@@ -37,7 +38,7 @@ final class InputsSql(implicit lh: LogHandler) {
          |left join tx_out o on o.tx_id = i.tx_out_id and o.index = i.tx_out_index
          |left join redeemer r on r.id = i.redeemer_id
          |left join datum d on d.hash = o.data_hash
-         |left join reported_datum rd on rd.hash = o.data_hash
+         |left join script s on s.id = o.reference_script_id
          |where i.tx_in_id = $txId
          |""".stripMargin.query
 
@@ -58,17 +59,18 @@ final class InputsSql(implicit lh: LogHandler) {
          |  encode(o.payment_cred, 'hex'),
          |  o.value,
          |  encode(o.data_hash, 'hex'),
-         |  case when (d.value is null) then rd.value else d.value end,
-         |  encode(rd.raw_value, 'hex'),
+         |  d.value,
+         |  encode(d.bytes, 'hex'),
          |  i.id,
-         |  encode(t.hash, 'hex')
+         |  encode(t.hash, 'hex'),
+         |  encode(s.hash, 'hex')
          |from tx_in i
          |left join tx t on t.id = i.tx_in_id
          |left join block b on b.id = t.block_id
          |left join tx ot on ot.id = i.tx_out_id
          |left join tx_out o on o.tx_id = i.tx_out_id and o.index = i.tx_out_index
          |left join datum d on d.hash = o.data_hash
-         |left join reported_datum rd on rd.hash = o.data_hash
+         |left join script s on s.id = o.reference_script_id
          |where t.hash = $txHash
          |""".stripMargin.query[Input]
 
@@ -90,17 +92,18 @@ final class InputsSql(implicit lh: LogHandler) {
            |  encode(o.payment_cred, 'hex'),
            |  o.value,
            |  encode(o.data_hash, 'hex'),
-           |  case when (d.value is null) then rd.value else d.value end,
-           |  encode(rd.raw_value, 'hex'),
+           |  d.value,
+           |  encode(d.bytes, 'hex'),
            |  i.id,
-           |  encode(t.hash, 'hex')
+           |  encode(t.hash, 'hex'),
+           |  encode(s.hash, 'hex')
            |from tx_in i
            |left join tx t on t.id = i.tx_in_id
            |left join block b on b.id = t.block_id
            |left join tx ot on ot.id = i.tx_out_id
            |left join tx_out o on o.tx_id = i.tx_out_id and o.index = i.tx_out_index
            |left join datum d on d.hash = o.data_hash
-           |left join reported_datum rd on rd.hash = o.data_hash
+           |left join script s on s.id = o.reference_script_id
            |""".stripMargin
     (q ++ Fragments.in(fr"where i.tx_in_id", txIds)).query[Input]
   }
