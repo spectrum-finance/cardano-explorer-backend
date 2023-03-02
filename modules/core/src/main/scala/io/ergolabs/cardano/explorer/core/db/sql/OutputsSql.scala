@@ -114,7 +114,8 @@ final class OutputsSql(implicit lh: LogHandler) {
            |  d.value,
            |  encode(d.bytes, 'hex'),
            |  i.id,
-           |  encode(ti.hash, 'hex')
+           |  encode(ti.hash, 'hex'),
+           |  encode(s.hash, 'hex')
            |from tx_out o
            |left join tx t on t.id = o.tx_id
            |left join block b on b.id = t.block_id
