@@ -12,6 +12,7 @@ import io.ergolabs.cardano.explorer.core.db.models.{
   Redeemer => DbRedeemer,
   Transaction => DbTransaction
 }
+import cats.syntax.option._
 import io.ergolabs.cardano.explorer.core.types.{BlockHash, OutRef, TxHash}
 import sttp.tapir.Schema
 
@@ -100,7 +101,7 @@ object Transaction {
         tx,
         inputsByTx.getOrElse(tx.id, List.empty),
         outputsByTx.getOrElse(tx.id, List.empty),
-        inputAssetsByTx.getOrElse(tx.id, List.empty),
+        inputAssetsByTx.getOrElse(tx.id.some, List.empty),
         outputAssetsByTx.getOrElse(tx.id, List.empty),
         redeemerByTx.getOrElse(tx.id, List.empty),
         metaByTx.get(tx.id).flatMap(_.headOption)

@@ -10,6 +10,7 @@ import io.ergolabs.cardano.explorer.core.models.Sorting.SortOrder
 import io.ergolabs.cardano.explorer.core.types.{Addr, PaymentCred, TxHash}
 import mouse.anyf._
 import tofu.doobie.LiftConnectionIO
+import cats.syntax.traverse._
 import tofu.doobie.transactor.Txr
 import tofu.syntax.monadic._
 
@@ -54,7 +55,7 @@ object Transactions {
     def getAll(paging: Paging, ordering: SortOrder): F[Items[Transaction]] =
       (for {
         txs   <- transactions.getAll(paging.offset, paging.limit, ordering)
-        total <- transactions.countAll
+        total = 0//transactions.countAll
         batch <- getBatch(txs)
       } yield Items(batch, total)) ||> txr.trans
 
@@ -81,6 +82,7 @@ object Transactions {
     def getByPCred(pcred: PaymentCred, paging: Paging, ordering: SortOrder): F[List[Transaction]] =
       (for {
         txs   <- transactions.getByPCred(pcred, paging.offset, paging.limit, ordering)
+        _ <- Monad[D].pure(println(s"txs: ${txs.length}"))
         batch <- getBatch(txs)
       } yield batch) ||> txr.trans
 
@@ -91,7 +93,8 @@ object Transactions {
             ins       <- inputs.getByTxIds(ids)
             redeemers <- redeemer.getByTxIds(ids)
             outs      <- outputs.getByTxIds(ids)
-            inAssets  <- assets.getByInTxIds(ids)
+            // todo: getByInTxIds with original list takes long time. Fix it
+            inAssets  <- ids.toList.traverse(id => assets.getByInTxIds(NonEmptyList(id, List.empty))).map(_.flatten)
             outAssets <- assets.getByOutTxIds(ids)
             meta      <- metadata.getByTxIds(ids)
           } yield Transaction.inflateBatch(txs, ins, outs, inAssets, outAssets, redeemers, meta)

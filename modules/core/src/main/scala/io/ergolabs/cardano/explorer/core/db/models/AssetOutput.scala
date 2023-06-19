@@ -16,6 +16,6 @@ final case class AssetOutput(
 
 final case class AssetInput(
   outputId: Long,
-  inputTxId: Long,
+  inputTxId: Option[Long],
   asset: Asset
 )

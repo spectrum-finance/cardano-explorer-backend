@@ -2,6 +2,7 @@ package io.ergolabs.cardano.explorer.api.v1.services
 
 import cats.Monad
 import cats.data.{NonEmptyList, OptionT}
+import cats.effect.Sync
 import io.ergolabs.cardano.explorer.api.v1.models._
 import io.ergolabs.cardano.explorer.core.db.models.{Output => DbOutput}
 import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle
@@ -63,6 +64,7 @@ object Outputs {
     def getUnspent(indexing: Indexing, ordering: SortOrder): F[Items[TxOutput]] =
       (for {
         txs   <- outputs.getUnspentIndexed(indexing.minIndex, indexing.limit, ordering)
+        _     <- (println(txs)).pure[D]
         //total <- outputs.countUnspent
         batch <- getBatch(txs, 0) // todo
       } yield batch) ||> txr.trans
@@ -77,7 +79,9 @@ object Outputs {
     def getUnspentByPCred(pcred: PaymentCred, paging: Paging, ordering: SortOrder): F[Items[TxOutput]] =
       (for {
         txs   <- outputs.getUnspentByPCred(pcred, paging.offset, paging.limit, ordering)
+        _ <- Monad[D].pure(println(s"txs: ${txs.length}"))
         total <- outputs.countUnspentByPCred(pcred)
+        _ <- Monad[D].pure(println(s"total: ${total}"))
         batch <- getBatch(txs, total)
       } yield batch) ||> txr.trans
 
