@@ -20,7 +20,7 @@ final case class EpochParams(
   influence: Double,
   monetaryExpansion: Double,
   treasuryGrowthRate: Double,
-  costPerSize: Option[Long],
+  coinsPerUtxoByte: Option[Long],
   costModelId: Int,
   priceStep: Option[Double],
   priceMemory: Option[Double],

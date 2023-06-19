@@ -55,7 +55,7 @@ final class OutputsSql(implicit lh: LogHandler) {
          |  o.value,
          |  encode(o.data_hash, 'hex'),
          |  d.value,
-         |  else encode(d.bytes, 'hex'),
+         |  encode(d.bytes, 'hex'),
          |  i.id,
          |  encode(ti.hash, 'hex'),
          |  encode(s.hash, 'hex')
