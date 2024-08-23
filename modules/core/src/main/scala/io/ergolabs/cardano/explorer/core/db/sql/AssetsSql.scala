@@ -15,6 +15,7 @@ final class AssetsSql(implicit lh: LogHandler) {
          |  o.id,
          |  o.tx_id,
          |  encode(ma.name, 'escape'),
+         |  encode(ma.name, 'hex'),
          |  a.quantity,
          |  encode(ma.policy, 'hex')
          |from ma_tx_out a
@@ -29,6 +30,7 @@ final class AssetsSql(implicit lh: LogHandler) {
          |  o.id,
          |  i.tx_in_id,
          |  encode(ma.name, 'escape'),
+         |  encode(ma.name, 'hex'),
          |  a.quantity,
          |  encode(ma.policy, 'hex')
          |from ma_tx_out a
@@ -44,6 +46,7 @@ final class AssetsSql(implicit lh: LogHandler) {
          |  o.id,
          |  o.tx_id,
          |  encode(ma.name, 'escape'),
+         |  encode(ma.name, 'hex'),
          |  a.quantity,
          |  encode(ma.policy, 'hex')
          |from ma_tx_out a
@@ -60,6 +63,7 @@ final class AssetsSql(implicit lh: LogHandler) {
            |  o.id,
            |  o.tx_id,
            |  encode(ma.name, 'escape'),
+           |  encode(ma.name, 'hex'),
            |  a.quantity,
            |  encode(ma.policy, 'hex')
            |from ma_tx_out a
@@ -76,6 +80,7 @@ final class AssetsSql(implicit lh: LogHandler) {
            |  o.id,
            |  i.tx_in_id,
            |  encode(ma.name, 'escape'),
+           |  encode(ma.name, 'hex'),
            |  a.quantity,
            |  encode(ma.policy, 'hex')
            |from ma_tx_out a
@@ -92,6 +97,7 @@ final class AssetsSql(implicit lh: LogHandler) {
          |  o.id,
          |  o.tx_id,
          |  encode(ma.name, 'escape'),
+         |  encode(ma.name, 'hex'),
          |  a.quantity,
          |  encode(ma.policy, 'hex')
          |from ma_tx_out a
@@ -107,6 +113,7 @@ final class AssetsSql(implicit lh: LogHandler) {
            |  o.id,
            |  o.tx_id,
            |  encode(ma.name, 'escape'),
+           |  encode(ma.name, 'hex'),
            |  a.quantity,
            |  encode(ma.policy, 'hex')
            |from ma_tx_out a
@@ -122,6 +129,7 @@ final class AssetsSql(implicit lh: LogHandler) {
          |  a.id,
          |  encode(ma.policy, 'hex'),
          |  encode(ma.name, 'escape'),
+         |  encode(ma.name, 'hex'),
          |  a.quantity,
          |  a.tx_id
          |from ma_tx_mint a

@@ -10,6 +10,7 @@ import sttp.tapir.Schema
 final case class OutAsset(
   policyId: PolicyId,
   name: Asset32,
+  nameHex: String,
   quantity: BigInt,
   jsQuantity: String
 )
@@ -21,5 +22,6 @@ object OutAsset {
       .derived[OutAsset]
       .modify(_.policyId)(_.description("The Asset policy hash."))
       .modify(_.name)(_.description("The Asset name."))
+      .modify(_.nameHex)(_.description("The Asset name in hex."))
       .modify(_.quantity)(_.description("The Asset quantity."))
 }
