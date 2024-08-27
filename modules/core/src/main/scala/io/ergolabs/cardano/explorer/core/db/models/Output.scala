@@ -10,7 +10,6 @@ final case class Output(
   txHash: TxHash,
   index: Int,
   addr: Addr,
-  rawAddr: Bytea,
   pcred: Option[PaymentCred],
   lovelace: BigInt,
   dataHash: Option[Hash32],
