@@ -16,8 +16,8 @@ package object models {
   object Value {
 
     def apply(lovelace: BigInt, assets: List[Asset]): List[OutAsset] =
-      OutAsset(PolicyId.Ada, Asset32.Ada, lovelace, lovelace.toString()) +:
-      assets.map(a => OutAsset(a.policy, a.name, a.quantity, a.quantity.toString()))
+      OutAsset(PolicyId.Ada, Asset32.Ada, "", lovelace, lovelace.toString()) +:
+      assets.map(a => OutAsset(a.policy, a.name, a.nameHex, a.quantity, a.quantity.toString()))
   }
 
   @newtype final case class NetworkName(value: String)

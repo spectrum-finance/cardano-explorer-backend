@@ -25,6 +25,7 @@ final case class ProtocolParams(
   poolPledgeInfluence: Double,
   monetaryExpansion: Double,
   treasuryCut: Double,
+  coinsPerUtxoByte: Option[Long],
   utxoCostPerWord: Option[Long],
   costModels: Map[String, Map[String, Long]],
   executionUnitPrices: ExecutionUnitPrices,
@@ -39,31 +40,33 @@ object ProtocolParams {
 
   implicit val schema: Schema[ProtocolParams] = Schema.derived[ProtocolParams]
 
-  def fromEpochParams(epochParams: EpochParams, costModelsMap: Map[String, Map[String, Long]]): ProtocolParams = ProtocolParams(
-    protocolVersion        = ProtocolVersion(epochParams.majorVersion, epochParams.minorVersion),
-    decentralization       = epochParams.decentralization,
-    extraPraosEntropy      = epochParams.extraEntropy,
-    maxBlockHeaderSize     = epochParams.maxBlockHeaderSize,
-    maxBlockBodySize       = epochParams.maxBlockSize,
-    maxTxSize              = epochParams.maxTxSize,
-    txFeeFixed             = epochParams.txFeeFixed,
-    txFeePerByte           = epochParams.txFeePerByte,
-    minUTxOValue           = epochParams.minUtxoValue,
-    stakeAddressDeposit    = epochParams.keyDeposit,
-    stakePoolDeposit       = epochParams.poolDeposit,
-    minPoolCost            = epochParams.minPoolCost,
-    poolRetireMaxEpoch     = epochParams.maxEpoch,
-    stakePoolTargetNum     = epochParams.optimalPoolCount,
-    poolPledgeInfluence    = epochParams.influence,
-    monetaryExpansion      = epochParams.monetaryExpansion,
-    treasuryCut            = epochParams.treasuryGrowthRate,
-    utxoCostPerWord        = epochParams.costPerSize,
-    costModels             = costModelsMap,
-    executionUnitPrices    = ExecutionUnitPrices(epochParams.priceStep, epochParams.priceMemory),
-    maxTxExecutionUnits    = ExecutionUnits(epochParams.maxTxExSteps, epochParams.maxTxExMem),
-    maxBlockExecutionUnits = ExecutionUnits(epochParams.maxBlockExSteps, epochParams.maxBlockExMem),
-    maxValueSize           = epochParams.maxValSize,
-    collateralPercentage   = epochParams.collateralPercent,
-    maxCollateralInputs    = epochParams.maxCollateralInputs
-  )
+  def fromEpochParams(epochParams: EpochParams, costModelsMap: Map[String, Map[String, Long]]): ProtocolParams =
+    ProtocolParams(
+      protocolVersion        = ProtocolVersion(epochParams.majorVersion, epochParams.minorVersion),
+      decentralization       = epochParams.decentralization,
+      extraPraosEntropy      = epochParams.extraEntropy,
+      maxBlockHeaderSize     = epochParams.maxBlockHeaderSize,
+      maxBlockBodySize       = epochParams.maxBlockSize,
+      maxTxSize              = epochParams.maxTxSize,
+      txFeeFixed             = epochParams.txFeeFixed,
+      txFeePerByte           = epochParams.txFeePerByte,
+      minUTxOValue           = epochParams.minUtxoValue,
+      stakeAddressDeposit    = epochParams.keyDeposit,
+      stakePoolDeposit       = epochParams.poolDeposit,
+      minPoolCost            = epochParams.minPoolCost,
+      poolRetireMaxEpoch     = epochParams.maxEpoch,
+      stakePoolTargetNum     = epochParams.optimalPoolCount,
+      poolPledgeInfluence    = epochParams.influence,
+      monetaryExpansion      = epochParams.monetaryExpansion,
+      treasuryCut            = epochParams.treasuryGrowthRate,
+      coinsPerUtxoByte       = epochParams.coinsPerUtxoByte,
+      utxoCostPerWord        = epochParams.coinsPerUtxoByte,
+      costModels             = costModelsMap,
+      executionUnitPrices    = ExecutionUnitPrices(epochParams.priceStep, epochParams.priceMemory),
+      maxTxExecutionUnits    = ExecutionUnits(epochParams.maxTxExSteps, epochParams.maxTxExMem),
+      maxBlockExecutionUnits = ExecutionUnits(epochParams.maxBlockExSteps, epochParams.maxBlockExMem),
+      maxValueSize           = epochParams.maxValSize,
+      collateralPercentage   = epochParams.collateralPercent,
+      maxCollateralInputs    = epochParams.maxCollateralInputs
+    )
 }

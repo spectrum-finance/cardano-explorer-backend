@@ -4,6 +4,7 @@ import io.ergolabs.cardano.explorer.core.types.{Asset32, PolicyId}
 
 final case class Asset(
   name: Asset32,
+  nameHex: String,
   quantity: BigInt,
   policy: PolicyId
 )
