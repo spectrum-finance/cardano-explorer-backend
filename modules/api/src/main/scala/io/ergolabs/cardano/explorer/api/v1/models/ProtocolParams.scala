@@ -2,6 +2,7 @@ package io.ergolabs.cardano.explorer.api.v1.models
 
 import derevo.circe.magnolia.{decoder, encoder}
 import derevo.derive
+import io.ergolabs.cardano.explorer.api.v1.services.NetworkParamsService.{PlutusScriptV1, PlutusScriptV2, PlutusScriptV3}
 import io.ergolabs.cardano.explorer.core.db.models.EpochParams
 import sttp.tapir.Schema
 // From https://github.com/input-output-hk/cardano-node/blob/0a553b572a3e2da9e401886155b1e1451c851901/cardano-api/src/Cardano/Api/ProtocolParameters.hs
@@ -40,7 +41,20 @@ object ProtocolParams {
 
   implicit val schema: Schema[ProtocolParams] = Schema.derived[ProtocolParams]
 
-  def fromEpochParams(epochParams: EpochParams, costModelsMap: Map[String, Map[String, Long]]): ProtocolParams =
+  // required by frontend part
+  val DummyCostModel: Map[String, Map[String, Long]] = Map(
+    PlutusScriptV1 -> Map(
+      "empty" -> 1234
+    ),
+    PlutusScriptV2 -> Map(
+      "empty" -> 1234
+    ),
+    PlutusScriptV3 -> Map(
+      "empty" -> 1234
+    )
+  )
+
+  def fromEpochParams(epochParams: EpochParams): ProtocolParams =
     ProtocolParams(
       protocolVersion        = ProtocolVersion(epochParams.majorVersion, epochParams.minorVersion),
       decentralization       = epochParams.decentralization,
@@ -61,7 +75,7 @@ object ProtocolParams {
       treasuryCut            = epochParams.treasuryGrowthRate,
       coinsPerUtxoByte       = epochParams.coinsPerUtxoByte,
       utxoCostPerWord        = epochParams.coinsPerUtxoByte,
-      costModels             = costModelsMap,
+      costModels             = DummyCostModel,
       executionUnitPrices    = ExecutionUnitPrices(epochParams.priceStep, epochParams.priceMemory),
       maxTxExecutionUnits    = ExecutionUnits(epochParams.maxTxExSteps, epochParams.maxTxExMem),
       maxBlockExecutionUnits = ExecutionUnits(epochParams.maxBlockExSteps, epochParams.maxBlockExMem),
