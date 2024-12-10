@@ -2,7 +2,9 @@ package io.ergolabs.cardano.explorer.api
 
 import cats.effect.{Blocker, Resource}
 import io.ergolabs.cardano.explorer.api.configs.ConfigBundle
-import io.ergolabs.cardano.explorer.api.v1.services.{Assets, Blocks, Outputs, Transactions, NetworkParamsService}
+import io.ergolabs.cardano.explorer.api.graphite.MetricsMiddleware.MetricsMiddleware
+import io.ergolabs.cardano.explorer.api.graphite.{GraphiteClient, Metrics, MetricsMiddleware}
+import io.ergolabs.cardano.explorer.api.v1.services.{Assets, Blocks, NetworkParamsService, Outputs, Transactions}
 import io.ergolabs.cardano.explorer.core.db.repositories.RepoBundle
 import org.http4s.server.Server
 import sttp.tapir.server.http4s.Http4sServerOptions
@@ -28,6 +30,9 @@ object App extends EnvApp[AppContext] {
       ctx                                = AppContext.init(configs)
       implicit0(ul: Unlift[RunF, InitF]) = Unlift.byIso(IsoK.byFunK(wr.runContextK(ctx))(wr.liftF))
       trans <- PostgresTransactor.make[InitF]("explorer-db-pool", configs.pg)
+      implicit0(graphiteClient: GraphiteClient[RunF]) <-
+        GraphiteClient.make[InitF, RunF](configs.graphite, configs.graphitePathPrefix)
+      implicit0(metrics: Metrics[RunF]) <- Resource.eval(Metrics.create[InitF, RunF])
       implicit0(xa: Txr.Continuational[RunF]) = Txr.continuational[RunF](trans.mapK(wr.liftF))
       implicit0(elh: EmbeddableLogHandler[xa.DB]) <-
         Resource.eval(doobieLogging.makeEmbeddableHandler[InitF, RunF, xa.DB]("explorer-db-logging"))
@@ -38,6 +43,7 @@ object App extends EnvApp[AppContext] {
       implicit0(outs: Outputs[RunF])           = Outputs.make[RunF, xa.DB]
       implicit0(blocks: Blocks[RunF])          = Blocks.make[RunF, xa.DB]
       implicit0(assets: Assets[RunF])          = Assets.make[RunF, xa.DB]
+      implicit0(metricsMiddleware: MetricsMiddleware[RunF]) = MetricsMiddleware.make[RunF]
       server <- HttpServer.make[InitF, RunF](configs, runtime.platform.executor.asEC)
     } yield server
 }

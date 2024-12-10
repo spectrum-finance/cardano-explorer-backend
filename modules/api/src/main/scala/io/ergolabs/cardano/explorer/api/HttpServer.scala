@@ -3,6 +3,7 @@ package io.ergolabs.cardano.explorer.api
 import cats.effect.{Concurrent, ConcurrentEffect, ContextShift, Resource, Timer}
 import cats.syntax.semigroupk._
 import io.ergolabs.cardano.explorer.api.configs.ConfigBundle
+import io.ergolabs.cardano.explorer.api.graphite.MetricsMiddleware.MetricsMiddleware
 import io.ergolabs.cardano.explorer.api.routes.unliftRoutes
 import io.ergolabs.cardano.explorer.api.types.TraceId
 import io.ergolabs.cardano.explorer.api.v1.routes._
@@ -26,6 +27,7 @@ object HttpServer {
     blocks: Blocks[F],
     assets: Assets[F],
     networkParams: NetworkParamsService[F],
+    metricsMiddleware: MetricsMiddleware[F],
     opts: Http4sServerOptions[F, F]
   ): Resource[I, Server] = {
     val txsR       = TransactionsRoutes.make[F](conf.requests)
@@ -34,7 +36,8 @@ object HttpServer {
     val assetsR    = AssetsRoutes.make[F]
     val networkR   = NetworkParamsRoutes.make[F]
     val docsR      = DocsRoutes.make[F](conf.requests)
-    val routes     = unliftRoutes[F, I](txsR <+> outsR <+> blocksR <+> assetsR <+> networkR <+> docsR)
+    val allRoutesF = metricsMiddleware.middleware(txsR <+> outsR <+> blocksR <+> assetsR <+> networkR <+> docsR)
+    val routes     = unliftRoutes[F, I](allRoutesF)
     val corsRoutes = CORS.policy.withAllowOriginAll(routes)
     val api        = Router("/" -> corsRoutes).orNotFound
     BlazeServerBuilder[I](ec).bindHttp(conf.http.port, conf.http.host).withHttpApp(api).resource
