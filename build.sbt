@@ -74,7 +74,8 @@ lazy val api =
         Libraries.tapirDocs,
         Libraries.tapirOpenApi,
         Libraries.derevoPureconfig,
-        Libraries.pureconfig
+        Libraries.pureconfig,
+        Libraries.fs2Core
       )
     )
     .dependsOn(core)

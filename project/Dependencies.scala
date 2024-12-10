@@ -14,6 +14,7 @@ object Dependencies {
     val mouse           = "0.26.2"
     val enumeratum      = "1.7.0"
     val enumeratumCirce = "1.7.0"
+    val fs2Core         = "2.5.10"
 
     val betterMonadicFor = "0.3.1"
     val kindProjector    = "0.13.2"
@@ -58,6 +59,8 @@ object Dependencies {
 
     val enumeratum      = "com.beachape" %% "enumeratum"       % V.enumeratum
     val enumeratumCirce = "com.beachape" %% "enumeratum-circe" % V.enumeratumCirce
+
+    val fs2Core = "co.fs2" %% "fs2-core" % V.fs2Core
   }
 
   object CompilerPlugins {
