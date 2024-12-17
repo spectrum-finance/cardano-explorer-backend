@@ -18,13 +18,13 @@ object MetricsMiddleware {
 
     // todo: temporal solution to prevent spamming keys with outputs.
 
-    val outputsRegex = "[\"outputs.\"].*".r
+    val outputsRegex = "/v1/outputs/.*".r
 
     def middleware(routes: HttpRoutes[F]): HttpRoutes[F] = Kleisli { req =>
       val key = outputsRegex.replaceAllIn(req.pathInfo
-        .renderString
-        .replaceAll("/", ".").replaceAll(":", ".")
-        .drop(1), ".outputs")
+          .renderString, "/v1/outputs")
+        .replaceAll("/", ".")
+        .drop(1)
 
       for {
         start  <- OptionT.liftF(Clock[F].realTime(TimeUnit.MILLISECONDS))
